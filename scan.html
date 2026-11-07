@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scan to Play Slapshot Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Same arena-at-night world as the game; the code itself is the only bright surface. */
+  --bg:#070b11;
+  --panel:#101925;
+  --line:#243246;
+  --text:#e7eef7;
+  --muted:#8fa3b8;
+  --home:#2f6fd0;
+  --amber:#ffc43d;
+  --display:"Bebas Neue","Haettenschweiler","Arial Narrow",sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:radial-gradient(120% 80% at 50% 0%, #16202e 0%, var(--bg) 58%) fixed, var(--bg);
+  color:var(--text);font-family:var(--body);
+  display:flex;align-items:center;justify-content:center;padding:28px 16px 40px;
+}
+.wrap{width:100%;max-width:560px;text-align:center}
+.eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+h1{font-family:var(--display);font-size:clamp(46px,12vw,76px);line-height:.88;margin:0 0 10px;letter-spacing:.02em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--amber)}
+.sub{color:var(--muted);font-size:15.5px;line-height:1.55;max-width:42ch;margin:0 auto 24px}
+.code{
+  background:#fff;border-radius:18px;padding:18px;width:min(300px,78vw);margin:0 auto;
+  box-shadow:0 20px 50px rgba(0,0,0,.55);
+}
+.code svg{display:block;width:100%;height:auto}
+.url{
+  display:inline-block;margin:18px auto 0;font-size:13.5px;color:var(--text);
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 14px;
+  word-break:break-all;text-decoration:none
+}
+.url:hover{border-color:var(--home)}
+.url:focus-visible{outline:3px solid var(--home);outline-offset:3px}
+ol{
+  list-style:none;counter-reset:step;padding:0;margin:28px auto 0;max-width:390px;
+  text-align:left;display:grid;gap:10px
+}
+li{
+  counter-increment:step;display:flex;gap:12px;align-items:flex-start;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px;line-height:1.45
+}
+li::before{
+  content:counter(step);font-family:var(--display);font-size:20px;line-height:1.1;
+  color:var(--amber);background:#060a10;border-radius:6px;min-width:28px;text-align:center;padding:2px 0;flex:0 0 auto
+}
+li b{font-weight:700}
+li span{color:var(--muted)}
+.note{margin:22px auto 0;max-width:42ch;font-size:13px;line-height:1.5;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media print{
+  body{background:#fff;color:#000}
+  .code{box-shadow:none;border:1px solid #ddd}
+  .url,li{background:#fff;border-color:#bbb;color:#000}
+  .sub,.note,li span{color:#444}
+  h1 em{color:#000}
+  .eyebrow{color:#666}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Two on two &middot; three 60-second periods</div>
+  <h1>Scan to play <em>Slapshot Arena</em></h1>
+  <p class="sub">Point a phone camera at the code. The game opens straight in the browser, no app store, no install.</p>
+
+  <div class="code">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" shape-rendering="crispEdges" role="img" aria-label="QR code linking to Slapshot Arena"><path fill="#ffffff" d="M0 0h35v35H0z"/><path stroke="#000000" d="M1 1.5h7m1 0h6m1 0h1m1 0h2m3 0h1m3 0h7M1 2.5h1m5 0h1m1 0h1m2 0h4m3 0h3m1 0h1m1 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m3 0h3m1 0h1m2 0h4m3 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m4 0h3m2 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m3 0h1m1 0h1m1 0h6m3 0h1m2 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 8.5h1m1 0h1m1 0h1m1 0h2m5 0h2M1 9.5h1m2 0h6m2 0h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h2m2 0h1m1 0h3M2 10.5h4m2 0h1m2 0h2m1 0h2m2 0h3m1 0h3m4 0h4M3 11.5h2m1 0h2m1 0h4m1 0h1m1 0h1m4 0h2m1 0h1m1 0h2m1 0h3m1 0h1M2 12.5h3m4 0h1m1 0h2m1 0h1m2 0h1m1 0h2m2 0h2m2 0h2m2 0h1m1 0h1M1 13.5h1m1 0h1m3 0h3m2 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h3m2 0h1M2 14.5h1m10 0h3m3 0h4m3 0h3m1 0h2M7 15.5h1m1 0h1m3 0h4m1 0h1m1 0h2m5 0h2m2 0h1M2 16.5h4m2 0h2m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m1 0h1M1 17.5h2m4 0h1m1 0h1m2 0h1m1 0h1m1 0h2m5 0h2m1 0h6M1 18.5h2m1 0h1m3 0h1m2 0h3m1 0h1m2 0h6m3 0h1m1 0h1m1 0h1m1 0h1M1 19.5h1m3 0h3m1 0h1m2 0h1m3 0h1m1 0h3m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1M1 20.5h2m3 0h1m1 0h2m4 0h4m2 0h2m3 0h3m1 0h5M1 21.5h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m9 0h1m1 0h1M1 22.5h1m2 0h2m2 0h2m13 0h1m5 0h2M1 23.5h1m3 0h5m3 0h3m2 0h5m1 0h2m1 0h4m1 0h2M1 24.5h1m9 0h2m1 0h3m1 0h1m1 0h2m4 0h2m1 0h1m1 0h2M1 25.5h4m1 0h2m5 0h1m1 0h1m1 0h1m3 0h1m3 0h6m1 0h2M9 26.5h1m3 0h4m1 0h2m5 0h1m3 0h1m1 0h1M1 27.5h7m1 0h1m1 0h1m1 0h6m1 0h2m2 0h2m1 0h1m1 0h1m1 0h1M1 28.5h1m5 0h1m1 0h1m2 0h2m4 0h3m2 0h3m3 0h3M1 29.5h1m1 0h3m1 0h1m1 0h1m1 0h8m1 0h10m3 0h1M1 30.5h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h1m1 0h3m2 0h5m1 0h1m3 0h2M1 31.5h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h2m2 0h1m1 0h2m1 0h3M1 32.5h1m5 0h1m3 0h2m1 0h1m6 0h1m1 0h1m2 0h1m1 0h6M1 33.5h7m1 0h2m1 0h2m1 0h1m4 0h3m2 0h2m1 0h1"/></svg>
+  </div>
+
+  <a class="url" href="https://claude.ai/artifact/PBUBpj4NmB6FHinWWLxHfK">claude.ai/artifact/PBUBpj4NmB6FHinWWLxHfK</a>
+
+  <ol>
+    <li><div><b>Scan the code</b> <span>&mdash; the phone camera app is enough, no QR reader needed.</span></div></li>
+    <li><div><b>Tap the link, turn the phone sideways.</b> <span>The rink wants the width.</span></div></li>
+    <li><div><b>Keep it on the home screen.</b> <span>iPhone: Share, then Add to Home Screen. Android: the browser menu, then Add to Home screen.</span></div></li>
+  </ol>
+
+  <p class="note">The code points at a private page. Anyone you want to play it has to be on the share list for it first.</p>
+</div>
+</body>
+</html>
