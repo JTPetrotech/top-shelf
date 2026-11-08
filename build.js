@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = __dirname;
-const PARTS = ['00-head.html', '10-core.js', '20-world.js', '30-players.js', '40-game.js', '50-loop.js'];
+const PARTS = ['00-head.html', '10-core.js', '20-world.js', '30-players.js', '40-game.js', '45-meta.js', '46-meta-ui.js', '50-loop.js'];
 const THREE_FILE = path.join(DIR, 'vendor', 'three.r128.min.js');
 const FONT_CSS = path.join(DIR, 'vendor', 'fonts.css');
 const FONT_INLINE = path.join(DIR, 'vendor', 'fonts-inline.css');

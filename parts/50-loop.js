@@ -4,10 +4,11 @@
    ========================================================================= */
 var camCur = {x:0, y:20, z:34, lx:0, ly:0, lz:0};
 var orbit = 0.6;
-var CAM_NAMES = ['Broadcast', 'Overhead', 'Low'];
+var CAM_NAMES = ['Broadcast', 'Overhead', 'Low', 'Follow'];
+var camHead = 0;                 // eased chase heading, so the view never whips around
 
 function cycleCam(){
-  G.camMode = (G.camMode + 1) % 3;
+  G.camMode = (G.camMode + 1) % 4;
   el('camBtn').textContent = CAM_NAMES[G.camMode];
 }
 
@@ -30,12 +31,35 @@ function updateCamera(dt){
     } else if(G.camMode === 1){                // overhead
       tx = fx * 0.35; ty = 38; tz = 20;
       lx = fx * 0.55; ly = 0; lz = fz * 0.1;
-    } else {                                   // low, tight on the play
+    } else if(G.camMode === 2){                // low, tight on the play
       tx = fx * 0.85; ty = 13.5; tz = 30 + Math.abs(fz) * 0.18;
       lx = fx; ly = 1.1; lz = fz * 0.4;
+    } else {                                   // follow: over the shoulder of your skater
+      var me = control.p1 || carrier;
+      if(!me){
+        tx = fx * 0.55; ty = 18; tz = 36; lx = fx * 0.8; ly = 1.2; lz = fz * 0.2;
+      } else {
+        // look where the play is, not just where the skater points
+        var want = me.face;
+        if(carrier !== me){
+          var tox = puck.x - me.x, toz = puck.z - me.z;
+          if(tox*tox + toz*toz > 4) want = Math.atan2(toz, tox);
+        }
+        var dh = angNorm(want - camHead);
+        camHead += dh * (1 - Math.exp(-4.5 * dt));
+        var cs = Math.cos(camHead), sn = Math.sin(camHead);
+        tx = me.x - cs * 8.6; ty = 4.9; tz = me.z - sn * 8.6;
+        lx = me.x + cs * 7.0; ly = 1.25; lz = me.z + sn * 7.0;
+        // never shove the camera through the glass behind the nets
+        if(tx < -HX - 7) tx = -HX - 7;
+        if(tx >  HX + 7) tx =  HX + 7;
+        if(tz < -HZ - 7) tz = -HZ - 7;
+        if(tz >  HZ + 7) tz =  HZ + 7;
+      }
     }
   }
-  var k = 1 - Math.exp(-(G.phase === 'menu' ? 2.0 : 3.4) * dt);
+  var kRate = G.phase === 'menu' ? 2.0 : (G.camMode === 3 ? 7.5 : 3.4);
+  var k = 1 - Math.exp(-kRate * dt);
   camCur.x += (tx - camCur.x) * k;
   camCur.y += (ty - camCur.y) * k;
   camCur.z += (tz - camCur.z) * k;
@@ -91,7 +115,7 @@ function paintBug(){
   el('scoreH').textContent = G.score[0];
   el('scoreA').textContent = G.score[1];
   el('tagH').textContent = G.humans === 2 ? 'P1' : 'YOU';
-  el('tagA').textContent = G.humans === 2 ? 'P2' : 'CPU';
+  el('tagA').textContent = oppName();
   el('period').textContent = G.ot ? 'OT' : ['1st','2nd','3rd'][G.period-1];
   var m = Math.floor(Math.max(0, G.clock)/60), s = Math.floor(Math.max(0, G.clock)%60);
   el('clock').textContent = m + ':' + (s < 10 ? '0' : '') + s;
@@ -104,7 +128,8 @@ function showPads(on){
   } else p.classList.remove('on');
 }
 function closeMenus(){
-  ['ovBoot','ovMenu','ovPause','ovBreak','ovOver'].forEach(function(id){ el(id).classList.remove('on'); });
+  ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
+   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
@@ -134,6 +159,7 @@ function openMenu(){
   showPads(false);
   el('keyCard').innerHTML = keyCardHTML();
   el('rowDiff').style.display = G.humans === 2 ? 'none' : '';
+  paintWallet();
   if(!world) buildWorld();
   if(!skaters.length) createTeams();
   resetPositions();
@@ -186,7 +212,7 @@ seg('segPlayers', function(v){
   createTeams();
 });
 seg('segDiff', function(v){ G.diff = parseInt(v, 10); });
-el('btnPlay').addEventListener('click', function(){ sfx.on(); startGame(); });
+el('btnPlay').addEventListener('click', function(){ sfx.on(); oppOverride = null; startGame(); });
 el('btnTut').addEventListener('click', function(){ sfx.on(); startTutorial(); });
 el('btnResume').addEventListener('click', function(){ sfx.on(); togglePause(); });
 el('btnQuit').addEventListener('click', function(){ sfx.on(); openMenu(); });
@@ -317,6 +343,7 @@ var booted = false;
 function boot(){
   if(booted) return;
   booted = true;
+  loadSave();
   initGL();
   G.surface = 'ice';
   buildWorld();

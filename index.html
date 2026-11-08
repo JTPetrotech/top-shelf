@@ -129,6 +129,91 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .keys b.p2{color:#f3a99e}
 .loadnote{color:var(--muted);font-size:13px;margin-top:14px}
 
+
+/* ---------------- career: wallet, cards, shop ---------------- */
+.wallet{display:inline-flex;align-items:center;gap:7px;background:#0f1824;border:1px solid #2b3a4f;
+  border-radius:999px;padding:6px 14px 6px 8px;font-family:var(--display);font-size:21px;letter-spacing:.04em;
+  color:var(--amber);font-variant-numeric:tabular-nums}
+.wallet .coin{width:17px;height:17px;border-radius:50%;background:linear-gradient(145deg,#ffd978,#c08f1d);
+  border:1px solid #8c6612;display:inline-block;flex:0 0 auto;box-shadow:inset 0 1px 1px rgba(255,255,255,.6)}
+.walletbar{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+.walletbar .rec{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+.navrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 auto 16px;max-width:430px}
+.mini{font-family:var(--body);font-weight:800;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  padding:10px 14px;border-radius:9px;border:1px solid #2b3a4f;background:#111a26;color:var(--muted);cursor:pointer;
+  transition:background .12s,color .12s,border-color .12s}
+.mini:hover:not(:disabled){color:var(--text);border-color:#45597a}
+.mini.hot{background:var(--amber);border-color:var(--amber);color:#0a1016}
+.mini:disabled{opacity:.4;cursor:not-allowed}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:9px;margin:0 auto 16px;max-width:470px}
+.ci{position:relative;background:#0f1824;border:1px solid #24324a;border-top:3px solid var(--rc,#8ea3b9);
+  border-radius:10px;padding:10px 11px;text-align:left;cursor:pointer;transition:border-color .12s,background .12s}
+.ci:hover{background:#13202f}
+.ci.on{border-color:var(--amber);background:#1a2435;box-shadow:0 0 0 1px var(--amber) inset}
+.ci .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
+.ci .nm{font-family:var(--display);font-size:20px;line-height:1.02;letter-spacing:.02em;margin:3px 0 1px}
+.ci .who{font-size:11px;color:var(--muted);margin-bottom:5px}
+.ci .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ci .st b{color:var(--text);font-weight:800}
+.ci .eq{position:absolute;right:8px;top:8px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:#0a1016;background:var(--amber);border-radius:4px;padding:2px 5px;font-weight:800}
+.ci .num{position:absolute;right:9px;bottom:8px;font-family:var(--display);font-size:22px;color:#24324a}
+
+.shelf{display:grid;gap:9px;margin:0 auto 16px;max-width:470px}
+.pk{display:flex;align-items:center;gap:12px;background:#0f1824;border:1px solid #24324a;border-radius:11px;
+  padding:12px 13px;text-align:left}
+.pk .pw{flex:1 1 auto;min-width:0}
+.pk .pn{font-family:var(--display);font-size:23px;line-height:1;letter-spacing:.03em}
+.pk .pd{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+.pk .buy{flex:0 0 auto;font-family:var(--display);font-size:19px;letter-spacing:.04em;padding:9px 15px;border-radius:9px;
+  border:none;background:var(--amber);color:#0a1016;cursor:pointer;box-shadow:0 4px 0 #b3842a;white-space:nowrap}
+.pk .buy:active{transform:translateY(2px);box-shadow:0 2px 0 #b3842a}
+.pk .buy:disabled{background:#1d2a3b;color:#546a86;box-shadow:0 4px 0 #0e1724;cursor:not-allowed}
+.pk.owned .buy{background:#1d2a3b;color:var(--muted);box-shadow:0 4px 0 #0e1724}
+
+.tm{display:flex;align-items:center;gap:11px;background:#0f1824;border:1px solid #24324a;
+  border-left:4px solid var(--tc,#2f7fe0);border-radius:11px;padding:12px 13px;text-align:left}
+.tm.cur{border-color:var(--amber);background:#17212f}
+.tm .pw{flex:1 1 auto;min-width:0}
+.tm .mult{font-size:11px;color:var(--green);font-weight:800;letter-spacing:.05em}
+
+.odds{font-size:11px;color:var(--muted);line-height:1.5;max-width:430px;margin:0 auto 14px;text-align:left;
+  background:#0b1420;border:1px solid #1d2a3b;border-radius:9px;padding:10px 12px}
+.odds b{color:var(--text)}
+
+/* pack reveal */
+#ovReveal .card{max-width:620px}
+.reveal{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin:16px 0 20px;min-height:160px}
+.rv{width:142px;background:#0f1824;border:1px solid #24324a;border-top:4px solid var(--rc,#8ea3b9);border-radius:12px;
+  padding:13px 12px;text-align:left;opacity:0;transform:translateY(14px) scale(.94);
+  animation:pop .42s cubic-bezier(.2,1.2,.3,1) forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.rv .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
+.rv .nm{font-family:var(--display);font-size:22px;line-height:1.02;margin:4px 0 2px}
+.rv .who{font-size:11px;color:var(--muted)}
+.rv .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);margin-top:7px}
+.rv .st b{color:var(--text);font-weight:800}
+.rv.legend{box-shadow:0 0 26px rgba(255,196,61,.35)}
+.rv.epic{box-shadow:0 0 22px rgba(192,140,255,.3)}
+
+/* friends */
+.codebox{display:flex;gap:7px;margin:0 auto 10px;max-width:430px}
+.codebox input{flex:1 1 auto;min-width:0;background:#0b1420;border:1px solid #2b3a4f;color:var(--text);
+  font-family:var(--body);font-size:13px;padding:10px 12px;border-radius:9px}
+.codebox input:focus{outline:none;border-color:#45597a}
+.mycode{background:#0b1420;border:1px solid #1d2a3b;border-radius:9px;padding:11px 12px;margin:0 auto 12px;
+  max-width:430px;text-align:left;font-size:12px;color:var(--muted);word-break:break-all;line-height:1.5}
+.mycode b{display:block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.mycode code{color:var(--amber);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.fr{display:flex;align-items:center;gap:10px;background:#0f1824;border:1px solid #24324a;border-radius:10px;
+  padding:11px 12px;text-align:left;margin-bottom:8px}
+.fr .pw{flex:1 1 auto;min-width:0}
+.fr .fn{font-family:var(--display);font-size:21px;line-height:1;letter-spacing:.03em}
+.fr .fd{font-size:11px;color:var(--muted);margin-top:3px}
+.note2{font-size:11.5px;color:var(--muted);line-height:1.5;max-width:430px;margin:0 auto 14px}
+
 /* ---------------- touch pads ---------------- */
 #pads{position:absolute;inset:0;z-index:2;display:none;pointer-events:none}
 #pads.on{display:block}
@@ -211,6 +296,18 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
       <h1>Top <em>Shelf</em></h1>
       <p class="sub">Two on two with goalies. Ice or roller, against the CPU or a friend beside you.</p>
 
+      <div class="walletbar">
+        <span class="wallet"><i class="coin"></i><span id="walletN">0</span></span>
+        <span class="rec" id="walletRec">0-0-0</span>
+      </div>
+
+      <div class="navrow">
+        <button class="mini" id="btnShop">Shop</button>
+        <button class="mini" id="btnTeam">My team</button>
+        <button class="mini" id="btnTravel">Travel teams</button>
+        <button class="mini" id="btnFriends">Friends</button>
+      </div>
+
       <div class="row">
         <div class="lab">Surface</div>
         <div class="seg" id="segSurface">
@@ -276,6 +373,79 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
     </div>
   </div>
 </div>
+
+
+  <!-- shop -->
+  <div class="ov" id="ovShop">
+    <div class="card">
+      <h2>Pro Shop</h2>
+      <div class="walletbar"><span class="wallet"><i class="coin"></i><span id="shopN">0</span></span></div>
+      <div class="shelf" id="shopList"></div>
+      <div class="odds" id="shopOdds"></div>
+      <div class="btns"><button class="go alt" id="btnShopBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- pack reveal -->
+  <div class="ov" id="ovReveal">
+    <div class="card">
+      <h2 id="revTitle">Tape Pack</h2>
+      <div class="reveal" id="revCards"></div>
+      <div class="btns">
+        <button class="go" id="btnRevDone">Nice</button>
+        <button class="go alt" id="btnRevAgain">Open another</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- my team -->
+  <div class="ov" id="ovTeam">
+    <div class="card">
+      <h2>My Team</h2>
+      <p class="sub" id="teamSub">Pick the stick you carry and the two skaters who dress.</p>
+      <div class="row"><div class="lab">Stick &mdash; tap to equip</div></div>
+      <div class="cards" id="stickList"></div>
+      <div class="row"><div class="lab">Skaters &mdash; tap to dress, two at a time</div></div>
+      <div class="cards" id="skaterList"></div>
+      <div class="btns">
+        <button class="go alt" id="btnSell">Sell spares</button>
+        <button class="go alt" id="btnTeamBack">Back</button>
+      </div>
+      <p class="note2" id="sellNote"></p>
+    </div>
+  </div>
+
+  <!-- travel teams -->
+  <div class="ov" id="ovTravel">
+    <div class="card">
+      <h2>Travel Teams</h2>
+      <p class="sub">Buy in with coins you won. Tougher circuits pay a bigger multiplier on every game.</p>
+      <div class="walletbar"><span class="wallet"><i class="coin"></i><span id="travN">0</span></span></div>
+      <div class="shelf" id="travList"></div>
+      <div class="btns"><button class="go alt" id="btnTravBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- friends -->
+  <div class="ov" id="ovFriends">
+    <div class="card">
+      <h2>Friends</h2>
+      <p class="sub">Swap squad codes and skate against your friend's actual team.</p>
+      <div class="mycode"><b>Your code &mdash; send this to a friend</b><code id="myCode">&hellip;</code></div>
+      <div class="codebox">
+        <input id="handleIn" maxlength="12" placeholder="Your name on the code" autocomplete="off" spellcheck="false">
+        <button class="mini" id="btnHandle">Save</button>
+      </div>
+      <div class="codebox">
+        <input id="codeIn" placeholder="Paste a friend's code" autocomplete="off" spellcheck="false">
+        <button class="mini hot" id="btnAddFriend">Add</button>
+      </div>
+      <p class="note2" id="friendNote"></p>
+      <div id="friendList"></div>
+      <p class="note2">Codes carry a squad, not a connection &mdash; their team skates as the CPU. Nothing leaves this device.</p>
+      <div class="btns"><button class="go alt" id="btnFriendBack">Back</button></div>
+    </div>
+  </div>
 
 <div id="rotate"><div>Turn your phone sideways<br><span style="font-family:var(--body);font-size:14px;letter-spacing:0;color:var(--muted)">The rink needs the width.</span></div></div>
 
@@ -1304,21 +1474,29 @@ function createTeams(){
   for(var j = 0; j < goalies.length; j++) world.remove(goalies[j].model);
   skaters = []; goalies = []; carrier = null;
 
+  var twoUp = (G.humans === 2);
+  var mine = twoUp ? [neutralCard(0), neutralCard(1)] : lineCards();
+  var theirs = twoUp ? [neutralCard(2), neutralCard(3)] : oppLine();
+  var myStick = twoUp ? {pw:1, ac:1, ps:1} : equippedStick();
+  var theirStick = twoUp ? {pw:1, ac:1, ps:1} : oppStickPower();
   var roster = [
-    {team:0, num:9,  slot:-1},
-    {team:0, num:21, slot:1},
-    {team:1, num:4,  slot:-1},
-    {team:1, num:17, slot:1}
+    {team:0, slot:-1, card: mine[0],   stick: myStick},
+    {team:0, slot:1,  card: mine[1],   stick: myStick},
+    {team:1, slot:-1, card: theirs[0], stick: theirStick},
+    {team:1, slot:1,  card: theirs[1], stick: theirStick}
   ];
   for(var r = 0; r < roster.length; r++){
     var d = roster[r];
     var s = {
-      team: d.team, num: d.num, slot: d.slot, ctrlBy: null,
+      team: d.team, num: d.card.num, slot: d.slot, ctrlBy: null,
+      card: d.card, who: d.card.who,
+      sp: d.card.sp, sh: d.card.sh, df: d.card.df,
+      stickPw: d.stick.pw, stickAc: d.stick.ac, stickPs: d.stick.ps,
       x: 0, z: 0, vx: 0, vz: 0, face: d.team === 0 ? 0 : Math.PI,
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.num, roller)
+      model: buildSkater(d.team, d.card.num, roller)
     };
     world.add(s.model);
     skaters.push(s);
@@ -1425,8 +1603,9 @@ function netCollide(o, r){
 function stepSkater(s, dt){
   var cfg = S(), d = D();
   var ai = !s.ctrlBy;
-  var acc = cfg.acc * (ai ? d.acc : 1);
-  var max = cfg.max * (ai ? d.max : 1);
+  var sp_ = s.sp || 1;
+  var acc = cfg.acc * (ai ? d.acc : 1) * sp_;
+  var max = cfg.max * (ai ? d.max : 1) * (1 + (sp_ - 1) * 0.5);
   if(carrier === s) max *= 0.95;
   if(s.stun > 0){ acc *= 0.12; s.stun -= dt; }
 
@@ -1470,17 +1649,17 @@ function skaterContacts(){
       var fast = sa > sb ? a : b, slow = sa > sb ? b : a;
       var diff = Math.abs(sa - sb);
       if(a.team !== b.team){
-        if(carrier === slow && diff > 2.2){
+        if(carrier === slow && diff > 2.2 / (fast.df || 1)){
           carrier = null;
           puck.vx = fast.vx * 0.9 + nx * 3;
           puck.vz = fast.vz * 0.9 + nz * 3;
           puck.vy = 1.2;
           puckCool = 0.18;
-          slow.stun = 0.55; G.shake = Math.max(G.shake, 0.5);
+          slow.stun = 0.55 / (slow.df || 1); G.shake = Math.max(G.shake, 0.5);
           sfx.hit();
           if(G.tut) tutEvent('check');
         } else if(diff > 4.5){
-          slow.stun = 0.4; sfx.hit(); G.shake = Math.max(G.shake, 0.3);
+          slow.stun = 0.4 / (slow.df || 1); sfx.hit(); G.shake = Math.max(G.shake, 0.3);
         }
         var avx = a.vx, avz = a.vz;
         a.vx = b.vx * 0.6; a.vz = b.vz * 0.6;
@@ -1497,16 +1676,18 @@ function skaterContacts(){
 function shoot(s, power){
   var cfg = S(), gx = s.team === 0 ? GOAL_X : -GOAL_X;
   var a = s.face;
+  var aim = s.stickAc || 1;
   if(!s.ctrlBy){
-    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35);
+    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim;
   } else {
-    var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3) - s.z, gx - s.x);
+    var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3 / aim) - s.z, gx - s.x);
     var dd = angNorm(toNet - a);
-    if(Math.abs(dd) < 0.42) a += dd * 0.6;          // light aim assist toward the mouth
+    if(Math.abs(dd) < 0.42 * aim) a += dd * Math.min(0.9, 0.6 * aim);   // aim assist, widened by the stick
   }
   var blade = localToWorld(s, 1.15, 0.45);
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
-  var sp = cfg.shotBase + cfg.shotAdd * power;
+  var gear = Math.min(1.45, (s.sh || 1) * (s.stickPw || 1));   // stacked gear is capped
+  var sp = (cfg.shotBase + cfg.shotAdd * power) * gear;
   puck.vx = Math.cos(a) * sp + s.vx * 0.35;
   puck.vz = Math.sin(a) * sp + s.vz * 0.35;
   puck.vy = power > 0.5 ? (power - 0.5) * 7.5 : 0;
@@ -1528,7 +1709,7 @@ function passTo(s){
   var tx = m.x + m.vx * 0.35, tz = m.z + m.vz * 0.35;
   var a = Math.atan2(tz - s.z, tx - s.x);
   var d = dist(s.x, s.z, tx, tz);
-  var sp = clamp(d * 1.5, S().passBase * 0.6, S().passBase * 1.6);
+  var sp = clamp(d * 1.5, S().passBase * 0.6, S().passBase * 1.6) * (s.stickPs || 1);
   var blade = localToWorld(s, 1.15, 0.45);
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R;
   puck.vx = Math.cos(a) * sp; puck.vz = Math.sin(a) * sp; puck.vy = 0;
@@ -1764,6 +1945,16 @@ function endGame(){
     el('overNote').textContent = p1Won ? 'Three stars, all yours. Try All-Star next.'
       : (a === b ? 'Nobody blinked.' : 'They found the slot too often. Tighten up the back end.');
   }
+  var pay = matchReward();
+  if(pay){
+    var bits = [(a > b ? 'Win ' : (a === b ? 'Draw ' : 'Loss ')) + pay.base];
+    if(pay.goals) bits.push('goals ' + pay.goals);
+    if(pay.shut) bits.push('shutout ' + pay.shut);
+    if(pay.diff) bits.push('skill ' + pay.diff);
+    el('overNote').innerHTML = el('overNote').textContent + '<br><span style="color:var(--amber)">+' +
+      pay.total.toLocaleString() + ' coins</span> <span style="color:var(--muted);font-size:12.5px">— ' +
+      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') + '</span>';
+  }
   el('overScore').innerHTML = a + ' &ndash; ' + b;
   el('ovOver').classList.add('on');
   showPads(false);
@@ -1926,14 +2117,644 @@ function updateTutorial(dt){
 }
 
 /* =========================================================================
+   8.5  CAREER: COINS, PACKS, STICKS, SKATERS, TRAVEL TEAMS, FRIEND CODES
+
+   Everything here is local. Coins are earned by winning and spent on packs;
+   there is no real money anywhere in this file and never should be. Save
+   data lives in localStorage under one key, so clearing site data wipes it.
+   ========================================================================= */
+
+var SAVE_KEY = 'ts_save_v1';
+
+var RAR = [
+  {k:'common', n:'Common',    c:'#8ea3b9', w:60,  mul:1.00, sell:20},
+  {k:'rare',   n:'Rare',      c:'#5ad8ff', w:27,  mul:1.07, sell:70},
+  {k:'epic',   n:'Epic',      c:'#c08cff', w:10,  mul:1.16, sell:220},
+  {k:'legend', n:'Legendary', c:'#ffc43d', w:3,   mul:1.27, sell:700}
+];
+function rarOf(k){ for(var i=0;i<RAR.length;i++) if(RAR[i].k===k) return RAR[i]; return RAR[0]; }
+
+/* ---- stick blueprints. pw = shot speed, ac = aim, ps = pass zip ---- */
+var STICKS = [
+  {k:'twig',    n:'The Twig',      pw:1.00, ac:1.00, ps:1.00, d:'Loaner from the bin by the door.'},
+  {k:'birch',   n:'Birch 50',      pw:1.05, ac:1.03, ps:1.01, d:'Honest wood. Nothing fancy.'},
+  {k:'sling',   n:'Slingshot',     pw:1.13, ac:0.97, ps:1.03, d:'Whippy. Loads fast, sprays wide.'},
+  {k:'surgeon', n:'The Surgeon',   pw:1.02, ac:1.14, ps:1.06, d:'Picks corners. Will not blow anyone away.'},
+  {k:'howitz',  n:'Howitzer',      pw:1.22, ac:0.92, ps:0.97, d:'Heavy as a fence post. Dents things.'},
+  {k:'feather', n:'Featherweight', pw:1.06, ac:1.07, ps:1.12, d:'Barely there. Moves the puck quick.'},
+  {k:'barbrk',  n:'Bar Breaker',   pw:1.17, ac:1.05, ps:1.00, d:'Rings iron for a living.'}
+];
+
+/* ---- skater blueprints. sp = skating, sh = shot, df = checking ---- */
+var SKATER_CARDS = [
+  {k:'grinder', n:'Grinder',    pos:'LW', sp:0.97, sh:0.95, df:1.18, d:'Lives in the corners.'},
+  {k:'burner',  n:'Burner',     pos:'RW', sp:1.16, sh:1.00, df:0.90, d:'First to every loose puck.'},
+  {k:'sniper',  n:'Sniper',     pos:'C',  sp:1.00, sh:1.18, df:0.88, d:'One look, one shot.'},
+  {k:'anchor',  n:'Anchor',     pos:'D',  sp:0.92, sh:0.93, df:1.26, d:'Nobody gets through the middle.'},
+  {k:'playmkr', n:'Playmaker',  pos:'C',  sp:1.05, sh:1.02, df:1.00, d:'Sees the pass before it opens.'},
+  {k:'pest',    n:'Pest',       pos:'LW', sp:1.08, sh:0.94, df:1.12, d:'Insufferable. On your side, thankfully.'},
+  {k:'twoway',  n:'Two-Way',    pos:'C',  sp:1.04, sh:1.05, df:1.08, d:'Does everything a little better.'},
+  {k:'howitz2', n:'Blue Liner', pos:'D',  sp:0.95, sh:1.14, df:1.14, d:'Point shot you can hear outside.'}
+];
+
+var FIRST = ['Dale','Mick','Sven','Bobby','Ty','Ravi','Gus','Luc','Pete','Hal','Nils','Dom','Rory','Jo','Cal','Ira'];
+var LAST  = ['Brennan','Kowalczyk','Lindholm','Ferraro','Okafor','Dube','Marchetti','Halloran','Vasko','Pike','Ostrom','Quinn','Bedard','Trahan'];
+
+var PACKS = [
+  {k:'tape',  n:'Tape Pack',  cost:150,  count:1, kind:'stick',  boost:0,
+   d:'One stick. Mostly commons, but the bin surprises you.'},
+  {k:'bench', n:'Bench Pack', cost:300,  count:1, kind:'skater', boost:0,
+   d:'One skater card off the bench.'},
+  {k:'pro',   n:'Pro Pack',   cost:800,  count:3, kind:'mix',    boost:1,
+   d:'Three cards, sticks or skaters, with the odds tilted up.'},
+  {k:'gold',  n:'Gold Pack',  cost:2000, count:3, kind:'mix',    boost:2, floor:'epic',
+   d:'Three cards and at least one Epic, guaranteed.'}
+];
+
+var TEAMS = [
+  {k:'sandlot', n:'Sandlot',     cost:0,    tier:0, pay:1.00, col:'#2f7fe0',
+   d:'Your home rink. Whoever shows up, plays.'},
+  {k:'ironwrk', n:'Ironworks',   cost:1200, tier:1, pay:1.55, col:'#d4a02a',
+   d:'First travel team. Quicker games, better cheques.'},
+  {k:'nstar',   n:'North Star',  cost:4000, tier:2, pay:2.30, col:'#3ec98a',
+   d:'Regional circuit. Everyone out there can skate.'},
+  {k:'overtm',  n:'Overtime AC', cost:9000, tier:3, pay:3.40, col:'#c08cff',
+   d:'The real show. Pays like it, hurts like it.'}
+];
+function teamOf(k){ for(var i=0;i<TEAMS.length;i++) if(TEAMS[i].k===k) return TEAMS[i]; return TEAMS[0]; }
+
+/* =========================================================================
+   save data
+   ========================================================================= */
+var SAVE = null;
+var uidSeq = 1;
+
+function freshSave(){
+  var s = {
+    v: 1, coins: 400, wins: 0, losses: 0, draws: 0, gf: 0, ga: 0,
+    sticks: [], skaters: [], stick: null, line: [],
+    teams: ['sandlot'], team: 'sandlot',
+    handle: '', friends: [], opened: 0
+  };
+  var twig = mintStick('twig', 'common');
+  s.sticks.push(twig); s.stick = twig.u;
+  var a = mintSkater('grinder', 'common'), b = mintSkater('playmkr', 'common');
+  s.skaters.push(a, b); s.line = [a.u, b.u];
+  return s;
+}
+
+function uid(){ return 'x' + (Date.now().toString(36).slice(-5)) + (uidSeq++).toString(36) + Math.floor(Math.random()*1296).toString(36); }
+
+function mintStick(k, rk){
+  var b = null; for(var i=0;i<STICKS.length;i++) if(STICKS[i].k===k) b = STICKS[i];
+  if(!b) b = STICKS[0];
+  var r = rarOf(rk);
+  return {u: uid(), t:'stick', k: b.k, n: b.n, r: r.k,
+          pw: +(b.pw * r.mul).toFixed(3),
+          ac: +(Math.min(1.34, b.ac * r.mul)).toFixed(3),
+          ps: +(b.ps * r.mul).toFixed(3), d: b.d};
+}
+
+function mintSkater(k, rk){
+  var b = null; for(var i=0;i<SKATER_CARDS.length;i++) if(SKATER_CARDS[i].k===k) b = SKATER_CARDS[i];
+  if(!b) b = SKATER_CARDS[0];
+  var r = rarOf(rk);
+  var nm = FIRST[Math.floor(Math.random()*FIRST.length)] + ' ' + LAST[Math.floor(Math.random()*LAST.length)];
+  return {u: uid(), t:'skater', k: b.k, n: b.n, who: nm, pos: b.pos, r: r.k,
+          num: 2 + Math.floor(Math.random()*96),
+          sp: +(Math.min(1.26, b.sp * r.mul)).toFixed(3),
+          sh: +(b.sh * r.mul).toFixed(3),
+          df: +(b.df * r.mul).toFixed(3), d: b.d};
+}
+
+function loadSave(){
+  var raw = null;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch(e){}
+  if(raw){
+    try {
+      var p = JSON.parse(raw);
+      if(p && p.v === 1 && p.sticks && p.skaters){ SAVE = p; repairSave(); return; }
+    } catch(e){}
+  }
+  SAVE = freshSave();
+  saveNow();
+}
+
+/* a save edited by hand, or one that lost its equipped card, should not brick the game */
+function repairSave(){
+  if(!SAVE.sticks.length) SAVE.sticks.push(mintStick('twig','common'));
+  if(!findCard(SAVE.stick)) SAVE.stick = SAVE.sticks[0].u;
+  while(SAVE.skaters.length < 2) SAVE.skaters.push(mintSkater('grinder','common'));
+  SAVE.line = (SAVE.line || []).filter(function(u){ var c = findCard(u); return c && c.t === 'skater'; });
+  for(var i = 0; SAVE.line.length < 2 && i < SAVE.skaters.length; i++){
+    if(SAVE.line.indexOf(SAVE.skaters[i].u) === -1) SAVE.line.push(SAVE.skaters[i].u);
+  }
+  SAVE.line = SAVE.line.slice(0, 2);
+  if(!SAVE.teams || !SAVE.teams.length) SAVE.teams = ['sandlot'];
+  if(SAVE.teams.indexOf(SAVE.team) === -1) SAVE.team = SAVE.teams[0];
+  if(typeof SAVE.coins !== 'number' || SAVE.coins < 0) SAVE.coins = 0;
+  if(!SAVE.friends) SAVE.friends = [];
+}
+
+function saveNow(){
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch(e){}
+}
+
+function findCard(u){
+  if(!u) return null;
+  var i;
+  for(i=0;i<SAVE.sticks.length;i++) if(SAVE.sticks[i].u === u) return SAVE.sticks[i];
+  for(i=0;i<SAVE.skaters.length;i++) if(SAVE.skaters[i].u === u) return SAVE.skaters[i];
+  return null;
+}
+function equippedStick(){ return findCard(SAVE.stick) || SAVE.sticks[0]; }
+function lineCards(){
+  var out = [];
+  for(var i=0;i<SAVE.line.length;i++){ var c = findCard(SAVE.line[i]); if(c) out.push(c); }
+  while(out.length < 2) out.push(SAVE.skaters[out.length] || mintSkater('grinder','common'));
+  return out.slice(0,2);
+}
+
+/* =========================================================================
+   pack opening
+   ========================================================================= */
+function rollRarity(boost){
+  var w = [], i, total = 0;
+  for(i=0;i<RAR.length;i++){
+    var x = RAR[i].w;
+    if(boost) x = x * Math.pow(i === 0 ? 0.55 : (i === 1 ? 1.15 : 2.1), boost);
+    w.push(x); total += x;
+  }
+  var r = Math.random() * total;
+  for(i=0;i<w.length;i++){ r -= w[i]; if(r <= 0) return RAR[i].k; }
+  return 'common';
+}
+
+function openPack(p){
+  var out = [], i;
+  for(i = 0; i < p.count; i++){
+    var kind = p.kind === 'mix' ? (Math.random() < 0.45 ? 'stick' : 'skater') : p.kind;
+    var rk = rollRarity(p.boost);
+    out.push(kind === 'stick'
+      ? mintStick(STICKS[Math.floor(Math.random()*STICKS.length)].k, rk)
+      : mintSkater(SKATER_CARDS[Math.floor(Math.random()*SKATER_CARDS.length)].k, rk));
+  }
+  // a guaranteed floor means one card gets bumped if nothing cleared the bar
+  if(p.floor){
+    var want = 0; for(i=0;i<RAR.length;i++) if(RAR[i].k === p.floor) want = i;
+    var best = 0;
+    for(i=0;i<out.length;i++){ var at = 0; for(var j=0;j<RAR.length;j++) if(RAR[j].k === out[i].r) at = j; if(at > best) best = at; }
+    if(best < want){
+      var pick = Math.floor(Math.random()*out.length), c = out[pick];
+      out[pick] = c.t === 'stick' ? mintStick(c.k, p.floor) : mintSkater(c.k, p.floor);
+    }
+  }
+  for(i=0;i<out.length;i++){
+    if(out[i].t === 'stick') SAVE.sticks.push(out[i]); else SAVE.skaters.push(out[i]);
+  }
+  SAVE.opened += p.count;
+  saveNow();
+  return out;
+}
+
+function sellCard(u){
+  var c = findCard(u);
+  if(!c) return 0;
+  if(c.u === SAVE.stick) return -1;                 // never sell what you are holding
+  if(SAVE.line.indexOf(c.u) !== -1) return -1;
+  if(c.t === 'stick' && SAVE.sticks.length <= 1) return -1;
+  if(c.t === 'skater' && SAVE.skaters.length <= 2) return -1;
+  var val = rarOf(c.r).sell;
+  var list = c.t === 'stick' ? SAVE.sticks : SAVE.skaters;
+  for(var i=0;i<list.length;i++) if(list[i].u === c.u){ list.splice(i,1); break; }
+  SAVE.coins += val;
+  saveNow();
+  return val;
+}
+
+/* =========================================================================
+   earnings
+   ========================================================================= */
+function matchReward(){
+  // only against the CPU; two humans on one couch cannot farm each other
+  if(G.humans === 2) return null;
+  var a = G.score[0], b = G.score[1];
+  var t = teamOf(SAVE.team);
+  var base = a > b ? 120 : (a === b ? 45 : 25);
+  var goals = a * 12;
+  var shut = (a > b && b === 0) ? 60 : 0;
+  var diffBonus = [0, 20, 45][G.diff] || 0;
+  var total = Math.round((base + goals + shut + diffBonus) * t.pay);
+  SAVE.coins += total;
+  SAVE.gf += a; SAVE.ga += b;
+  if(a > b) SAVE.wins++; else if(a === b) SAVE.draws++; else SAVE.losses++;
+  saveNow();
+  return {total: total, base: base, goals: goals, shut: shut, diff: diffBonus, mult: t.pay, team: t.n};
+}
+
+/* =========================================================================
+   who you are playing against
+   ========================================================================= */
+var oppOverride = null;        // a friend's squad, or null for the house team
+
+/* two humans on one couch skate identical gear - the couch decides it, not the collection */
+var NEUT_NUM = [9, 21, 4, 17];
+function neutralCard(i){
+  return {u:'n'+i, t:'skater', k:'twoway', n:'Skater', who:'Skater', pos:'C', r:'common',
+          num: NEUT_NUM[i], sp:1, sh:1, df:1, d:''};
+}
+
+function oppLine(){
+  if(oppOverride && oppOverride.line && oppOverride.line.length === 2) return oppOverride.line;
+  var tier = teamOf(SAVE.team).tier;
+  var pool = SKATER_CARDS, rk = ['common','rare','epic','legend'][tier] || 'common';
+  var a = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
+  var b = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
+  return [a, b];
+}
+function oppName(){
+  if(oppOverride) return (oppOverride.handle || 'Friend').slice(0, 10).toUpperCase();
+  return G.humans === 2 ? 'P2' : 'CPU';
+}
+function oppStickPower(){
+  if(oppOverride && oppOverride.stick) return oppOverride.stick;
+  var tier = teamOf(SAVE.team).tier;
+  return {pw: 1 + tier * 0.05, ac: 1 + tier * 0.04, ps: 1};
+}
+
+/* =========================================================================
+   friend codes - a squad squeezed into a string you can text someone
+   ========================================================================= */
+function b64enc(s){
+  try { return btoa(unescape(encodeURIComponent(s))).replace(/=+$/, ''); }
+  catch(e){ return ''; }
+}
+function b64dec(s){
+  try { return decodeURIComponent(escape(atob(s))); }
+  catch(e){ return ''; }
+}
+function packCard(c){
+  return c.t === 'stick'
+    ? ['S', c.k, c.r].join('~')
+    : ['K', c.k, c.r, c.num, (c.who || '').replace(/[~|]/g, '')].join('~');
+}
+function unpackCard(s){
+  var p = String(s).split('~');
+  if(p[0] === 'S') return mintStick(p[1], p[2]);
+  var c = mintSkater(p[1], p[2]);
+  if(p[3]) c.num = Math.max(1, Math.min(99, parseInt(p[3], 10) || c.num));
+  if(p[4]) c.who = p[4].slice(0, 22);
+  return c;
+}
+function sum32(s){
+  var h = 5381;
+  for(var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(36).slice(-5);
+}
+
+function myCode(){
+  var ln = lineCards(), st = equippedStick();
+  var body = [
+    (SAVE.handle || 'Player').replace(/[~|]/g, '').slice(0, 12),
+    SAVE.team,
+    packCard(st),
+    packCard(ln[0]),
+    packCard(ln[1])
+  ].join('|');
+  return 'TS1-' + b64enc(body + '|' + sum32(body));
+}
+function readCode(code){
+  code = String(code || '').trim().replace(/\s+/g, '');
+  if(code.slice(0, 4).toUpperCase() !== 'TS1-') return null;
+  var body = b64dec(code.slice(4));
+  if(!body) return null;
+  var p = body.split('|');
+  if(p.length !== 6) return null;
+  var given = p.pop();
+  if(given !== sum32(p.join('|'))) return null;      // clipped or edited in transit
+  var st, a, b;
+  try { st = unpackCard(p[2]); a = unpackCard(p[3]); b = unpackCard(p[4]); }
+  catch(e){ return null; }
+  if(!st || !a || !b) return null;
+  return {handle: p[0].slice(0, 12) || 'Friend', team: teamOf(p[1]).k,
+          stick: {pw: st.pw, ac: st.ac, ps: st.ps}, line: [a, b], code: code};
+}
+function addFriend(code){
+  var f = readCode(code);
+  if(!f) return {ok: false, why: 'That code does not read as a Top Shelf squad.'};
+  if(f.code === myCode()) return {ok: false, why: 'That is your own code.'};
+  for(var i=0;i<SAVE.friends.length;i++){
+    if(SAVE.friends[i].handle.toLowerCase() === f.handle.toLowerCase()){
+      SAVE.friends[i] = f; saveNow();
+      return {ok: true, updated: true, friend: f};
+    }
+  }
+  SAVE.friends.push(f);
+  saveNow();
+  return {ok: true, friend: f};
+}
+
+/* =========================================================================
+   8.6  CAREER SCREENS
+   ========================================================================= */
+
+function pct(v){
+  var d = Math.round((v - 1) * 100);
+  return (d > 0 ? '+' : '') + d;
+}
+function rcVar(rk){ return rarOf(rk).c; }
+
+function cardStats(c){
+  return c.t === 'stick'
+    ? '<span>PWR <b>' + pct(c.pw) + '</b></span><span>AIM <b>' + pct(c.ac) + '</b></span><span>PASS <b>' + pct(c.ps) + '</b></span>'
+    : '<span>SPD <b>' + pct(c.sp) + '</b></span><span>SHOT <b>' + pct(c.sh) + '</b></span><span>CHK <b>' + pct(c.df) + '</b></span>';
+}
+function cardHTML(c, equipped, selectable){
+  var r = rarOf(c.r);
+  return '<div class="ci' + (equipped ? ' on' : '') + '" style="--rc:' + r.c + '" data-u="' + c.u + '"' +
+    (selectable ? ' role="button" tabindex="0"' : '') + '>' +
+    (equipped ? '<span class="eq">' + (c.t === 'stick' ? 'In hand' : 'Dressed') + '</span>' : '') +
+    '<div class="rr">' + r.n + '</div>' +
+    '<div class="nm">' + esc(c.n) + '</div>' +
+    '<div class="who">' + esc(c.t === 'stick' ? c.d : (c.who + ' · ' + c.pos)) + '</div>' +
+    '<div class="st">' + cardStats(c) + '</div>' +
+    (c.t === 'skater' ? '<span class="num">' + c.num + '</span>' : '') +
+    '</div>';
+}
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ---- wallet ---- */
+function paintWallet(){
+  var n = SAVE.coins.toLocaleString();
+  ['walletN','shopN','travN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
+  var rec = el('walletRec');
+  if(rec) rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n;
+}
+
+/* ---- overlay plumbing ---- */
+var META_OVS = ['ovShop','ovReveal','ovTeam','ovTravel','ovFriends'];
+function closeMeta(){ META_OVS.forEach(function(id){ el(id).classList.remove('on'); }); }
+function showMeta(id){
+  closeMenus();
+  closeMeta();
+  el(id).classList.add('on');
+  paintWallet();
+}
+function backToMenu(){ closeMeta(); openMenu(); }
+
+/* =========================================================================
+   shop
+   ========================================================================= */
+function paintShop(){
+  var h = '';
+  for(var i = 0; i < PACKS.length; i++){
+    var p = PACKS[i], can = SAVE.coins >= p.cost;
+    h += '<div class="pk"><div class="pw"><div class="pn">' + esc(p.n) + '</div>' +
+         '<div class="pd">' + esc(p.d) + '</div></div>' +
+         '<button class="buy" data-k="' + p.k + '"' + (can ? '' : ' disabled') + '>' +
+         p.cost.toLocaleString() + '</button></div>';
+  }
+  el('shopList').innerHTML = h;
+  var o = '<b>Odds per card.</b> ';
+  o += RAR.map(function(r){ return r.n + ' ' + r.w + '%'; }).join(' · ');
+  o += '. Pro and Gold packs shift those up. Coins come from playing the CPU — ' +
+       'a win is worth more than a loss, goals and shutouts add, and your travel team multiplies the lot.';
+  el('shopOdds').innerHTML = o;
+  paintWallet();
+}
+
+var lastPack = null;
+function buyPack(k){
+  var p = null;
+  for(var i = 0; i < PACKS.length; i++) if(PACKS[i].k === k) p = PACKS[i];
+  if(!p || SAVE.coins < p.cost) return;
+  SAVE.coins -= p.cost;
+  lastPack = p;
+  var got = openPack(p);
+  paintWallet();
+  showReveal(p, got);
+}
+
+function showReveal(p, cards){
+  el('revTitle').textContent = p.n;
+  var h = '';
+  for(var i = 0; i < cards.length; i++){
+    var c = cards[i], r = rarOf(c.r);
+    h += '<div class="rv ' + c.r + '" style="--rc:' + r.c + ';animation-delay:' + (i * 0.26) + 's">' +
+         '<div class="rr">' + r.n + '</div>' +
+         '<div class="nm">' + esc(c.n) + '</div>' +
+         '<div class="who">' + esc(c.t === 'stick' ? 'Stick' : (c.who + ' · ' + c.pos)) + '</div>' +
+         '<div class="st">' + cardStats(c) + '</div></div>';
+  }
+  el('revCards').innerHTML = h;
+  el('btnRevAgain').style.display = SAVE.coins >= p.cost ? '' : 'none';
+  el('btnRevAgain').textContent = 'Open another (' + p.cost.toLocaleString() + ')';
+  showMeta('ovReveal');
+  var best = 0;
+  for(var j = 0; j < cards.length; j++){
+    for(var q = 0; q < RAR.length; q++) if(RAR[q].k === cards[j].r && q > best) best = q;
+  }
+  if(best >= 2) setTimeout(function(){ sfx.horn && sfx.horn(); }, 320);
+}
+
+/* =========================================================================
+   my team
+   ========================================================================= */
+function paintTeam(){
+  var i, h = '', st = equippedStick();
+  for(i = 0; i < SAVE.sticks.length; i++) h += cardHTML(SAVE.sticks[i], SAVE.sticks[i].u === st.u, true);
+  el('stickList').innerHTML = h;
+
+  h = '';
+  for(i = 0; i < SAVE.skaters.length; i++){
+    h += cardHTML(SAVE.skaters[i], SAVE.line.indexOf(SAVE.skaters[i].u) !== -1, true);
+  }
+  el('skaterList').innerHTML = h;
+
+  var ln = lineCards();
+  el('teamSub').textContent = 'Carrying ' + st.n + '. Dressing ' + ln[0].who + ' and ' + ln[1].who +
+    '. You skate as whichever one is closest to the puck.';
+  el('sellNote').textContent = '';
+  paintWallet();
+}
+
+function equipStick(u){
+  var c = findCard(u);
+  if(!c || c.t !== 'stick') return;
+  SAVE.stick = u; saveNow(); sfx.on(); paintTeam();
+}
+function toggleDress(u){
+  var c = findCard(u);
+  if(!c || c.t !== 'skater') return;
+  var at = SAVE.line.indexOf(u);
+  if(at !== -1){
+    if(SAVE.line.length <= 1) return;               // never dress fewer than one
+    SAVE.line.splice(at, 1);
+  } else {
+    if(SAVE.line.length >= 2) SAVE.line.shift();    // oldest pick drops out
+    SAVE.line.push(u);
+  }
+  repairSave(); saveNow(); sfx.on(); paintTeam();
+}
+
+var sellMode = false;
+function toggleSell(){
+  sellMode = !sellMode;
+  el('btnSell').textContent = sellMode ? 'Done selling' : 'Sell spares';
+  el('sellNote').textContent = sellMode
+    ? 'Tap any card you are not using to sell it. Commons 20, Rares 70, Epics 220, Legendaries 700.'
+    : '';
+}
+
+/* =========================================================================
+   travel teams
+   ========================================================================= */
+function paintTravel(){
+  var h = '';
+  for(var i = 0; i < TEAMS.length; i++){
+    var t = TEAMS[i];
+    var owned = SAVE.teams.indexOf(t.k) !== -1;
+    var cur = SAVE.team === t.k;
+    h += '<div class="tm' + (cur ? ' cur' : '') + '" style="--tc:' + t.col + '">' +
+         '<div class="pw"><div class="pn" style="font-family:var(--display);font-size:23px;line-height:1">' + esc(t.n) + '</div>' +
+         '<div class="pd" style="font-size:11.5px;color:var(--muted);margin-top:3px">' + esc(t.d) + '</div>' +
+         '<div class="mult">Pays &times;' + t.pay.toFixed(2) + (t.tier ? ' · opponents skate harder' : '') + '</div></div>' +
+         '<button class="buy" data-t="' + t.k + '"' +
+           (cur ? ' disabled' : '') + '>' +
+           (cur ? 'Current' : (owned ? 'Suit up' : t.cost.toLocaleString())) + '</button></div>';
+  }
+  el('travList').innerHTML = h;
+  paintWallet();
+}
+function pickTeam(k){
+  var t = teamOf(k);
+  var owned = SAVE.teams.indexOf(k) !== -1;
+  if(!owned){
+    if(SAVE.coins < t.cost) return;
+    SAVE.coins -= t.cost;
+    SAVE.teams.push(k);
+  }
+  SAVE.team = k;
+  saveNow(); sfx.on(); paintTravel();
+}
+
+/* =========================================================================
+   friends
+   ========================================================================= */
+function paintFriends(){
+  el('myCode').textContent = myCode();
+  el('handleIn').value = SAVE.handle || '';
+  var h = '';
+  for(var i = 0; i < SAVE.friends.length; i++){
+    var f = SAVE.friends[i];
+    h += '<div class="fr"><div class="pw"><div class="fn">' + esc(f.handle) + '</div>' +
+         '<div class="fd">' + esc(teamOf(f.team).n) + ' · ' + esc(f.line[0].who) + ', ' + esc(f.line[1].who) + '</div></div>' +
+         '<button class="mini hot" data-f="' + i + '">Play</button>' +
+         '<button class="mini" data-x="' + i + '">Drop</button></div>';
+  }
+  el('friendList').innerHTML = h || '<p class="note2">No codes yet. Send yours to someone and paste theirs back.</p>';
+  paintWallet();
+}
+function playFriend(i){
+  var f = SAVE.friends[i];
+  if(!f) return;
+  oppOverride = f;
+  G.humans = 1;
+  closeMeta();
+  startGame();
+}
+
+/* =========================================================================
+   wiring
+   ========================================================================= */
+function metaDelegate(id, attr, fn){
+  el(id).addEventListener('click', function(e){
+    var b = e.target.closest('[' + attr + ']');
+    if(!b || b.disabled) return;
+    sfx.on();
+    fn(b.getAttribute(attr), b);
+  });
+}
+
+metaDelegate('shopList', 'data-k', function(k){ buyPack(k); paintShop(); });
+metaDelegate('travList', 'data-t', function(k){ pickTeam(k); });
+metaDelegate('friendList', 'data-f', function(i){ playFriend(parseInt(i, 10)); });
+metaDelegate('friendList', 'data-x', function(i){
+  SAVE.friends.splice(parseInt(i, 10), 1); saveNow(); paintFriends();
+});
+metaDelegate('stickList', 'data-u', function(u){
+  if(sellMode){
+    var got = sellCard(u);
+    el('sellNote').textContent = got < 0 ? 'That one is in your hands — equip another first.'
+                                         : 'Sold for ' + got + '.';
+    paintTeam();
+    el('btnSell').textContent = 'Done selling';
+    return;
+  }
+  equipStick(u);
+});
+metaDelegate('skaterList', 'data-u', function(u){
+  if(sellMode){
+    var got = sellCard(u);
+    el('sellNote').textContent = got < 0 ? 'That one is dressed — bench them first.'
+                                         : 'Sold for ' + got + '.';
+    paintTeam();
+    el('btnSell').textContent = 'Done selling';
+    return;
+  }
+  toggleDress(u);
+});
+
+el('btnShop').addEventListener('click', function(){ sfx.on(); showMeta('ovShop'); paintShop(); });
+el('btnTeam').addEventListener('click', function(){ sfx.on(); sellMode = false; el('btnSell').textContent = 'Sell spares'; showMeta('ovTeam'); paintTeam(); });
+el('btnTravel').addEventListener('click', function(){ sfx.on(); showMeta('ovTravel'); paintTravel(); });
+el('btnFriends').addEventListener('click', function(){ sfx.on(); showMeta('ovFriends'); paintFriends(); });
+
+el('btnShopBack').addEventListener('click', function(){ sfx.on(); backToMenu(); });
+el('btnTeamBack').addEventListener('click', function(){ sfx.on(); backToMenu(); });
+el('btnTravBack').addEventListener('click', function(){ sfx.on(); backToMenu(); });
+el('btnFriendBack').addEventListener('click', function(){ sfx.on(); backToMenu(); });
+el('btnSell').addEventListener('click', function(){ sfx.on(); toggleSell(); });
+el('btnRevDone').addEventListener('click', function(){ sfx.on(); showMeta('ovShop'); paintShop(); });
+el('btnRevAgain').addEventListener('click', function(){ sfx.on(); if(lastPack) buyPack(lastPack.k); });
+
+el('btnHandle').addEventListener('click', function(){
+  sfx.on();
+  SAVE.handle = (el('handleIn').value || '').replace(/[~|]/g, '').slice(0, 12);
+  saveNow(); paintFriends();
+  el('friendNote').textContent = SAVE.handle ? 'Saved. Your code now says ' + SAVE.handle + '.' : 'Name cleared.';
+});
+el('btnAddFriend').addEventListener('click', function(){
+  sfx.on();
+  var res = addFriend(el('codeIn').value);
+  el('friendNote').textContent = res.ok
+    ? (res.updated ? 'Updated ' + res.friend.handle + "'s squad." : 'Added ' + res.friend.handle + '.')
+    : res.why;
+  if(res.ok){ el('codeIn').value = ''; paintFriends(); }
+});
+el('codeIn').addEventListener('keydown', function(e){ if(e.key === 'Enter') el('btnAddFriend').click(); });
+el('myCode').addEventListener('click', function(){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(myCode()).then(function(){
+      el('friendNote').textContent = 'Code copied.';
+    }, function(){});
+  }
+});
+
+/* =========================================================================
    9. CAMERA, HUD, MENUS, LOOP
    ========================================================================= */
 var camCur = {x:0, y:20, z:34, lx:0, ly:0, lz:0};
 var orbit = 0.6;
-var CAM_NAMES = ['Broadcast', 'Overhead', 'Low'];
+var CAM_NAMES = ['Broadcast', 'Overhead', 'Low', 'Follow'];
+var camHead = 0;                 // eased chase heading, so the view never whips around
 
 function cycleCam(){
-  G.camMode = (G.camMode + 1) % 3;
+  G.camMode = (G.camMode + 1) % 4;
   el('camBtn').textContent = CAM_NAMES[G.camMode];
 }
 
@@ -1956,12 +2777,35 @@ function updateCamera(dt){
     } else if(G.camMode === 1){                // overhead
       tx = fx * 0.35; ty = 38; tz = 20;
       lx = fx * 0.55; ly = 0; lz = fz * 0.1;
-    } else {                                   // low, tight on the play
+    } else if(G.camMode === 2){                // low, tight on the play
       tx = fx * 0.85; ty = 13.5; tz = 30 + Math.abs(fz) * 0.18;
       lx = fx; ly = 1.1; lz = fz * 0.4;
+    } else {                                   // follow: over the shoulder of your skater
+      var me = control.p1 || carrier;
+      if(!me){
+        tx = fx * 0.55; ty = 18; tz = 36; lx = fx * 0.8; ly = 1.2; lz = fz * 0.2;
+      } else {
+        // look where the play is, not just where the skater points
+        var want = me.face;
+        if(carrier !== me){
+          var tox = puck.x - me.x, toz = puck.z - me.z;
+          if(tox*tox + toz*toz > 4) want = Math.atan2(toz, tox);
+        }
+        var dh = angNorm(want - camHead);
+        camHead += dh * (1 - Math.exp(-4.5 * dt));
+        var cs = Math.cos(camHead), sn = Math.sin(camHead);
+        tx = me.x - cs * 8.6; ty = 4.9; tz = me.z - sn * 8.6;
+        lx = me.x + cs * 7.0; ly = 1.25; lz = me.z + sn * 7.0;
+        // never shove the camera through the glass behind the nets
+        if(tx < -HX - 7) tx = -HX - 7;
+        if(tx >  HX + 7) tx =  HX + 7;
+        if(tz < -HZ - 7) tz = -HZ - 7;
+        if(tz >  HZ + 7) tz =  HZ + 7;
+      }
     }
   }
-  var k = 1 - Math.exp(-(G.phase === 'menu' ? 2.0 : 3.4) * dt);
+  var kRate = G.phase === 'menu' ? 2.0 : (G.camMode === 3 ? 7.5 : 3.4);
+  var k = 1 - Math.exp(-kRate * dt);
   camCur.x += (tx - camCur.x) * k;
   camCur.y += (ty - camCur.y) * k;
   camCur.z += (tz - camCur.z) * k;
@@ -2017,7 +2861,7 @@ function paintBug(){
   el('scoreH').textContent = G.score[0];
   el('scoreA').textContent = G.score[1];
   el('tagH').textContent = G.humans === 2 ? 'P1' : 'YOU';
-  el('tagA').textContent = G.humans === 2 ? 'P2' : 'CPU';
+  el('tagA').textContent = oppName();
   el('period').textContent = G.ot ? 'OT' : ['1st','2nd','3rd'][G.period-1];
   var m = Math.floor(Math.max(0, G.clock)/60), s = Math.floor(Math.max(0, G.clock)%60);
   el('clock').textContent = m + ':' + (s < 10 ? '0' : '') + s;
@@ -2030,7 +2874,8 @@ function showPads(on){
   } else p.classList.remove('on');
 }
 function closeMenus(){
-  ['ovBoot','ovMenu','ovPause','ovBreak','ovOver'].forEach(function(id){ el(id).classList.remove('on'); });
+  ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
+   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
@@ -2060,6 +2905,7 @@ function openMenu(){
   showPads(false);
   el('keyCard').innerHTML = keyCardHTML();
   el('rowDiff').style.display = G.humans === 2 ? 'none' : '';
+  paintWallet();
   if(!world) buildWorld();
   if(!skaters.length) createTeams();
   resetPositions();
@@ -2112,7 +2958,7 @@ seg('segPlayers', function(v){
   createTeams();
 });
 seg('segDiff', function(v){ G.diff = parseInt(v, 10); });
-el('btnPlay').addEventListener('click', function(){ sfx.on(); startGame(); });
+el('btnPlay').addEventListener('click', function(){ sfx.on(); oppOverride = null; startGame(); });
 el('btnTut').addEventListener('click', function(){ sfx.on(); startTutorial(); });
 el('btnResume').addEventListener('click', function(){ sfx.on(); togglePause(); });
 el('btnQuit').addEventListener('click', function(){ sfx.on(); openMenu(); });
@@ -2243,6 +3089,7 @@ var booted = false;
 function boot(){
   if(booted) return;
   booted = true;
+  loadSave();
   initGL();
   G.surface = 'ice';
   buildWorld();

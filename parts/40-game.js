@@ -19,21 +19,29 @@ function createTeams(){
   for(var j = 0; j < goalies.length; j++) world.remove(goalies[j].model);
   skaters = []; goalies = []; carrier = null;
 
+  var twoUp = (G.humans === 2);
+  var mine = twoUp ? [neutralCard(0), neutralCard(1)] : lineCards();
+  var theirs = twoUp ? [neutralCard(2), neutralCard(3)] : oppLine();
+  var myStick = twoUp ? {pw:1, ac:1, ps:1} : equippedStick();
+  var theirStick = twoUp ? {pw:1, ac:1, ps:1} : oppStickPower();
   var roster = [
-    {team:0, num:9,  slot:-1},
-    {team:0, num:21, slot:1},
-    {team:1, num:4,  slot:-1},
-    {team:1, num:17, slot:1}
+    {team:0, slot:-1, card: mine[0],   stick: myStick},
+    {team:0, slot:1,  card: mine[1],   stick: myStick},
+    {team:1, slot:-1, card: theirs[0], stick: theirStick},
+    {team:1, slot:1,  card: theirs[1], stick: theirStick}
   ];
   for(var r = 0; r < roster.length; r++){
     var d = roster[r];
     var s = {
-      team: d.team, num: d.num, slot: d.slot, ctrlBy: null,
+      team: d.team, num: d.card.num, slot: d.slot, ctrlBy: null,
+      card: d.card, who: d.card.who,
+      sp: d.card.sp, sh: d.card.sh, df: d.card.df,
+      stickPw: d.stick.pw, stickAc: d.stick.ac, stickPs: d.stick.ps,
       x: 0, z: 0, vx: 0, vz: 0, face: d.team === 0 ? 0 : Math.PI,
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.num, roller)
+      model: buildSkater(d.team, d.card.num, roller)
     };
     world.add(s.model);
     skaters.push(s);
@@ -140,8 +148,9 @@ function netCollide(o, r){
 function stepSkater(s, dt){
   var cfg = S(), d = D();
   var ai = !s.ctrlBy;
-  var acc = cfg.acc * (ai ? d.acc : 1);
-  var max = cfg.max * (ai ? d.max : 1);
+  var sp_ = s.sp || 1;
+  var acc = cfg.acc * (ai ? d.acc : 1) * sp_;
+  var max = cfg.max * (ai ? d.max : 1) * (1 + (sp_ - 1) * 0.5);
   if(carrier === s) max *= 0.95;
   if(s.stun > 0){ acc *= 0.12; s.stun -= dt; }
 
@@ -185,17 +194,17 @@ function skaterContacts(){
       var fast = sa > sb ? a : b, slow = sa > sb ? b : a;
       var diff = Math.abs(sa - sb);
       if(a.team !== b.team){
-        if(carrier === slow && diff > 2.2){
+        if(carrier === slow && diff > 2.2 / (fast.df || 1)){
           carrier = null;
           puck.vx = fast.vx * 0.9 + nx * 3;
           puck.vz = fast.vz * 0.9 + nz * 3;
           puck.vy = 1.2;
           puckCool = 0.18;
-          slow.stun = 0.55; G.shake = Math.max(G.shake, 0.5);
+          slow.stun = 0.55 / (slow.df || 1); G.shake = Math.max(G.shake, 0.5);
           sfx.hit();
           if(G.tut) tutEvent('check');
         } else if(diff > 4.5){
-          slow.stun = 0.4; sfx.hit(); G.shake = Math.max(G.shake, 0.3);
+          slow.stun = 0.4 / (slow.df || 1); sfx.hit(); G.shake = Math.max(G.shake, 0.3);
         }
         var avx = a.vx, avz = a.vz;
         a.vx = b.vx * 0.6; a.vz = b.vz * 0.6;
@@ -212,16 +221,18 @@ function skaterContacts(){
 function shoot(s, power){
   var cfg = S(), gx = s.team === 0 ? GOAL_X : -GOAL_X;
   var a = s.face;
+  var aim = s.stickAc || 1;
   if(!s.ctrlBy){
-    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35);
+    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim;
   } else {
-    var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3) - s.z, gx - s.x);
+    var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3 / aim) - s.z, gx - s.x);
     var dd = angNorm(toNet - a);
-    if(Math.abs(dd) < 0.42) a += dd * 0.6;          // light aim assist toward the mouth
+    if(Math.abs(dd) < 0.42 * aim) a += dd * Math.min(0.9, 0.6 * aim);   // aim assist, widened by the stick
   }
   var blade = localToWorld(s, 1.15, 0.45);
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
-  var sp = cfg.shotBase + cfg.shotAdd * power;
+  var gear = Math.min(1.45, (s.sh || 1) * (s.stickPw || 1));   // stacked gear is capped
+  var sp = (cfg.shotBase + cfg.shotAdd * power) * gear;
   puck.vx = Math.cos(a) * sp + s.vx * 0.35;
   puck.vz = Math.sin(a) * sp + s.vz * 0.35;
   puck.vy = power > 0.5 ? (power - 0.5) * 7.5 : 0;
@@ -243,7 +254,7 @@ function passTo(s){
   var tx = m.x + m.vx * 0.35, tz = m.z + m.vz * 0.35;
   var a = Math.atan2(tz - s.z, tx - s.x);
   var d = dist(s.x, s.z, tx, tz);
-  var sp = clamp(d * 1.5, S().passBase * 0.6, S().passBase * 1.6);
+  var sp = clamp(d * 1.5, S().passBase * 0.6, S().passBase * 1.6) * (s.stickPs || 1);
   var blade = localToWorld(s, 1.15, 0.45);
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R;
   puck.vx = Math.cos(a) * sp; puck.vz = Math.sin(a) * sp; puck.vy = 0;
@@ -478,6 +489,16 @@ function endGame(){
     el('overTitle').textContent = a === b ? 'Draw' : (p1Won ? 'You win' : 'CPU wins');
     el('overNote').textContent = p1Won ? 'Three stars, all yours. Try All-Star next.'
       : (a === b ? 'Nobody blinked.' : 'They found the slot too often. Tighten up the back end.');
+  }
+  var pay = matchReward();
+  if(pay){
+    var bits = [(a > b ? 'Win ' : (a === b ? 'Draw ' : 'Loss ')) + pay.base];
+    if(pay.goals) bits.push('goals ' + pay.goals);
+    if(pay.shut) bits.push('shutout ' + pay.shut);
+    if(pay.diff) bits.push('skill ' + pay.diff);
+    el('overNote').innerHTML = el('overNote').textContent + '<br><span style="color:var(--amber)">+' +
+      pay.total.toLocaleString() + ' coins</span> <span style="color:var(--muted);font-size:12.5px">— ' +
+      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') + '</span>';
   }
   el('overScore').innerHTML = a + ' &ndash; ' + b;
   el('ovOver').classList.add('on');

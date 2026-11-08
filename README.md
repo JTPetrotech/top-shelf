@@ -11,6 +11,25 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
 - **Roller** — grippier wheels, tighter turns, the ball dies quicker.
 - Tutorial runs first time through: skating, puck pickup, shooting, passing, poke checks.
 
+## Career
+
+Winning pays coins. Coins buy packs; packs hold sticks and skater cards in four
+rarities; cards change how you actually play.
+
+- **Sticks** move shot speed, aim assist and pass zip.
+- **Skaters** move acceleration, shot power and how easily you strip a puck.
+  Stacked gear is capped so a lucky Legendary cannot make every shot a goal.
+- **Travel teams** are bought with coins. Higher circuits pay a bigger
+  multiplier on every game and put better cards on the other bench.
+- **Friend codes** carry your squad as a string you can text someone. Paste
+  theirs back and their actual team skates against you as the CPU. Codes are
+  checksummed, so one clipped by a messaging app is refused rather than
+  quietly read as the wrong squad.
+
+There is no real money anywhere in this game and there never should be. Coins
+come from playing, and everything lives in localStorage on your own device —
+nothing is uploaded and there is no account.
+
 ## Controls
 
 | | Player 1 | Player 2 |
@@ -22,7 +41,8 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
 Two gamepads work as well — plug them in and they take over automatically.
 On a phone or tablet the screen splits into two touch zones, one per player.
 
-Camera: `C` cycles broadcast / overhead / low angle. `P` or `Esc` pauses.
+Camera: `C` cycles broadcast / overhead / low / follow. Follow rides over your
+skater’s shoulder. `P` or `Esc` pauses.
 
 ## Running it offline
 
