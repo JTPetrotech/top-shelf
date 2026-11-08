@@ -165,7 +165,7 @@ function adTexture(cfg){
   var g = c.getContext('2d');
   g.fillStyle = cfg.glass ? '#f6f9fc' : '#22303f';
   g.fillRect(0, 0, 1024, 96);
-  var ads = ['SLAPSHOT ARENA', 'RINK SIDE', 'COLD OPEN', 'TOP SHELF', 'BLUE LINE', 'FACE OFF'];
+  var ads = ['TOP SHELF', 'RINK SIDE', 'COLD OPEN', 'BAR DOWN', 'BLUE LINE', 'FACE OFF'];
   var cols = ['#2f6fd0', '#ce382a', '#13263d', '#1f7a53', '#8a4ad6', '#b8681a'];
   for(var i = 0; i < 6; i++){
     var x = i * 170.6;

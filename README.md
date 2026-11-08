@@ -1,9 +1,9 @@
-# Slapshot Arena
+# Top Shelf
 
 A 3D hockey game that runs in a browser. One HTML file, no install, no server,
 no internet connection required once the page has loaded.
 
-Play it: **https://jtpetrotech.github.io/slapshot-arena/**
+Play it: **https://jtpetrotech.github.io/top-shelf/**
 
 ## Modes
 
