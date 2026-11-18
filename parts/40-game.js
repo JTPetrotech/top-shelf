@@ -6,6 +6,17 @@ var markerMesh = null;
 function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
 function angNorm(a){ while(a > Math.PI) a -= Math.PI*2; while(a < -Math.PI) a += Math.PI*2; return a; }
 function dist(ax, az, bx, bz){ return Math.sqrt((ax-bx)*(ax-bx) + (az-bz)*(az-bz)); }
+function carryLat(s){
+  var lat = 0.45 * (s.carrySide === undefined ? 1 : s.carrySide);
+  if(s.dangleT > 0){
+    // the puck sweeps across the body rather than teleporting
+    var t = 1 - s.dangleT / DANGLE_T;
+    lat *= (t < 0.5 ? (t * 2) : 1);
+    lat += (s.carrySide > 0 ? -1 : 1) * 0.34 * Math.sin(Math.PI * Math.min(1, t));
+  }
+  return lat;
+}
+
 function localToWorld(s, lx, lz){
   var c = Math.cos(s.face), n = Math.sin(s.face);
   return {x: s.x + lx*c - lz*n, z: s.z + lx*n + lz*c};
@@ -40,6 +51,7 @@ function createTeams(){
       x: 0, z: 0, vx: 0, vz: 0, face: d.team === 0 ? 0 : Math.PI,
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
+      carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2,
       jitter: Math.random() * 6.28, think: 0,
       model: buildSkater(d.team, d.card.num, roller, d.stick.k)
     };
@@ -75,6 +87,9 @@ function updateCtrlTags(){
 }
 
 function resetPositions(dropTo){
+  for(var ri = 0; ri < skaters.length; ri++){
+    skaters[ri].carrySide = 1; skaters[ri].dangleT = 0; skaters[ri].dangleCool = 0;
+  }
   var pos = [[-6, -3.5], [-10, 4.5], [6, 3.5], [10, -4.5]];
   for(var i = 0; i < skaters.length; i++){
     var s = skaters[i];
@@ -175,6 +190,8 @@ function stepSkater(s, dt){
 
   if(s.shootCool > 0) s.shootCool -= dt;
   if(s.followT > 0) s.followT -= dt;
+  if(s.dangleT > 0) s.dangleT -= dt;
+  if(s.dangleCool > 0) s.dangleCool -= dt;
 
   s.model.position.set(s.x, 0, s.z);
   s.model.rotation.y = -s.face;
@@ -194,7 +211,8 @@ function skaterContacts(){
       var fast = sa > sb ? a : b, slow = sa > sb ? b : a;
       var diff = Math.abs(sa - sb);
       if(a.team !== b.team){
-        if(carrier === slow && diff > 2.2 / (fast.df || 1)){
+        var strip = 2.2 / (fast.df || 1) * (slow.dangleT > 0 ? 1.9 : 1);
+        if(carrier === slow && diff > strip){
           carrier = null;
           puck.vx = fast.vx * 0.9 + nx * 3;
           puck.vz = fast.vz * 0.9 + nz * 3;
@@ -229,7 +247,7 @@ function shoot(s, power){
     var dd = angNorm(toNet - a);
     if(Math.abs(dd) < 0.42 * aim) a += dd * Math.min(0.9, 0.6 * aim);   // aim assist, widened by the stick
   }
-  var blade = localToWorld(s, 1.15, 0.45);
+  var blade = localToWorld(s, 1.15, carryLat(s));
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
   var gear = Math.min(1.45, (s.sh || 1) * (s.stickPw || 1));   // stacked gear is capped
   var sp = (cfg.shotBase + cfg.shotAdd * power) * gear;
@@ -240,6 +258,30 @@ function shoot(s, power){
   s.charging = false; s.charge = 0; s.shootCool = 0.3; s.followT = 0.28;
   sfx.stick(power);
   if(G.tut) tutEvent('shot');
+}
+
+/* Pull the puck across your body. It buys a burst of speed and a moment where
+   the puck is on the far side from whoever is leaning on you - which is the whole
+   point of a deke. Spammable moves are boring, so it costs a cooldown. */
+function dangle(s, dx, dz){
+  if(carrier !== s || s.dangleCool > 0 || s.stun > 0) return false;
+  var side;
+  if(dx || dz){
+    // put the puck on the side you are pushing toward, read against your heading
+    side = angNorm(Math.atan2(dz, dx) - s.face) > 0 ? 1 : -1;
+    if(side === s.carrySide) side = -side;      // already there: go back the other way
+  } else {
+    side = -(s.carrySide === undefined ? 1 : s.carrySide);
+  }
+  s.carrySide = side;
+  s.dangleT = DANGLE_T;
+  s.dangleCool = DANGLE_COOL;
+  var b = S().dangleKick;
+  s.vx += Math.cos(s.face) * b;
+  s.vz += Math.sin(s.face) * b;
+  sfx.pass();
+  if(G.tut) tutEvent('dangle');
+  return true;
 }
 
 function mateOf(s){
@@ -255,7 +297,7 @@ function passTo(s){
   var a = Math.atan2(tz - s.z, tx - s.x);
   var d = dist(s.x, s.z, tx, tz);
   var sp = clamp(d * 1.5, S().passBase * 0.6, S().passBase * 1.6) * (s.stickPs || 1);
-  var blade = localToWorld(s, 1.15, 0.45);
+  var blade = localToWorld(s, 1.15, carryLat(s));
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R;
   puck.vx = Math.cos(a) * sp; puck.vz = Math.sin(a) * sp; puck.vy = 0;
   carrier = null; puckCool = 0.14;
@@ -282,6 +324,7 @@ function steer(s, tx, tz, gain){
   s.il = clamp((gain === undefined ? 1 : gain) * (d / 2.5), 0, 1);
 }
 function aiThink(s, t, dt){
+  aiMaybeDangle(s, dt);
   var d = D();
   var dir = s.team === 0 ? 1 : -1;
   var oppX = dir * GOAL_X, ownX = -dir * GOAL_X;
@@ -316,6 +359,26 @@ function aiThink(s, t, dt){
 }
 
 /* ---- goalies ---- */
+/* give the AI the same move, used the way a player would: only with the puck,
+   only with someone on top of them, and not every single time. */
+function aiMaybeDangle(s, dt){
+  if(carrier !== s || s.dangleCool > 0) return;
+  s.aiDangle -= dt;
+  if(s.aiDangle > 0) return;
+  s.aiDangle = 0.7 + Math.random() * 1.6;
+  var near = null, nd = 1e9;
+  for(var i = 0; i < skaters.length; i++){
+    var o = skaters[i];
+    if(o.team === s.team) continue;
+    var d = dist(s.x, s.z, o.x, o.z);
+    if(d < nd){ nd = d; near = o; }
+  }
+  if(!near || nd > 3.0) return;
+  if(Math.random() > 0.35 + D().err * 0.1) return;
+  // break away from the side the defender is on
+  dangle(s, near.x - s.x, near.z - s.z);
+}
+
 function stepGoalie(g, dt){
   var dir = g.team === 0 ? -1 : 1;                 // which way their net faces
   var own = dir * GOAL_X;
@@ -369,7 +432,8 @@ function stepPuck(dt){
     var s = carrier;
     if(s.charging) s.charge = Math.min(1, s.charge + dt / 0.6);
     var reach = s.charging ? 1.05 - s.charge * 0.25 : 1.18;
-    var hold = localToWorld(s, reach, s.charging ? 0.62 : 0.45);
+    var lat = carryLat(s);
+    var hold = localToWorld(s, reach, s.charging ? lat * 1.38 : lat);
     puck.x = hold.x; puck.z = hold.z; puck.y = PUCK_R;
     puck.vx = s.vx; puck.vz = s.vz; puck.vy = 0;
   } else {
@@ -418,6 +482,7 @@ function stepPuck(dt){
       }
       if(best){
         carrier = best; best.charge = 0; sfx.stick(0.12);
+        best.carrySide = 1; best.dangleT = 0;
         if(G.tut) tutEvent('pickup', best);
       }
     }

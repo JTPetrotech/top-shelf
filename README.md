@@ -10,6 +10,9 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
 - **Ice** — fast, loose, long glides, puck slides forever.
 - **Roller** — grippier wheels, tighter turns, the ball dies quicker.
 - Tutorial runs first time through: skating, puck pickup, shooting, passing, poke checks.
+- **Dangle** pulls the puck across your body for a burst of speed and a moment
+  where it is on the far side from whoever is leaning on you. It is on a
+  cooldown, and the CPU uses it too.
 
 ## Career
 
@@ -22,8 +25,9 @@ rarities; cards change how you actually play.
   Slingshot.
 - **Skaters** move acceleration, shot power and how easily you strip a puck.
   Stacked gear is capped so a lucky Legendary cannot make every shot a goal.
-- **Travel teams** are bought with coins. Higher circuits pay a bigger
-  multiplier on every game and put better cards on the other bench.
+- **Travel teams** are bought with coins — Sandlot, Ironworks, Bulldogs,
+  North Star, Overtime AC. Higher circuits pay a bigger multiplier on every
+  game and put better cards and better sticks on the other bench.
 - **Friend codes** carry your squad as a string you can text someone. Paste
   theirs back and their actual team skates against you as the CPU. Codes are
   checksummed, so one clipped by a messaging app is refused rather than
@@ -40,9 +44,11 @@ nothing is uploaded and there is no account.
 | Skate | `W` `A` `S` `D` | arrow keys |
 | Shoot | `Space` | `Enter` |
 | Pass | `Q` | `/` |
+| Dangle | `E` | `.` |
 
-Two gamepads work as well — plug them in and they take over automatically.
-On a phone or tablet the screen splits into two touch zones, one per player.
+Two gamepads work as well — A shoots, X passes, B dangles.
+On a phone or tablet the screen splits into two touch zones, one per player,
+and dangle is its own small joystick: flick it and the puck goes that way.
 
 Camera: `C` cycles broadcast / overhead / low / follow. Follow rides over your
 skater’s shoulder. `P` or `Esc` pauses.
@@ -69,13 +75,17 @@ reports any external reference left in the output (should always be `none`).
 
 ```
 node test/career.test.js
+node test/dangle.test.js
 ```
 
 No framework. It loads `parts/45-meta.js` into a sandbox with a fake
 localStorage and checks the payout maths, pack odds over 40,000 rolls, the
 guaranteed Epic in a gold pack, the selling guards, friend-code round trips
 and rejection of clipped codes, recovery from a corrupt save, and that every
-stick blueprint has a look to render.
+stick blueprint has a look to render. The dangle suite lifts `dangle()` and
+`carryLat()` out of the game module and checks who may use the move, which side
+the puck ends up on, that direction is read against your heading rather than the
+rink, and that the puck sweeps across rather than teleporting.
 
 ## Credits
 

@@ -42,49 +42,107 @@ function numberTexture(n, team){
   return t;
 }
 
+/* A profile spun around Y. Hockey gear is mostly tapered tubes, and a lathe
+   gives a continuous silhouette where stacked cylinders gave stair steps. */
+function lathe(profile, seg, mat){
+  var pts = [];
+  for(var i = 0; i < profile.length; i++) pts.push(new T.Vector2(profile[i][0], profile[i][1]));
+  var m = new T.Mesh(new T.LatheGeometry(pts, seg || 16), mat);
+  m.castShadow = true;
+  return m;
+}
+
 function skateFoot(roller){
   var g = new T.Group();
-  var boot = new T.Mesh(new T.BoxGeometry(0.30, 0.16, 0.17), MATS.blade);
-  boot.position.y = 0.10; boot.castShadow = true;
-  g.add(boot);
+
+  // boot: narrow at the toe, built up at the heel, with an ankle cuff above it
+  var boot = new T.Mesh(new T.BoxGeometry(0.33, 0.13, 0.155), MATS.blade);
+  boot.position.set(0.015, 0.095, 0); boot.castShadow = true; g.add(boot);
+
+  var toe = new T.Mesh(new T.BoxGeometry(0.09, 0.09, 0.125), MATS.blade);
+  toe.position.set(0.175, 0.075, 0); g.add(toe);
+
+  var cuff = new T.Mesh(new T.BoxGeometry(0.17, 0.12, 0.17), MATS.blade);
+  cuff.position.set(-0.035, 0.185, 0); cuff.castShadow = true; g.add(cuff);
+
+  var tongue = new T.Mesh(new T.BoxGeometry(0.055, 0.13, 0.12), MATS.white);
+  tongue.position.set(0.075, 0.185, 0); tongue.rotation.z = 0.22; g.add(tongue);
+
   if(roller){
+    var chassis = new T.Mesh(new T.BoxGeometry(0.30, 0.035, 0.05), MATS.steel);
+    chassis.position.y = 0.045; g.add(chassis);
     for(var i = 0; i < 4; i++){
-      var w = new T.Mesh(new T.CylinderGeometry(0.055, 0.055, 0.05, 10), MATS.wheel);
-      w.rotation.x = Math.PI/2;
-      w.position.set(-0.105 + i*0.07, 0.055, 0);
+      var w = new T.Mesh(new T.CylinderGeometry(0.052, 0.052, 0.045, 12), MATS.wheel);
+      w.rotation.x = Math.PI / 2;
+      w.position.set(-0.105 + i * 0.07, 0.052, 0);
       g.add(w);
     }
   } else {
-    var holder = new T.Mesh(new T.BoxGeometry(0.26, 0.05, 0.03), MATS.blade);
-    holder.position.y = 0.035; g.add(holder);
-    var steel = new T.Mesh(new T.BoxGeometry(0.33, 0.035, 0.018), MATS.steel);
-    steel.position.y = 0.012; g.add(steel);
+    var holderF = new T.Mesh(new T.BoxGeometry(0.035, 0.055, 0.028), MATS.blade);
+    holderF.position.set(0.12, 0.045, 0); g.add(holderF);
+    var holderB = new T.Mesh(new T.BoxGeometry(0.035, 0.055, 0.028), MATS.blade);
+    holderB.position.set(-0.10, 0.045, 0); g.add(holderB);
+    var steel = new T.Mesh(new T.BoxGeometry(0.345, 0.028, 0.016), MATS.steel);
+    steel.position.y = 0.014; g.add(steel);
   }
   return g;
 }
 
 function buildLeg(team, roller){
   var leg = new T.Group();                      // pivots at the hip
-  var thigh = new T.Mesh(new T.CylinderGeometry(0.115, 0.095, 0.40, 8), MATS.pants);
-  thigh.position.y = -0.20; thigh.castShadow = true; leg.add(thigh);
-  var shin = new T.Mesh(new T.CylinderGeometry(0.085, 0.07, 0.36, 8), MATS.sock);
-  shin.position.y = -0.56; shin.castShadow = true; leg.add(shin);
+  var sockMat = MATS.teams[team].trim;
+
+  // thigh, bulked out by the pant
+  var thigh = lathe([[0.02,0],[0.135,-0.03],[0.145,-0.16],[0.125,-0.30],[0.10,-0.38],[0.02,-0.40]], 12, MATS.pants);
+  leg.add(thigh);
+
+  var knee = new T.Mesh(new T.SphereGeometry(0.098, 10, 8), sockMat);
+  knee.position.y = -0.42; knee.castShadow = true; leg.add(knee);
+
+  // shin pad: a hockey shin is a slab down the front, not a tube
+  var shin = lathe([[0.02,-0.44],[0.098,-0.47],[0.095,-0.62],[0.082,-0.74],[0.02,-0.76]], 12, sockMat);
+  leg.add(shin);
+  var guard = new T.Mesh(new T.BoxGeometry(0.085, 0.27, 0.15), sockMat);
+  guard.position.set(0.055, -0.59, 0); guard.castShadow = true; leg.add(guard);
+
   var foot = skateFoot(roller);
-  foot.position.y = -0.76;
+  foot.position.y = -0.78;
   leg.add(foot);
   leg.userData.foot = foot;
-  void team;
   return leg;
 }
 
 function buildArm(team){
   var arm = new T.Group();                      // pivots at the shoulder
-  var sleeve = new T.Mesh(new T.CylinderGeometry(0.095, 0.08, 0.34, 8), MATS.teams[team].jersey);
-  sleeve.position.y = -0.17; sleeve.castShadow = true; arm.add(sleeve);
-  var fore = new T.Mesh(new T.CylinderGeometry(0.075, 0.065, 0.30, 8), MATS.teams[team].trim);
-  fore.position.y = -0.47; arm.add(fore);
-  var glove = new T.Mesh(new T.BoxGeometry(0.17, 0.19, 0.15), MATS.teams[team].glove);
-  glove.position.y = -0.68; glove.castShadow = true; arm.add(glove);
+  var mt = MATS.teams[team];
+
+  var cap = new T.Mesh(new T.SphereGeometry(0.107, 12, 10), mt.jersey);
+  cap.scale.set(1, 0.90, 0.84); cap.position.y = 0.012; cap.castShadow = true; arm.add(cap);
+
+  var sleeve = lathe([[0.02,0],[0.105,-0.02],[0.10,-0.14],[0.088,-0.28],[0.02,-0.30]], 12, mt.jersey);
+  arm.add(sleeve);
+
+  var elbow = new T.Mesh(new T.SphereGeometry(0.076, 10, 8), mt.jersey);
+  elbow.position.y = -0.32; elbow.castShadow = true; arm.add(elbow);
+
+  // the forearm hangs slightly forward, the way it does on a stick
+  var fore = new T.Group();
+  fore.position.y = -0.34;
+  fore.rotation.z = -0.30;
+  arm.add(fore);
+
+  var cuff = lathe([[0.02,0],[0.082,-0.02],[0.075,-0.14],[0.068,-0.24],[0.02,-0.26]], 12, mt.trim);
+  fore.add(cuff);
+
+  // hockey gloves are big blunt blocks with a flared cuff
+  var glove = new T.Mesh(new T.BoxGeometry(0.165, 0.20, 0.155), mt.glove);
+  glove.position.y = -0.37; glove.castShadow = true; fore.add(glove);
+  var gcuff = new T.Mesh(new T.BoxGeometry(0.145, 0.085, 0.145), mt.trim);
+  gcuff.position.y = -0.265; fore.add(gcuff);
+  var thumb = new T.Mesh(new T.BoxGeometry(0.07, 0.11, 0.065), mt.glove);
+  thumb.position.set(0.085, -0.345, 0.03); fore.add(thumb);
+
+  arm.userData.fore = fore;
   return arm;
 }
 
@@ -214,45 +272,78 @@ function buildSkater(team, num, roller, stickKey){
   var lean = new T.Group();
   root.add(lean);
 
-  var hips = new T.Mesh(new T.CylinderGeometry(0.26, 0.23, 0.30, 10), MATS.pants);
-  hips.position.y = 0.92; hips.castShadow = true; lean.add(hips);
+  // pants: wide at the hip, cut off above the knee
+  var pants = lathe([[0.02,0.74],[0.19,0.75],[0.25,0.82],[0.275,0.93],[0.265,1.02],[0.225,1.07],[0.02,1.08]], 16, MATS.pants);
+  pants.scale.set(0.95, 1, 1.06);
+  lean.add(pants);
 
-  var torso = new T.Mesh(new T.CylinderGeometry(0.30, 0.27, 0.56, 10), mt.jersey);
-  torso.position.y = 1.32; torso.castShadow = true; lean.add(torso);
+  var belt = new T.Mesh(new T.CylinderGeometry(0.235, 0.245, 0.055, 16), mt.trim);
+  belt.position.y = 1.055; belt.scale.set(0.95, 1, 1.06); lean.add(belt);
 
-  var stripe = new T.Mesh(new T.CylinderGeometry(0.305, 0.295, 0.09, 10), mt.trim);
-  stripe.position.y = 1.08; lean.add(stripe);
+  /* Jersey as one lathe from hem to collar. It stays fairly narrow up top on its
+     own - the square shoulders come from the pads underneath it. */
+  var torso = lathe([
+    [0.02,0.96],[0.245,0.97],[0.258,1.06],[0.272,1.18],[0.284,1.30],
+    [0.298,1.40],[0.315,1.48],[0.303,1.55],[0.242,1.60],[0.135,1.655],[0.02,1.665]
+  ], 18, mt.jersey);
+  torso.scale.set(0.82, 1, 1.12);
+  lean.add(torso);
 
-  var shoulders = new T.Mesh(new T.SphereGeometry(0.33, 12, 10), mt.jersey);
-  shoulders.scale.set(1.18, 0.62, 0.9);
-  shoulders.position.y = 1.58; shoulders.castShadow = true; lean.add(shoulders);
+  var hem = new T.Mesh(new T.CylinderGeometry(0.252, 0.252, 0.07, 16), mt.trim);
+  hem.position.y = 1.00; hem.scale.set(0.82, 1, 1.12); lean.add(hem);
 
-  var neck = new T.Mesh(new T.CylinderGeometry(0.075, 0.09, 0.1, 8), MATS.skin);
-  neck.position.y = 1.70; lean.add(neck);
+  var collar = new T.Mesh(new T.CylinderGeometry(0.125, 0.145, 0.07, 12), mt.trim);
+  collar.position.y = 1.655; lean.add(collar);
 
-  var head = new T.Mesh(new T.SphereGeometry(0.145, 12, 12), MATS.skin);
-  head.position.y = 1.83; head.castShadow = true; lean.add(head);
+  var neck = new T.Mesh(new T.CylinderGeometry(0.072, 0.082, 0.10, 10), MATS.skin);
+  neck.position.y = 1.72; lean.add(neck);
 
-  var helmet = new T.Mesh(new T.SphereGeometry(0.175, 14, 12, 0, Math.PI*2, 0, Math.PI*0.62), mt.helmet);
-  helmet.position.y = 1.845; helmet.castShadow = true; lean.add(helmet);
+  var head = new T.Mesh(new T.SphereGeometry(0.138, 14, 12), MATS.skin);
+  head.scale.set(1.0, 1.06, 0.92);
+  head.position.y = 1.845; head.castShadow = true; lean.add(head);
 
-  var visor = new T.Mesh(new T.BoxGeometry(0.07, 0.11, 0.26), MATS.visor);
-  visor.position.set(0.13, 1.82, 0); lean.add(visor);
+  var jaw = new T.Mesh(new T.BoxGeometry(0.11, 0.085, 0.145), MATS.skin);
+  jaw.position.set(0.055, 1.775, 0); lean.add(jaw);
 
-  var plate = new T.Mesh(new T.PlaneGeometry(0.34, 0.34), new T.MeshStandardMaterial({map: numberTexture(num, team), roughness: 0.7}));
-  plate.position.set(-0.285, 1.36, 0);
+  // helmet: a fuller dome than a half sphere, with ear covers
+  var helmet = new T.Mesh(new T.SphereGeometry(0.168, 16, 14, 0, Math.PI*2, 0, Math.PI*0.70), mt.helmet);
+  helmet.position.y = 1.862; helmet.castShadow = true; lean.add(helmet);
+  var brim = new T.Mesh(new T.BoxGeometry(0.085, 0.035, 0.235), mt.helmet);
+  brim.position.set(0.115, 1.885, 0); lean.add(brim);
+  var earL = new T.Mesh(new T.BoxGeometry(0.115, 0.10, 0.045), mt.helmet);
+  earL.position.set(-0.01, 1.795, -0.155); lean.add(earL);
+  var earR = earL.clone(); earR.position.z = 0.155; lean.add(earR);
+
+  // cage: five thin bars read as a cage from any distance a player is ever seen at
+  var cage = new T.Group();
+  cage.position.set(0.138, 1.80, 0);
+  lean.add(cage);
+  for(var cb = 0; cb < 3; cb++){
+    var bar = new T.Mesh(new T.BoxGeometry(0.018, 0.016, 0.215), MATS.steel);
+    bar.position.set(0.004 - cb * 0.006, 0.055 - cb * 0.052, 0);
+    cage.add(bar);
+  }
+  for(var cv = 0; cv < 2; cv++){
+    var vb = new T.Mesh(new T.BoxGeometry(0.016, 0.145, 0.016), MATS.steel);
+    vb.position.set(0, -0.005, -0.055 + cv * 0.11);
+    cage.add(vb);
+  }
+
+  var plate = new T.Mesh(new T.PlaneGeometry(0.30, 0.30),
+    new T.MeshStandardMaterial({map: numberTexture(num, team), roughness: 0.7}));
+  plate.position.set(-0.232, 1.33, 0);
   plate.rotation.y = -Math.PI/2;
   lean.add(plate);
 
   var armL = buildArm(team), armR = buildArm(team);
-  armL.position.set(0.02, 1.56, -0.34);
-  armR.position.set(0.02, 1.56, 0.34);
-  armL.rotation.x = 0.22; armR.rotation.x = -0.22;
+  armL.position.set(0.01, 1.465, -0.308);
+  armR.position.set(0.01, 1.465, 0.308);
+  armL.rotation.x = 0.20; armR.rotation.x = -0.20;
   lean.add(armL); lean.add(armR);
 
   var legL = buildLeg(team, roller), legR = buildLeg(team, roller);
-  legL.position.set(0, 0.86, -0.15);
-  legR.position.set(0, 0.86, 0.15);
+  legL.position.set(0, 0.88, -0.145);
+  legR.position.set(0, 0.88, 0.145);
   lean.add(legL); lean.add(legR);
 
   var stick = buildStick(stickKey);
@@ -273,29 +364,81 @@ function buildGoalie(team, roller){
   var lean = new T.Group();
   root.add(lean);
 
-  var pads = new T.Mesh(new T.BoxGeometry(0.30, 0.86, 1.00), MATS.white);
-  pads.position.set(0.06, 0.44, 0); pads.castShadow = true; lean.add(pads);
+  /* Two separate leg pads, not one slab. A goalie's stance reads from the gap
+     between the pads and the knee rolls across them. */
+  for(var p = 0; p < 2; p++){
+    var side = p === 0 ? -1 : 1;
+    var pad = new T.Mesh(new T.BoxGeometry(0.30, 0.88, 0.34), MATS.white);
+    pad.position.set(0.05, 0.47, side * 0.27); pad.castShadow = true; lean.add(pad);
+    for(var rl = 0; rl < 3; rl++){
+      var roll = new T.Mesh(new T.BoxGeometry(0.325, 0.075, 0.345), mt.trim);
+      roll.position.set(0.05, 0.22 + rl * 0.26, side * 0.27);
+      lean.add(roll);
+    }
+    var toe = new T.Mesh(new T.BoxGeometry(0.30, 0.10, 0.30), mt.trim);
+    toe.position.set(0.05, 0.06, side * 0.27); lean.add(toe);
+  }
 
-  var padTrim = new T.Mesh(new T.BoxGeometry(0.32, 0.12, 1.02), mt.trim);
-  padTrim.position.set(0.06, 0.70, 0); lean.add(padTrim);
+  var pants = lathe([[0.02,0.86],[0.26,0.88],[0.31,0.98],[0.30,1.08],[0.24,1.13],[0.02,1.14]], 14, MATS.pants);
+  pants.scale.set(0.9, 1, 1.08);
+  lean.add(pants);
 
-  var body = new T.Mesh(new T.CylinderGeometry(0.36, 0.33, 0.62, 10), mt.jersey);
-  body.position.y = 1.18; body.castShadow = true; lean.add(body);
+  // chest protector: narrow at the waist, big square shoulders
+  var body = lathe([
+    [0.02,1.10],[0.26,1.12],[0.29,1.22],[0.31,1.33],[0.345,1.44],
+    [0.36,1.52],[0.33,1.58],[0.24,1.63],[0.13,1.665],[0.02,1.675]
+  ], 16, mt.jersey);
+  body.scale.set(0.84, 1, 1.26);
+  body.castShadow = true;
+  lean.add(body);
 
-  var chest = new T.Mesh(new T.SphereGeometry(0.4, 12, 10), mt.jersey);
-  chest.scale.set(0.95, 0.72, 1.3);
-  chest.position.y = 1.40; chest.castShadow = true; lean.add(chest);
+  var chestTrim = new T.Mesh(new T.CylinderGeometry(0.312, 0.30, 0.08, 16), mt.trim);
+  chestTrim.position.y = 1.27; chestTrim.scale.set(0.84, 1, 1.26); lean.add(chestTrim);
 
-  var head = new T.Mesh(new T.SphereGeometry(0.16, 12, 12), MATS.white);
-  head.position.y = 1.72; head.castShadow = true; lean.add(head);
-  var cage = new T.Mesh(new T.BoxGeometry(0.05, 0.14, 0.2), MATS.blade);
-  cage.position.set(0.15, 1.70, 0); lean.add(cage);
+  var neck = new T.Mesh(new T.CylinderGeometry(0.085, 0.10, 0.09, 10), MATS.skin);
+  neck.position.y = 1.70; lean.add(neck);
 
-  var glove = new T.Mesh(new T.BoxGeometry(0.26, 0.30, 0.26), mt.glove);
-  glove.position.set(0.12, 1.26, -0.52); glove.castShadow = true; lean.add(glove);
+  // mask, with a real cage rather than one dark block
+  var mask = new T.Mesh(new T.SphereGeometry(0.163, 14, 12), MATS.white);
+  mask.scale.set(1.02, 1.06, 0.95);
+  mask.position.y = 1.82; mask.castShadow = true; lean.add(mask);
+  var crown = new T.Mesh(new T.SphereGeometry(0.168, 14, 12, 0, Math.PI*2, 0, Math.PI*0.42), mt.helmet);
+  crown.position.y = 1.825; lean.add(crown);
+  var gcage = new T.Group();
+  gcage.position.set(0.128, 1.79, 0);
+  lean.add(gcage);
+  for(var cb = 0; cb < 4; cb++){
+    var bar = new T.Mesh(new T.BoxGeometry(0.018, 0.015, 0.20), MATS.steel);
+    bar.position.set(0.006 - cb * 0.005, 0.075 - cb * 0.05, 0);
+    gcage.add(bar);
+  }
+  for(var cv = 0; cv < 3; cv++){
+    var vb = new T.Mesh(new T.BoxGeometry(0.016, 0.20, 0.015), MATS.steel);
+    vb.position.set(0, 0.0, -0.07 + cv * 0.07);
+    gcage.add(vb);
+  }
 
-  var blocker = new T.Mesh(new T.BoxGeometry(0.16, 0.34, 0.30), MATS.white);
-  blocker.position.set(0.14, 1.16, 0.52); blocker.castShadow = true; lean.add(blocker);
+  // catching glove: a trapper with a cuff, not a cube
+  var glove = new T.Group();
+  glove.position.set(0.12, 1.26, -0.52);
+  lean.add(glove);
+  var trap = new T.Mesh(new T.BoxGeometry(0.16, 0.32, 0.30), mt.glove);
+  trap.castShadow = true; glove.add(trap);
+  var pocket = new T.Mesh(new T.BoxGeometry(0.10, 0.22, 0.20), MATS.white);
+  pocket.position.set(0.10, 0.03, 0.02); glove.add(pocket);
+  var gcuff = new T.Mesh(new T.BoxGeometry(0.15, 0.13, 0.26), mt.trim);
+  gcuff.position.y = -0.21; glove.add(gcuff);
+
+  // blocker: a flat board on the back of the hand
+  var blocker = new T.Group();
+  blocker.position.set(0.14, 1.16, 0.52);
+  lean.add(blocker);
+  var board = new T.Mesh(new T.BoxGeometry(0.075, 0.40, 0.30), MATS.white);
+  board.castShadow = true; blocker.add(board);
+  var bTrim = new T.Mesh(new T.BoxGeometry(0.085, 0.07, 0.31), mt.trim);
+  bTrim.position.y = 0.155; blocker.add(bTrim);
+  var bHand = new T.Mesh(new T.BoxGeometry(0.13, 0.17, 0.16), mt.glove);
+  bHand.position.set(-0.09, -0.05, 0); blocker.add(bHand);
 
   var gstick = new T.Mesh(new T.BoxGeometry(0.62, 0.055, 0.085), stickMat(0xd9b887, 0.55));
   gstick.position.set(0.30, 0.52, 0.46);
@@ -316,15 +459,14 @@ function buildGoalie(team, roller){
   lean.add(gblade);
 
   var feet = skateFoot(roller);
-  feet.position.set(0, 0.0, -0.3); lean.add(feet);
+  feet.position.set(0, 0.0, -0.30); lean.add(feet);
   var feet2 = skateFoot(roller);
-  feet2.position.set(0, 0.0, 0.3); lean.add(feet2);
+  feet2.position.set(0, 0.0, 0.30); lean.add(feet2);
 
   root.userData = {lean: lean, glove: glove, blocker: blocker};
   return root;
 }
 
-/* ---- per-frame animation ---- */
 function animateSkater(s, dt){
   var u = s.model.userData;
   var sp = Math.sqrt(s.vx*s.vx + s.vz*s.vz);
@@ -365,9 +507,11 @@ function animateSkater(s, dt){
   } else if(carrier === s){
     targetZ = -0.42;
     targetY = 0.05 + Math.sin(u.phase * 0.8) * 0.12;
+    // carrying on the backhand means reaching the blade across the body
+    if(s.carrySide < 0) targetY += 0.62;
   }
   u.stick.rotation.z += (targetZ - u.stick.rotation.z) * Math.min(1, dt * (s.followT > 0 ? 26 : 11));
-  u.stick.rotation.y += (targetY - u.stick.rotation.y) * Math.min(1, dt * 11);
+  u.stick.rotation.y += (targetY - u.stick.rotation.y) * Math.min(1, dt * (s.dangleT > 0 ? 24 : 11));
 }
 
 function animateGoalie(g, dt){

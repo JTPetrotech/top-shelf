@@ -59,9 +59,11 @@ var TEAMS = [
    d:'Your home rink. Whoever shows up, plays.'},
   {k:'ironwrk', n:'Ironworks',   cost:1200, tier:1, pay:1.55, col:'#d4a02a',
    d:'First travel team. Quicker games, better cheques.'},
-  {k:'nstar',   n:'North Star',  cost:4000, tier:2, pay:2.30, col:'#3ec98a',
+  {k:'bulldog', n:'Bulldogs',    cost:2400, tier:2, pay:1.90, col:'#c2542c',
+   d:'Forecheck like it is personal. Nobody skates through them twice.'},
+  {k:'nstar',   n:'North Star',  cost:4000, tier:3, pay:2.60, col:'#3ec98a',
    d:'Regional circuit. Everyone out there can skate.'},
-  {k:'overtm',  n:'Overtime AC', cost:9000, tier:3, pay:3.40, col:'#c08cff',
+  {k:'overtm',  n:'Overtime AC', cost:9000, tier:4, pay:3.40, col:'#c08cff',
    d:'The real show. Pays like it, hurts like it.'}
 ];
 function teamOf(k){ for(var i=0;i<TEAMS.length;i++) if(TEAMS[i].k===k) return TEAMS[i]; return TEAMS[0]; }
@@ -250,7 +252,7 @@ function neutralCard(i){
 function oppLine(){
   if(oppOverride && oppOverride.line && oppOverride.line.length === 2) return oppOverride.line;
   var tier = teamOf(SAVE.team).tier;
-  var pool = SKATER_CARDS, rk = ['common','rare','epic','legend'][tier] || 'common';
+  var pool = SKATER_CARDS, rk = ['common','rare','epic','legend','legend'][tier] || 'common';
   var a = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
   var b = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
   return [a, b];
@@ -259,7 +261,7 @@ function oppName(){
   if(oppOverride) return (oppOverride.handle || 'Friend').slice(0, 10).toUpperCase();
   return G.humans === 2 ? 'P2' : 'CPU';
 }
-var OPP_STICK_KEYS = ['birch', 'sling', 'barbrk', 'howitz'];
+var OPP_STICK_KEYS = ['birch', 'sling', 'barbrk', 'howitz', 'howitz'];
 function oppStickPower(){
   var tier = teamOf(SAVE.team).tier;
   if(oppOverride && oppOverride.stick){

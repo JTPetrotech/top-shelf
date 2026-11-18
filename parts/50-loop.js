@@ -135,17 +135,17 @@ function closeMenus(){
 function keyCardHTML(){
   if(touchOn && lastDevice === 'touch'){
     return G.humans === 2
-      ? '<div><b>Player 1</b>Left half: stick, shoot, pass</div><div><b class="p2">Player 2</b>Right half: stick, shoot, pass</div>'
-      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Pass</b>Buttons on the right</div>';
+      ? '<div><b>Player 1</b>Left half: stick, shoot, pass, dangle</div><div><b class="p2">Player 2</b>Right half: stick, shoot, pass, dangle</div>'
+      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Pass</b>Buttons on the right</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
   }
   if(padCount > 0){
     return G.humans === 2
-      ? '<div><b>Player 1</b>Pad 1: stick, A shoot, X pass</div><div><b class="p2">Player 2</b>Pad 2: stick, A shoot, X pass</div>'
-      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div>';
+      ? '<div><b>Player 1</b>Pad 1: A shoot, X pass, B dangle</div><div><b class="p2">Player 2</b>Pad 2: A shoot, X pass, B dangle</div>'
+      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
   }
   return G.humans === 2
-    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass</div>'
-    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot</b>Space, hold to load</div><div><b>Pass</b>Q</div><div><b>Camera / Pause</b>C / P</div>';
+    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle</div>'
+    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot</b>Space, hold to load</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Camera / Pause</b>C / P</div>';
 }
 
 function openMenu(){
@@ -258,6 +258,7 @@ function applyHumanInput(){
       if(inp.shoot && !s.charging && s.shootCool <= 0){ s.charging = true; s.charge = 0; }
       if(!inp.shoot && s.charging) shoot(s, Math.max(0.2, s.charge));
       if(inp.pass) passTo(s);
+      if(inp.dangle) dangle(s, inp.dangle.dx, inp.dangle.dz);
     } else {
       s.charging = false; s.charge = 0;
     }

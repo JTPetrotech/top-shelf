@@ -16,12 +16,13 @@ var HX = 30, HZ = 13, CORNER = 7;          // half length, half width, corner ra
 var GOAL_X = 25, MOUTH = 2.0, BAR = 1.30, NET_D = 1.9;
 var BLUE_X = 9, DOT_X = 17, DOT_Z = 6.5;
 var SK_R = 0.72, PUCK_R = 0.22, GK_R = 0.95;
+var DANGLE_T = 0.40, DANGLE_COOL = 0.70;   // how long the puck is crossing, and the wait before the next one
 
 var SURF = {
   ice: {
     label:'Ice', disc:'puck', surfaceWord:'ice',
     acc:33, max:11.2, drag:1.25, turn:9.5,
-    discDrag:0.30, bounce:0.70, shotBase:23, shotAdd:17, passBase:17,
+    discDrag:0.30, bounce:0.70, shotBase:23, shotAdd:17, passBase:17, dangleKick:2.6,
     floor:'#eff4fa', tile:null, blue:'#2f6fd0', red:'#ce382a', crease:'rgba(47,111,208,0.16)',
     board:0xf3f7fb, boardTrim:0xd7e2ee, glass:true,
     amb:0x7f9ec6, ambI:0.55, dirI:1.05, fog:0x05080d, fogD:0.0085,
@@ -30,7 +31,7 @@ var SURF = {
   roller: {
     label:'Roller', disc:'ball', surfaceWord:'court',
     acc:42, max:10.3, drag:2.7, turn:14,
-    discDrag:0.80, bounce:0.56, shotBase:20, shotAdd:14, passBase:15,
+    discDrag:0.80, bounce:0.56, shotBase:20, shotAdd:14, passBase:15, dangleKick:3.4,
     floor:'#1d6a84', tile:'#185f76', blue:'#f2f6fa', red:'#e8513a', crease:'rgba(242,246,250,0.14)',
     board:0x2b3a4e, boardTrim:0x1b2838, glass:false,
     amb:0xffe6c2, ambI:0.72, dirI:0.95, fog:0x070a10, fogD:0.006,
@@ -134,13 +135,15 @@ var sfx = (function(){
    ========================================================================= */
 var KEYS = Object.create(null);
 var SCHEME = {
-  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ'},
-  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash'}
+  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ', dangle:'KeyE'},
+  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash', dangle:'Period'}
 };
-var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false}, p2:{mx:0, mz:0, shoot:false, pass:false}};
+var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false, dangle:false}, p2:{mx:0, mz:0, shoot:false, pass:false, dangle:false}};
 var touchIn = {p1:{mx:0, mz:0, shoot:false}, p2:{mx:0, mz:0, shoot:false}};
-var IN = {p1:{mx:0, mz:0, len:0, shoot:false, pass:false}, p2:{mx:0, mz:0, len:0, shoot:false, pass:false}};
+var IN = {p1:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}, p2:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}};
 var passEdge = {p1:false, p2:false};
+/* a dangle is one flick, not a held button: null, or {dx, dz} for the way it went */
+var dangleEdge = {p1:null, p2:null};
 var lastDevice = 'key';
 var padCount = 0;
 
@@ -151,6 +154,8 @@ addEventListener('keydown', function(e){
   KEYS[c] = true; lastDevice = 'key'; sfx.on();
   if(c === SCHEME.p1.pass) passEdge.p1 = true;
   if(c === SCHEME.p2.pass) passEdge.p2 = true;
+  if(c === SCHEME.p1.dangle) dangleEdge.p1 = {dx:0, dz:0};
+  if(c === SCHEME.p2.dangle) dangleEdge.p2 = {dx:0, dz:0};
   if(c === 'KeyP' || c === 'Escape') togglePause();
   if(c === 'KeyC') cycleCam();
 });
@@ -175,10 +180,13 @@ function readPads(){
     slot.mx = ax; slot.mz = az;
     var shoot = (gp.buttons[0] && gp.buttons[0].pressed) || (gp.buttons[7] && gp.buttons[7].value > 0.4);
     var pass  = (gp.buttons[2] && gp.buttons[2].pressed) || (gp.buttons[5] && gp.buttons[5].pressed);
+    var dang  = (gp.buttons[1] && gp.buttons[1].pressed) || (gp.buttons[4] && gp.buttons[4].pressed);
     slot.shoot = !!shoot;
     if(pass && !slot.pass) passEdge[slots[n]] = true;
     slot.pass = !!pass;
-    if(ax || az || shoot || pass) lastDevice = 'pad';
+    if(dang && !slot.dangle) dangleEdge[slots[n]] = {dx: ax, dz: az};
+    slot.dangle = !!dang;
+    if(ax || az || shoot || pass || dang) lastDevice = 'pad';
     n++;
   }
   padCount = n;
@@ -207,6 +215,7 @@ function gatherInput(){
     if(len > 1){ mx /= len; mz /= len; len = 1; }
     o.mx = mx; o.mz = mz; o.len = len; o.shoot = shoot;
     o.pass = passEdge[k]; passEdge[k] = false;
+    o.dangle = dangleEdge[k]; dangleEdge[k] = null;
   }
 }
 
@@ -250,6 +259,46 @@ function bindBtn(btn, slot, kind){
     btn.addEventListener(ends[i], function(){ if(kind === 'shoot') touchIn[slot].shoot = false; });
   }
 }
+/* Flick it and the puck goes that way. One dangle per flick: the gesture has to
+   come back to centre before it fires again, so a held thumb cannot machine-gun it. */
+function bindDangle(padEl, slot){
+  var id = null, ox = 0, oy = 0, fired = false;
+  var knob = padEl.firstElementChild;
+  function reset(){
+    id = null; fired = false;
+    knob.style.transform = 'translate(0,0)';
+    padEl.classList.remove('live');
+  }
+  padEl.addEventListener('pointerdown', function(e){
+    e.preventDefault(); sfx.on(); lastDevice = 'touch';
+    id = e.pointerId; fired = false;
+    try { padEl.setPointerCapture(e.pointerId); } catch(err){}
+    var r = padEl.getBoundingClientRect();
+    ox = e.clientX - r.left - r.width / 2;
+    oy = e.clientY - r.top - r.height / 2;
+    padEl.classList.add('live');
+  });
+  padEl.addEventListener('pointermove', function(e){
+    if(e.pointerId !== id) return;
+    var r = padEl.getBoundingClientRect();
+    var dx = (e.clientX - r.left - r.width / 2) - ox;
+    var dy = (e.clientY - r.top - r.height / 2) - oy;
+    var d = Math.sqrt(dx*dx + dy*dy), cap = r.width * 0.32;
+    var k = d > cap ? cap / d : 1;
+    knob.style.transform = 'translate(' + (dx*k) + 'px,' + (dy*k) + 'px)';
+    if(!fired && d > r.width * 0.26){
+      fired = true;
+      dangleEdge[slot] = {dx: dx/d, dz: dy/d};
+    } else if(fired && d < r.width * 0.12){
+      fired = false;                            // back to centre, ready for the next one
+    }
+  });
+  padEl.addEventListener('pointerup', function(e){ if(e.pointerId === id) reset(); });
+  padEl.addEventListener('pointercancel', function(e){ if(e.pointerId === id) reset(); });
+}
+bindDangle(el('p1Dangle'), 'p1');
+bindDangle(el('p2Dangle'), 'p2');
+
 bindZone(document.querySelector('.zone.p1'), el('st1'), 'p1');
 bindZone(document.querySelector('.zone.p2'), el('st2'), 'p2');
 bindBtn(el('p1Shoot'), 'p1', 'shoot'); bindBtn(el('p1Pass'), 'p1', 'pass');
