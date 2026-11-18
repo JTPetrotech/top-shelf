@@ -22,8 +22,8 @@ function createTeams(){
   var twoUp = (G.humans === 2);
   var mine = twoUp ? [neutralCard(0), neutralCard(1)] : lineCards();
   var theirs = twoUp ? [neutralCard(2), neutralCard(3)] : oppLine();
-  var myStick = twoUp ? {pw:1, ac:1, ps:1} : equippedStick();
-  var theirStick = twoUp ? {pw:1, ac:1, ps:1} : oppStickPower();
+  var myStick = twoUp ? {pw:1, ac:1, ps:1, k:'birch'} : equippedStick();
+  var theirStick = twoUp ? {pw:1, ac:1, ps:1, k:'twig'} : oppStickPower();
   var roster = [
     {team:0, slot:-1, card: mine[0],   stick: myStick},
     {team:0, slot:1,  card: mine[1],   stick: myStick},
@@ -41,7 +41,7 @@ function createTeams(){
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.card.num, roller)
+      model: buildSkater(d.team, d.card.num, roller, d.stick.k)
     };
     world.add(s.model);
     skaters.push(s);

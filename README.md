@@ -16,7 +16,10 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
 Winning pays coins. Coins buy packs; packs hold sticks and skater cards in four
 rarities; cards change how you actually play.
 
-- **Sticks** move shot speed, aim assist and pass zip.
+- **Sticks** move shot speed, aim assist and pass zip, and each one is a
+  different stick in your hands on the ice — its own shaft, grip, blade length
+  and blade curve, from the flat long blade of the Surgeon to the hook on a
+  Slingshot.
 - **Skaters** move acceleration, shot power and how easily you strip a puck.
   Stacked gear is capped so a lucky Legendary cannot make every shot a goal.
 - **Travel teams** are bought with coins. Higher circuits pay a bigger

@@ -88,21 +88,126 @@ function buildArm(team){
   return arm;
 }
 
-function buildStick(){
-  var g = new T.Group();
-  var shaft = new T.Mesh(new T.BoxGeometry(1.26, 0.045, 0.06), MATS.shaft);
-  shaft.position.set(0.63, 0, 0);
-  shaft.castShadow = true;
-  g.add(shaft);
-  var blade = new T.Mesh(new T.BoxGeometry(0.32, 0.075, 0.055), MATS.blade);
-  blade.position.set(1.33, -0.02, 0.02);
-  blade.rotation.y = 0.25;
-  g.add(blade);
-  g.userData.blade = blade;
+/* ---- how each stick in the collection actually looks on the ice ----
+   curve is how far the toe sweeps off the heel line, in metres; len is blade
+   length; lie is the shaft angle the blade has to cancel to sit flat. */
+var STICK_LOOKS = {
+  twig:    {shaft:0xb98752, grip:0x232a34, tape:0x15191f, curve:0.028, len:0.32, h0:0.082, h1:0.060, thick:0.024, girth:1.00, wear:true},
+  birch:   {shaft:0xd9b887,   grip:0x1d2530, tape:0x15191f, curve:0.038, len:0.34, h0:0.082, h1:0.060, thick:0.024, girth:1.00},
+  sling:   {shaft:0x2f7fe0,   grip:0x11263d, tape:0x15191f, curve:0.082, len:0.32, h0:0.078, h1:0.056, thick:0.021, girth:0.92},
+  surgeon: {shaft:0xeef3f9,   grip:0x9fb3c8, tape:0x1d2530, curve:0.030, len:0.37, h0:0.076, h1:0.062, thick:0.022, girth:0.95},
+  howitz:  {shaft:0x1b222c,   grip:0x0b0e13, tape:0x15191f, curve:0.048, len:0.37, h0:0.090, h1:0.066, thick:0.030, girth:1.16},
+  feather: {shaft:0x3ec98a,   grip:0x124631, tape:0x15191f, curve:0.044, len:0.30, h0:0.072, h1:0.054, thick:0.019, girth:0.84},
+  barbrk:  {shaft:0xffc43d,   grip:0x4a3410, tape:0x15191f, curve:0.066, len:0.35, h0:0.084, h1:0.060, thick:0.026, girth:1.05}
+};
+function stickLook(k){
+  var L = STICK_LOOKS[k] || STICK_LOOKS.twig;
+  return L;
+}
+
+/* A blade is a quad swept along a curved centreline: it gets longer, thinner and
+   taller-at-the-heel the way a real one does, and the face turns with the curve. */
+function bladeGeometry(len, curve, hHeel, hToe, thick){
+  var N = 12, pos = [], idx = [], i, k;
+  for(i = 0; i <= N; i++){
+    var t = i / N;
+    var x = t * len;
+    var z = curve * t * t;                       // most of the bend lives out at the toe
+    var h = hHeel + (hToe - hHeel) * t;
+    var slope = (2 * curve * t) / len;           // dz/dx along the centreline
+    var inv = 1 / Math.sqrt(1 + slope * slope);
+    var nx = -slope * inv * thick * 0.5, nz = inv * thick * 0.5;
+    pos.push(x - nx, -h * 0.5, z - nz);
+    pos.push(x - nx,  h * 0.5, z - nz);
+    pos.push(x + nx,  h * 0.5, z + nz);
+    pos.push(x + nx, -h * 0.5, z + nz);
+  }
+  for(i = 0; i < N; i++){
+    var a = i * 4, b = (i + 1) * 4;
+    for(k = 0; k < 4; k++){
+      var k2 = (k + 1) % 4;
+      idx.push(a + k, b + k, b + k2, a + k, b + k2, a + k2);
+    }
+  }
+  idx.push(0, 1, 2, 0, 2, 3);                    // heel cap
+  var e = N * 4;
+  idx.push(e, e + 2, e + 1, e, e + 3, e + 2);    // toe cap
+  var g = new T.BufferGeometry();
+  g.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
   return g;
 }
 
-function buildSkater(team, num, roller){
+var stickMatCache = {};
+function stickMat(hex, rough){
+  var key = hex + '|' + rough;
+  if(!stickMatCache[key]){
+    var m = new T.MeshStandardMaterial({color: hex, roughness: rough, side: T.DoubleSide});
+    m.userData.keep = true;                      // survives a surface rebuild
+    stickMatCache[key] = m;
+  }
+  return stickMatCache[key];
+}
+
+function buildStick(key){
+  var L = stickLook(key);
+  var g = new T.Group();
+  var gz = L.girth === undefined ? 1 : L.girth;
+  var SHAFT_LEN = 1.20, SH_Y = 0.048 * gz, SH_Z = 0.068 * gz;
+
+  var shaftMat = stickMat(L.shaft, L.wear ? 0.85 : 0.5);
+  var gripMat  = stickMat(L.grip, 0.95);
+  var tapeMat  = stickMat(L.tape, 0.9);
+
+  // butt knob - the ball of tape every player builds up at the top
+  var knob = new T.Mesh(new T.BoxGeometry(0.055, SH_Y * 1.7, SH_Z * 1.5), gripMat);
+  knob.position.set(0.012, 0, 0);
+  g.add(knob);
+
+  // grip tape down the top third
+  var grip = new T.Mesh(new T.BoxGeometry(0.34, SH_Y * 1.12, SH_Z * 1.1), gripMat);
+  grip.position.set(0.22, 0, 0);
+  g.add(grip);
+
+  // shaft, then a short taper into the heel
+  var shaft = new T.Mesh(new T.BoxGeometry(SHAFT_LEN - 0.18, SH_Y, SH_Z), shaftMat);
+  shaft.position.set(0.09 + (SHAFT_LEN - 0.18) / 2, 0, 0);
+  shaft.castShadow = true;
+  g.add(shaft);
+
+  var taper = new T.Mesh(new T.BoxGeometry(0.17, SH_Y * 0.82, SH_Z * 0.80), shaftMat);
+  taper.position.set(SHAFT_LEN - 0.04, 0, 0);
+  taper.castShadow = true;
+  g.add(taper);
+
+  /* The blade hangs off the end of the shaft and cancels the shaft's lie, so it
+     lies flat on the ice at rest, lifts on the backswing and digs in through the
+     follow-through - all of that falls out of the stick's own rotation. */
+  var bg = new T.Group();
+  bg.position.set(SHAFT_LEN + 0.03, 0, 0);
+  bg.rotation.z = L.lie === undefined ? 0.52 : L.lie;
+  g.add(bg);
+
+  var heel = new T.Mesh(new T.BoxGeometry(0.07, L.h0 * 1.05, L.thick * 1.25), tapeMat);
+  heel.position.set(0.0, -0.004, 0);
+  bg.add(heel);
+
+  var blade = new T.Mesh(bladeGeometry(L.len, L.curve, L.h0, L.h1, L.thick), tapeMat);
+  blade.position.set(0.03, -0.004, 0);
+  blade.castShadow = true;
+  bg.add(blade);
+
+  // tape wrap over the heel half, slightly proud of the blade
+  var wrap = new T.Mesh(bladeGeometry(L.len * 0.52, L.curve * 0.27, L.h0 * 1.04, L.h0 * 0.99, L.thick * 1.3), tapeMat);
+  wrap.position.set(0.03, -0.004, 0);
+  bg.add(wrap);
+
+  g.userData.blade = bg;
+  return g;
+}
+
+function buildSkater(team, num, roller, stickKey){
   makeMats();
   var mt = MATS.teams[team];
   var root = new T.Group();
@@ -150,7 +255,7 @@ function buildSkater(team, num, roller){
   legR.position.set(0, 0.86, 0.15);
   lean.add(legL); lean.add(legR);
 
-  var stick = buildStick();
+  var stick = buildStick(stickKey);
   stick.position.set(0.18, 0.92, 0.38);
   stick.rotation.z = -0.52;
   stick.rotation.y = 0.18;
@@ -192,14 +297,23 @@ function buildGoalie(team, roller){
   var blocker = new T.Mesh(new T.BoxGeometry(0.16, 0.34, 0.30), MATS.white);
   blocker.position.set(0.14, 1.16, 0.52); blocker.castShadow = true; lean.add(blocker);
 
-  var gstick = new T.Mesh(new T.BoxGeometry(0.9, 0.06, 0.1), MATS.shaft);
-  gstick.position.set(0.42, 0.34, 0.46);
-  gstick.rotation.z = -0.1;
+  var gstick = new T.Mesh(new T.BoxGeometry(0.62, 0.055, 0.085), stickMat(0xd9b887, 0.55));
+  gstick.position.set(0.30, 0.52, 0.46);
+  gstick.rotation.z = -0.34;
+  gstick.castShadow = true;
   lean.add(gstick);
 
-  var paddle = new T.Mesh(new T.BoxGeometry(0.5, 0.3, 0.05), MATS.blade);
-  paddle.position.set(0.72, 0.18, 0.46);
+  var paddle = new T.Mesh(new T.BoxGeometry(0.46, 0.26, 0.052), stickMat(0x15191f, 0.9));
+  paddle.position.set(0.60, 0.26, 0.46);
+  paddle.rotation.z = -0.34;
+  paddle.castShadow = true;
   lean.add(paddle);
+
+  var gblade = new T.Mesh(bladeGeometry(0.40, 0.030, 0.095, 0.072, 0.030), stickMat(0x15191f, 0.9));
+  gblade.position.set(0.70, 0.055, 0.46);
+  gblade.rotation.y = 0.12;
+  gblade.castShadow = true;
+  lean.add(gblade);
 
   var feet = skateFoot(roller);
   feet.position.set(0, 0.0, -0.3); lean.add(feet);

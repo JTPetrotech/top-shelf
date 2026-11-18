@@ -259,10 +259,14 @@ function oppName(){
   if(oppOverride) return (oppOverride.handle || 'Friend').slice(0, 10).toUpperCase();
   return G.humans === 2 ? 'P2' : 'CPU';
 }
+var OPP_STICK_KEYS = ['birch', 'sling', 'barbrk', 'howitz'];
 function oppStickPower(){
-  if(oppOverride && oppOverride.stick) return oppOverride.stick;
   var tier = teamOf(SAVE.team).tier;
-  return {pw: 1 + tier * 0.05, ac: 1 + tier * 0.04, ps: 1};
+  if(oppOverride && oppOverride.stick){
+    var s = oppOverride.stick;
+    return {pw: s.pw, ac: s.ac, ps: s.ps, k: s.k || 'birch'};
+  }
+  return {pw: 1 + tier * 0.05, ac: 1 + tier * 0.04, ps: 1, k: OPP_STICK_KEYS[tier] || 'birch'};
 }
 
 /* =========================================================================
@@ -320,7 +324,7 @@ function readCode(code){
   catch(e){ return null; }
   if(!st || !a || !b) return null;
   return {handle: p[0].slice(0, 12) || 'Friend', team: teamOf(p[1]).k,
-          stick: {pw: st.pw, ac: st.ac, ps: st.ps}, line: [a, b], code: code};
+          stick: {pw: st.pw, ac: st.ac, ps: st.ps, k: st.k}, line: [a, b], code: code};
 }
 function addFriend(code){
   var f = readCode(code);
