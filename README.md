@@ -65,6 +65,18 @@ node build.js --fonts    # re-download and re-embed the web fonts first
 `build.js` inlines `vendor/three.r128.min.js` and the Latin font subsets, then
 reports any external reference left in the output (should always be `none`).
 
+## Tests
+
+```
+node test/career.test.js
+```
+
+No framework. It loads `parts/45-meta.js` into a sandbox with a fake
+localStorage and checks the payout maths, pack odds over 40,000 rolls, the
+guaranteed Epic in a gold pack, the selling guards, friend-code round trips
+and rejection of clipped codes, recovery from a corrupt save, and that every
+stick blueprint has a look to render.
+
 ## Credits
 
 Built with [three.js](https://threejs.org) r128 (MIT). Fonts are Bebas Neue and
