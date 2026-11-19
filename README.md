@@ -134,25 +134,20 @@ in, localStorage stays the real save — the cloud is a copy, writes are
 debounced, and a failed sync never interrupts a game.
 
 Use **the same Firebase project as Side Pot**, so one account covers both
-games. Paste the web config into `CLOUD_CONFIG` at the top of
-`parts/49-cloud.js` and rebuild.
+games. Top Shelf keeps its own collection so the two games cannot tread on
+each other's document.
 
-Top Shelf keeps its own collection so the two games cannot tread on each
-other's document. Firestore rules:
+**[CLOUD_SETUP.md](CLOUD_SETUP.md) walks the whole thing** — the console steps,
+the Firestore rules, and the authorized domain that is easy to miss. Short
+version, with the config block from the console on the clipboard:
 
+```powershell
+Get-Clipboard | node tools/set-cloud-config.js
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /players/{uid} {            // Side Pot
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-    match /topshelf/{uid} {           // Top Shelf
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-  }
-}
-```
+
+That picks the values out of the paste, rebuilds, and says what is left to do.
+`--show` reports the current state and `--clear` returns the build to fully
+offline.
 
 If both devices have played, signing in does **not** silently pick a winner —
 it shows what is in each save and asks which to keep.
