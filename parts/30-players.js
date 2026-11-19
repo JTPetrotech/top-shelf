@@ -156,7 +156,8 @@ var STICK_LOOKS = {
   surgeon: {shaft:0xeef3f9,   grip:0x9fb3c8, tape:0x1d2530, curve:0.030, len:0.37, h0:0.076, h1:0.062, thick:0.022, girth:0.95},
   howitz:  {shaft:0x1b222c,   grip:0x0b0e13, tape:0x15191f, curve:0.048, len:0.37, h0:0.090, h1:0.066, thick:0.030, girth:1.16},
   feather: {shaft:0x3ec98a,   grip:0x124631, tape:0x15191f, curve:0.044, len:0.30, h0:0.072, h1:0.054, thick:0.019, girth:0.84},
-  barbrk:  {shaft:0xffc43d,   grip:0x4a3410, tape:0x15191f, curve:0.066, len:0.35, h0:0.084, h1:0.060, thick:0.026, girth:1.05}
+  barbrk:  {shaft:0xffc43d,   grip:0x4a3410, tape:0x15191f, curve:0.066, len:0.35, h0:0.084, h1:0.060, thick:0.026, girth:1.05},
+  mcdang:  {shaft:0xf05a9b,   grip:0x3d1430, tape:0x15191f, curve:0.098, len:0.31, h0:0.068, h1:0.050, thick:0.017, girth:0.66}
 };
 function stickLook(k){
   if(k && typeof k === 'object') return k;      // a custom stick brings its own

@@ -32,7 +32,8 @@ var STICKS = [
   {k:'surgeon', n:'The Surgeon',   pw:1.02, ac:1.14, ps:1.06, d:'Picks corners. Will not blow anyone away.'},
   {k:'howitz',  n:'Howitzer',      pw:1.22, ac:0.92, ps:0.97, d:'Heavy as a fence post. Dents things.'},
   {k:'feather', n:'Featherweight', pw:1.06, ac:1.07, ps:1.12, d:'Barely there. Moves the puck quick.'},
-  {k:'barbrk',  n:'Bar Breaker',   pw:1.17, ac:1.05, ps:1.00, d:'Rings iron for a living.'}
+  {k:'barbrk',  n:'Bar Breaker',   pw:1.17, ac:1.05, ps:1.00, d:'Rings iron for a living.'},
+  {k:'mcdang',  n:'McDangles',     pw:0.90, ac:1.12, ps:1.26, d:'Insanely light. No shot behind it, but the puck is on a string.'}
 ];
 
 /* ---- skater blueprints. sp = skating, sh = shot, df = checking ---- */
