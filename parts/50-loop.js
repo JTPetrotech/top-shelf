@@ -112,6 +112,20 @@ function toast(text, dur, color){
   t.classList.add('on');
   toastT = dur || 1.0;
 }
+/* one purple button, labelled for what it will actually do right now */
+var slapLabel = {p1:'', p2:''};
+function paintActionBtns(){
+  var slots = ['p1','p2'];
+  for(var i = 0; i < 2; i++){
+    var k = slots[i], want = (carrier && carrier.ctrlBy === k) ? 'SLAP' : 'CHECK';
+    if(slapLabel[k] !== want){
+      slapLabel[k] = want;
+      var b = el(k + 'Slap');
+      if(b) b.textContent = want;
+    }
+  }
+}
+
 function paintBug(){
   el('scoreH').textContent = G.score[0];
   el('scoreA').textContent = G.score[1];
@@ -131,23 +145,23 @@ function showPads(on){
 function closeMenus(){
   ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
    'ovShop','ovReveal','ovTeam','ovTravel','ovFriends',
-   'ovModes','ovJersey','ovCustom','ovSeason','ovStory'].forEach(function(id){ el(id).classList.remove('on'); });
+   'ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
   if(touchOn && lastDevice === 'touch'){
     return G.humans === 2
       ? '<div><b>Player 1</b>Left half: stick, shoot, pass, dangle</div><div><b class="p2">Player 2</b>Right half: stick, shoot, pass, dangle</div>'
-      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Slap</b>Buttons on the right</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
+      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot</b>Button on the right</div><div><b>Slap / Check</b>Purple button, whichever applies</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
   }
   if(padCount > 0){
     return G.humans === 2
       ? '<div><b>Player 1</b>Pad 1: A shoot, X pass, B dangle</div><div><b class="p2">Player 2</b>Pad 2: A shoot, X pass, B dangle</div>'
-      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Slapshot</b>Y</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
+      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Slapshot / Check</b>Y / bumpers</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
   }
   return G.humans === 2
-    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle &middot; R slap</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle &middot; , slap</div>'
-    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot / Slapshot</b>Space (hold to load) / R</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Camera / Pause</b>C / P</div>';
+    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle &middot; R slap &middot; F check</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle &middot; , slap &middot; R-Shift check</div>'
+    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot / Slapshot</b>Space (hold to load) / R</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Check</b>F, at whoever is nearest</div><div><b>Camera / Pause</b>C / P</div>';
 }
 
 function openMenu(){
@@ -278,6 +292,7 @@ function applyHumanInput(){
       if(inp.pass) passTo(s);
       if(inp.dangle) dangle(s, inp.dangle.dx, inp.dangle.dz);
       if(inp.slap) startSlap(s);
+      if(inp.check) startCheck(s);
     } else {
       s.charging = false; s.charge = 0;
     }
@@ -355,6 +370,7 @@ function frame(now){
     if(toastT <= 0) el('toast').classList.remove('on');
   }
 
+  if(touchOn) paintActionBtns();
   updateCamera(dt);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

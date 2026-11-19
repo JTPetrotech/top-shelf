@@ -160,5 +160,127 @@ M.SAVE.story = M.STORY.length;
 ok('a finished story reports done', M.storyDone() === true);
 ok('and asks for nothing more', M.finishStoryChapter(9, 0) === null);
 
+/* ---------------- ratings, height and the dangle stat ---------------- */
+ok('a 1.0 multiplier reads as 50', M.rate(1) === 50, 'rate(1)=' + M.rate(1));
+ok('ratings are clamped to 1..99', M.rate(5) === 99 && M.rate(0) === 1);
+ok('rate and unrate round-trip', [20, 50, 75, 99].every(r => M.rate(M.unrate(r)) === r));
+ok('every skater blueprint has a dangle rating and a height',
+   M.SKATER_CARDS.every(c => typeof c.dg === 'number' && typeof c.ht === 'number'));
+ok('a minted skater carries them through',
+   (function(){ const c = M.mintSkater('burner', 'rare'); return typeof c.dg === 'number' && typeof c.ht === 'number'; })());
+ok('an old card with neither is repaired, not dropped',
+   (function(){
+     store.ts_save_v1 = JSON.stringify({v:1, coins:0, sticks:[M.mintStick('twig','common')],
+       skaters:[{u:'old1', t:'skater', k:'grinder', n:'Grinder', who:'Old Timer', pos:'LW', r:'common',
+                 num:7, sp:1, sh:1, df:1}],
+       line:[], teams:['sandlot'], team:'sandlot', friends:[]});
+     M.SAVE = null; M.loadSave();
+     const c = M.SAVE.skaters.find(x => x.u === 'old1');
+     return c && c.dg === 1 && c.ht === 1;
+   })());
+
+/* ---------------- more tape ---------------- */
+ok('there are plenty of tape colours now', M.TAPES.length >= 12, M.TAPES.length + ' colours');
+ok('no two tapes share a colour', new Set(M.TAPES.map(t => t.c)).size === M.TAPES.length);
+ok('every tape has a name', M.TAPES.every(t => t.n && typeof t.c === 'number'));
+
+/* ---------------- Jake ---------------- */
+const jake = M.signingOf('jake');
+ok('Jake Claiborne exists as a signing', !!jake && jake.who === 'Jake Claiborne');
+ok('99 speed, 99 shot, 99 dangle', jake.sp === 99 && jake.sh === 99 && jake.dg === 99);
+ok('and he is short', jake.ht < 0.85, 'height multiplier ' + jake.ht);
+ok('he is not in any pack pool', !M.SKATER_CARDS.some(c => c.k === 'jake'));
+
+M.SAVE = null; store.ts_save_v1 = ''; M.loadSave();
+M.SAVE.coins = 5000;
+ok('you cannot sign him without the money', M.signPlayer('jake') === null);
+M.SAVE.coins = 25000;
+const signed = M.signPlayer('jake');
+ok('with the money he signs', !!signed && signed.who === 'Jake Claiborne');
+ok('it costs what the shop says', M.SAVE.coins === 25000 - jake.cost, 'coins=' + M.SAVE.coins);
+ok('his card really is 99/99/99',
+   M.rate(signed.sp) === 99 && M.rate(signed.sh) === 99 && M.rate(signed.dg) === 99,
+   M.rate(signed.sp) + '/' + M.rate(signed.sh) + '/' + M.rate(signed.dg));
+ok('and short on the ice', signed.ht < 0.85);
+ok('he is a Legendary', signed.r === 'legend');
+ok('checking is his weak spot, so he is not simply the best card',
+   M.rate(signed.df) < 50, 'CHK ' + M.rate(signed.df));
+ok('you cannot sign him twice', M.signPlayer('jake') === null && M.haveSigning('jake') === true);
+
+M.SAVE = null; store.ts_save_v1 = ''; M.loadSave();
+M.SAVE.story = M.STORY.length - 1;
+const last = M.finishStoryChapter(5, 1);
+ok('finishing the story signs him for nothing',
+   last.passed && !!last.signed && M.haveSigning('jake'), last.signed ? last.signed.who : 'none');
+
+/* ---------------- manager ---------------- */
+M.SAVE = null; store.ts_save_v1 = ''; M.loadSave();
+const sr = M.squadRating();
+ok('a squad has an attack and a defence number',
+   sr.atk > 0 && sr.def > 0 && sr.atk < 120 && sr.def < 120, 'ATK ' + sr.atk + ' DEF ' + sr.def);
+ok('a better line rates higher', (function(){
+  const base = M.squadRating().atk;
+  for(let i = 0; i < 5; i++) M.SAVE.skaters.push(M.mintSkater('sniper', 'legend'));
+  M.SAVE.line = M.SAVE.skaters.slice(-5).map(c => c.u);
+  return M.squadRating().atk > base;
+})());
+
+ok('the line is the same squad from one call to the next',
+   M.lineCards(5).map(c => c.who).join(',') === M.lineCards(5).map(c => c.who).join(','),
+   M.lineCards(5).map(c => c.who).join(', '));
+ok('so the manager rating does not wander',
+   (function(){ const a = M.squadRating(), b = M.squadRating(); return a.atk === b.atk && a.def === b.def; })());
+
+ok('there are three tactics and a default', M.TACTICS.length === 3 && !!M.tacticOf('balance'));
+ok('an unknown tactic falls back to balanced', M.tacticOf('nonsense').k === 'balance');
+ok('attacking trades defence for attack',
+   M.tacticOf('attack').atk > 0 && M.tacticOf('attack').def < 0);
+ok('sitting back does the reverse',
+   M.tacticOf('defend').atk < 0 && M.tacticOf('defend').def > 0);
+
+M.SAVE.season = M.newSeason('bulldog');
+M.SAVE.coins = 0;
+const g1 = M.simManagerGame('balance');
+ok('a managed game returns a result', !!g1 && typeof g1.mine === 'number' && typeof g1.yours === 'number',
+   g1 ? g1.mine + '-' + g1.yours : 'none');
+ok('it pays you something', g1.paid > 0 && M.SAVE.coins === g1.paid, 'paid ' + g1.paid);
+ok('and it goes in the table', M.SAVE.season.game === 1);
+ok('an even match averages about three goals a side',
+   (function(){
+     let t = 0;
+     for(let i = 0; i < 4000; i++) t += M.sampleGoals(3.0);
+     const avg = t / 4000;
+     return avg > 2.7 && avg < 3.3;
+   })(), (function(){ let t = 0; for(let i = 0; i < 4000; i++) t += M.sampleGoals(3.0); return (t/4000).toFixed(2); })());
+ok('nobody ever runs up a basketball score',
+   (function(){
+     let hi = 0;
+     for(let i = 0; i < 4000; i++) hi = Math.max(hi, M.sampleGoals(99));
+     return hi <= 9;
+   })(), 'cap holds even against an absurd expectation');
+ok('a hopeless squad still sometimes scores',
+   (function(){ let any = 0; for(let i = 0; i < 200; i++) any += M.sampleGoals(0.4); return any > 0; })());
+ok('a full season of managed results looks like hockey',
+   (function(){
+     const save = M.SAVE;
+     M.SAVE = JSON.parse(JSON.stringify(save));
+     M.SAVE.season = M.newSeason('bulldog');
+     let worst = 0, total = 0, n = 0, g = 0;
+     while(!M.SAVE.season.done && g++ < 60){
+       const r = M.simManagerGame('balance');
+       if(!r) break;
+       worst = Math.max(worst, r.mine, r.yours);
+       total += r.mine + r.yours; n++;
+     }
+     const perGame = total / Math.max(1, n);
+     M.SAVE = save;
+     return worst <= 9 && perGame > 1.5 && perGame < 9;
+   })());
+
+let guard2 = 0;
+while(!M.SAVE.season.done && guard2++ < 200) M.simManagerGame('attack');
+ok('a whole season can be managed through', M.SAVE.season.done === true, guard2 + ' games simmed');
+ok('simming past the end is refused', M.simManagerGame('balance') === null);
+
 console.log(fails ? '\n' + fails + ' FAILED' : '\nall good');
 process.exit(fails ? 1 : 0);

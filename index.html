@@ -155,7 +155,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .ci .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
 .ci .nm{font-family:var(--display);font-size:20px;line-height:1.02;letter-spacing:.02em;margin:3px 0 1px}
 .ci .who{font-size:11px;color:var(--muted);margin-bottom:5px}
-.ci .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ci .st{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .ci .st b{color:var(--text);font-weight:800}
 .ci .eq{position:absolute;right:8px;top:8px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
   color:#0a1016;background:var(--amber);border-radius:4px;padding:2px 5px;font-weight:800}
@@ -193,7 +193,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .rv .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
 .rv .nm{font-family:var(--display);font-size:22px;line-height:1.02;margin:4px 0 2px}
 .rv .who{font-size:11px;color:var(--muted)}
-.rv .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);margin-top:7px}
+.rv .st{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:10.5px;color:var(--muted);margin-top:7px}
 .rv .st b{color:var(--text);font-weight:800}
 .rv.legend{box-shadow:0 0 26px rgba(255,196,61,.35)}
 .rv.epic{box-shadow:0 0 22px rgba(192,140,255,.3)}
@@ -597,6 +597,24 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
     </div>
   </div>
 
+  <!-- manager -->
+  <div class="ov" id="ovManager">
+    <div class="card">
+      <h2>Manager</h2>
+      <p class="sub">You do not skate. Dress the line, pick how they play, and the result comes off your cards against theirs.</p>
+      <div id="mgrBody"></div>
+      <div class="row"><div class="lab">Tactics</div></div>
+      <div class="chips" id="mgrTactic"></div>
+      <div class="odds" id="mgrResult"></div>
+      <div class="btns">
+        <button class="go" id="btnMgrSim">Play the game</button>
+        <button class="go alt" id="btnMgrSquad">Change the line</button>
+        <button class="go alt" id="btnMgrNew">New season</button>
+        <button class="go alt" id="btnMgrBack">Back</button>
+      </div>
+    </div>
+  </div>
+
   <!-- story -->
   <div class="ov" id="ovStory">
     <div class="card">
@@ -644,12 +662,13 @@ var BLUE_X = 9, DOT_X = 17, DOT_Z = 6.5;
 var SK_R = 0.72, PUCK_R = 0.22, GK_R = 0.95;
 var DANGLE_T = 0.40, DANGLE_COOL = 0;      // how long the puck is crossing; no wait between dangles
 var SLAP_WIND = 0.42;                      // the windup you pay for a slapshot
+var CHECK_T = 0.30, CHECK_COOL = 0.85;     // the lunge, and the wait before another
 
 var SURF = {
   ice: {
     label:'Ice', disc:'puck', surfaceWord:'ice',
     acc:33, max:11.2, drag:1.25, turn:9.5,
-    discDrag:0.30, bounce:0.70, shotBase:23, shotAdd:17, passBase:17, dangleKick:2.6,
+    discDrag:0.30, bounce:0.70, shotBase:23, shotAdd:17, passBase:17, dangleKick:2.6, checkKick:5.6,
     floor:'#eff4fa', tile:null, blue:'#2f6fd0', red:'#ce382a', crease:'rgba(47,111,208,0.16)',
     board:0xf3f7fb, boardTrim:0xd7e2ee, glass:true,
     amb:0x7f9ec6, ambI:0.55, dirI:1.05, fog:0x05080d, fogD:0.0085,
@@ -658,7 +677,7 @@ var SURF = {
   roller: {
     label:'Roller', disc:'ball', surfaceWord:'court',
     acc:42, max:10.3, drag:2.7, turn:14,
-    discDrag:0.80, bounce:0.56, shotBase:20, shotAdd:14, passBase:15, dangleKick:3.4,
+    discDrag:0.80, bounce:0.56, shotBase:20, shotAdd:14, passBase:15, dangleKick:3.4, checkKick:6.4,
     floor:'#1d6a84', tile:'#185f76', blue:'#f2f6fa', red:'#e8513a', crease:'rgba(242,246,250,0.14)',
     board:0x2b3a4e, boardTrim:0x1b2838, glass:false,
     amb:0xffe6c2, ambI:0.72, dirI:0.95, fog:0x070a10, fogD:0.006,
@@ -782,16 +801,17 @@ var sfx = (function(){
    ========================================================================= */
 var KEYS = Object.create(null);
 var SCHEME = {
-  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ', dangle:'KeyE', slap:'KeyR'},
-  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash', dangle:'Period', slap:'Comma'}
+  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ', dangle:'KeyE', slap:'KeyR', check:'KeyF'},
+  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash', dangle:'Period', slap:'Comma', check:'ShiftRight'}
 };
-var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false}, p2:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false}};
+var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false, check:false}, p2:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false, check:false}};
 var touchIn = {p1:{mx:0, mz:0, shoot:false}, p2:{mx:0, mz:0, shoot:false}};
 var IN = {p1:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}, p2:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}};
 var passEdge = {p1:false, p2:false};
 /* a dangle is one flick, not a held button: null, or {dx, dz} for the way it went */
 var dangleEdge = {p1:null, p2:null};
 var slapEdge = {p1:false, p2:false};
+var checkEdge = {p1:false, p2:false};
 var lastDevice = 'key';
 var padCount = 0;
 
@@ -806,6 +826,8 @@ addEventListener('keydown', function(e){
   if(c === SCHEME.p2.dangle) dangleEdge.p2 = {dx:0, dz:0};
   if(c === SCHEME.p1.slap) slapEdge.p1 = true;
   if(c === SCHEME.p2.slap) slapEdge.p2 = true;
+  if(c === SCHEME.p1.check) checkEdge.p1 = true;
+  if(c === SCHEME.p2.check) checkEdge.p2 = true;
   if(c === 'KeyP' || c === 'Escape') togglePause();
   if(c === 'KeyC') cycleCam();
 });
@@ -829,9 +851,10 @@ function readPads(){
     if(gp.buttons[15] && gp.buttons[15].pressed) ax = 1;
     slot.mx = ax; slot.mz = az;
     var shoot = (gp.buttons[0] && gp.buttons[0].pressed) || (gp.buttons[7] && gp.buttons[7].value > 0.4);
-    var pass  = (gp.buttons[2] && gp.buttons[2].pressed) || (gp.buttons[5] && gp.buttons[5].pressed);
-    var dang  = (gp.buttons[1] && gp.buttons[1].pressed) || (gp.buttons[4] && gp.buttons[4].pressed);
+    var pass  = (gp.buttons[2] && gp.buttons[2].pressed);
+    var dang  = (gp.buttons[1] && gp.buttons[1].pressed);
     var slap  = (gp.buttons[3] && gp.buttons[3].pressed) || (gp.buttons[6] && gp.buttons[6].value > 0.4);
+    var chk   = (gp.buttons[4] && gp.buttons[4].pressed) || (gp.buttons[5] && gp.buttons[5].pressed);
     slot.shoot = !!shoot;
     if(pass && !slot.pass) passEdge[slots[n]] = true;
     slot.pass = !!pass;
@@ -839,7 +862,9 @@ function readPads(){
     slot.dangle = !!dang;
     if(slap && !slot.slap) slapEdge[slots[n]] = true;
     slot.slap = !!slap;
-    if(ax || az || shoot || pass || dang || slap) lastDevice = 'pad';
+    if(chk && !slot.check) checkEdge[slots[n]] = true;
+    slot.check = !!chk;
+    if(ax || az || shoot || pass || dang || slap || chk) lastDevice = 'pad';
     n++;
   }
   padCount = n;
@@ -870,6 +895,7 @@ function gatherInput(){
     o.pass = passEdge[k]; passEdge[k] = false;
     o.dangle = dangleEdge[k]; dangleEdge[k] = null;
     o.slap = slapEdge[k]; slapEdge[k] = false;
+    o.check = checkEdge[k]; checkEdge[k] = false;
   }
 }
 
@@ -907,7 +933,9 @@ function bindBtn(btn, slot, kind){
   btn.addEventListener('pointerdown', function(e){
     e.preventDefault(); sfx.on(); lastDevice = 'touch';
     if(kind === 'shoot') touchIn[slot].shoot = true;
-    else if(kind === 'slap') slapEdge[slot] = true;
+    else if(kind === 'slap'){
+      if(carrier && carrier.ctrlBy === slot) slapEdge[slot] = true; else checkEdge[slot] = true;
+    }
     else passEdge[slot] = true;
   });
   var ends = ['pointerup','pointercancel','pointerleave'];
@@ -1699,7 +1727,7 @@ function buildStick(key){
   return g;
 }
 
-function buildSkater(team, num, roller, stickKey){
+function buildSkater(team, num, roller, stickKey, height){
   makeMats();
   var mt = MATS.teams[team];
   var root = new T.Group();
@@ -1785,6 +1813,9 @@ function buildSkater(team, num, roller, stickKey){
   stick.rotation.z = -0.52;
   stick.rotation.y = 0.18;
   lean.add(stick);
+
+  // a short player is a smaller player, skates and stick included
+  root.scale.setScalar(height === undefined ? 1 : height);
 
   root.userData = {lean: lean, legL: legL, legR: legR, armL: armL, armR: armR,
                    stick: stick, torso: torso, head: head, phase: Math.random()*6.28};
@@ -1932,7 +1963,9 @@ function animateSkater(s, dt){
 
   // stick: wind up while loading, snap through on release, reach for the disc otherwise
   var targetZ = -0.52, targetY = 0.18;
-  if(s.slapT > 0){
+  if(s.checkT > 0){
+    targetZ = -0.25; targetY = -0.55;          // stick out of the way, shoulder first
+  } else if(s.slapT > 0){
     // stick goes right up over the shoulder, then comes through
     var w = 1 - s.slapT / SLAP_WIND;
     targetZ = -0.52 - (1 - w) * 2.15;
@@ -2019,8 +2052,10 @@ function createTeams(){
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2, slapT: 0,
+      checkT: 0, checkCool: 0, aiCheck: 1 + Math.random() * 2,
+      dg: d.card.dg === undefined ? 1 : d.card.dg, ht: d.card.ht === undefined ? 1 : d.card.ht,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k)
+      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k, d.card.ht)
     };
     world.add(s.model);
     skaters.push(s);
@@ -2055,7 +2090,8 @@ function updateCtrlTags(){
 
 function resetPositions(dropTo){
   for(var ri = 0; ri < skaters.length; ri++){
-    skaters[ri].carrySide = 1; skaters[ri].dangleT = 0; skaters[ri].dangleCool = 0; skaters[ri].slapT = 0;
+    var rs = skaters[ri];
+    rs.carrySide = 1; rs.dangleT = 0; rs.dangleCool = 0; rs.slapT = 0; rs.checkT = 0; rs.checkCool = 0;
   }
   for(var i = 0; i < skaters.length; i++){
     var s = skaters[i];
@@ -2130,6 +2166,7 @@ function netCollide(o, r){
 
 function stepSkater(s, dt){
   var cfg = S(), d = D();
+  if(s.checkT > 0) s.il *= 0.15;
   if(s.slapT > 0){
     s.slapT -= dt;
     s.il *= 0.22;                                   // you are planted while loading it
@@ -2168,6 +2205,8 @@ function stepSkater(s, dt){
   if(s.followT > 0) s.followT -= dt;
   if(s.dangleT > 0) s.dangleT -= dt;
   if(s.dangleCool > 0) s.dangleCool -= dt;
+  if(s.checkT > 0) s.checkT -= dt;
+  if(s.checkCool > 0) s.checkCool -= dt;
 
   s.model.position.set(s.x, 0, s.z);
   s.model.rotation.y = -s.face;
@@ -2188,7 +2227,23 @@ function skaterContacts(){
       var fast = sa > sb ? a : b, slow = sa > sb ? b : a;
       var diff = Math.abs(sa - sb);
       if(a.team !== b.team){
-        var strip = 2.2 / (fast.df || 1) * (slow.dangleT > 0 ? 1.9 : 1);
+        var lunger = (a.checkT > 0 && b.checkT <= 0) ? a : ((b.checkT > 0 && a.checkT <= 0) ? b : null);
+        if(lunger){
+          var hit = lunger === a ? b : a;
+          if(carrier === hit){
+            carrier = null;
+            puck.vx = lunger.vx * 0.8 + (hit === b ? nx : -nx) * 3.4;
+            puck.vz = lunger.vz * 0.8 + (hit === b ? nz : -nz) * 3.4;
+            puck.vy = 1.4; puckCool = 0.2;
+          }
+          hit.stun = 0.78 / (hit.df || 1);
+          lunger.checkT = 0;
+          G.shake = Math.max(G.shake, 0.65);
+          sfx.hit();
+          if(G.tut) tutEvent('check');
+          continue;
+        }
+        var strip = 2.2 / (fast.df || 1) * (slow.dangleT > 0 ? (1.4 + 0.5 * (slow.dg || 1)) : 1);
         if(carrier === slow && diff > strip){
           carrier = null;
           puck.vx = fast.vx * 0.9 + nx * 3;
@@ -2266,7 +2321,7 @@ function dangle(s, dx, dz){
   s.carrySide = side;
   s.dangleT = DANGLE_T;
   s.dangleCool = DANGLE_COOL;
-  var b = S().dangleKick;
+  var b = S().dangleKick * (s.dg || 1);
   s.vx += Math.cos(s.face) * b;
   s.vz += Math.sin(s.face) * b;
   sfx.pass();
@@ -2296,6 +2351,29 @@ function bestMate(s){
     if(score > bs){ bs = score; best = m; }
   }
   return best;
+}
+
+/* Throw yourself at the nearest opponent. It is a committed lunge: you turn
+   into them, you cannot steer out of it, and if you miss you are out of the
+   play. Land it and the puck comes loose whatever the speeds were. */
+function startCheck(s){
+  if(carrier === s || s.checkT > 0 || s.checkCool > 0 || s.stun > 0) return false;
+  var best = null, bd = 6.5, i;
+  for(i = 0; i < skaters.length; i++){
+    var o = skaters[i];
+    if(o.team === s.team || o.hidden || o.stun > 0) continue;
+    var d = dist(s.x, s.z, o.x, o.z);
+    if(d < bd){ bd = d; best = o; }
+  }
+  if(!best) return false;
+  var a = Math.atan2(best.z - s.z, best.x - s.x);
+  s.face = a;
+  s.checkT = CHECK_T;
+  s.checkCool = CHECK_COOL;
+  var k = S().checkKick;
+  s.vx += Math.cos(a) * k;
+  s.vz += Math.sin(a) * k;
+  return true;
 }
 
 function mateOf(s){
@@ -2344,6 +2422,7 @@ function steer(s, tx, tz, gain){
 }
 function aiThink(s, t, dt){
   aiMaybeDangle(s, dt);
+  aiMaybeCheck(s, dt);
   var d = D();
   var dir = s.team === 0 ? 1 : -1;
   var oppX = dir * GOAL_X, ownX = -dir * GOAL_X;
@@ -2391,6 +2470,16 @@ function aiThink(s, t, dt){
 /* ---- goalies ---- */
 /* give the AI the same move, used the way a player would: only with the puck,
    only with someone on top of them, and not every single time. */
+function aiMaybeCheck(s, dt){
+  if(carrier === s || !carrier || carrier.team === s.team || s.checkCool > 0) return;
+  s.aiCheck -= dt;
+  if(s.aiCheck > 0) return;
+  s.aiCheck = 0.8 + Math.random() * 1.8;
+  if(dist(s.x, s.z, carrier.x, carrier.z) > 3.4) return;
+  if(Math.random() > 0.3 + D().aggr * 0.3) return;
+  startCheck(s);
+}
+
 function aiMaybeDangle(s, dt){
   if(carrier !== s || s.dangleCool > 0) return;
   s.aiDangle -= dt;
@@ -2822,6 +2911,13 @@ var RAR = [
   {k:'epic',   n:'Epic',      c:'#c08cff', w:10,  mul:1.16, sell:220},
   {k:'legend', n:'Legendary', c:'#ffc43d', w:3,   mul:1.27, sell:700}
 ];
+/* multiplier -> the 0-99 number on the card face */
+function rate(m){
+  var v = Math.round(50 + ((m === undefined ? 1 : m) - 1) * 170);
+  return v < 1 ? 1 : (v > 99 ? 99 : v);
+}
+function unrate(r){ return 1 + (r - 50) / 170; }     // and back again
+
 function rarOf(k){ for(var i=0;i<RAR.length;i++) if(RAR[i].k===k) return RAR[i]; return RAR[0]; }
 
 /* ---- stick blueprints. pw = shot speed, ac = aim, ps = pass zip ---- */
@@ -2837,15 +2933,52 @@ var STICKS = [
 
 /* ---- skater blueprints. sp = skating, sh = shot, df = checking ---- */
 var SKATER_CARDS = [
-  {k:'grinder', n:'Grinder',    pos:'LW', sp:0.97, sh:0.95, df:1.18, d:'Lives in the corners.'},
-  {k:'burner',  n:'Burner',     pos:'RW', sp:1.16, sh:1.00, df:0.90, d:'First to every loose puck.'},
-  {k:'sniper',  n:'Sniper',     pos:'C',  sp:1.00, sh:1.18, df:0.88, d:'One look, one shot.'},
-  {k:'anchor',  n:'Anchor',     pos:'D',  sp:0.92, sh:0.93, df:1.26, d:'Nobody gets through the middle.'},
-  {k:'playmkr', n:'Playmaker',  pos:'C',  sp:1.05, sh:1.02, df:1.00, d:'Sees the pass before it opens.'},
-  {k:'pest',    n:'Pest',       pos:'LW', sp:1.08, sh:0.94, df:1.12, d:'Insufferable. On your side, thankfully.'},
-  {k:'twoway',  n:'Two-Way',    pos:'C',  sp:1.04, sh:1.05, df:1.08, d:'Does everything a little better.'},
-  {k:'howitz2', n:'Blue Liner', pos:'D',  sp:0.95, sh:1.14, df:1.14, d:'Point shot you can hear outside.'}
+  {k:'grinder', n:'Grinder',    pos:'LW', sp:0.97, sh:0.95, df:1.18, dg:0.92, ht:1.03, d:'Lives in the corners.'},
+  {k:'burner',  n:'Burner',     pos:'RW', sp:1.16, sh:1.00, df:0.90, dg:1.10, ht:0.96, d:'First to every loose puck.'},
+  {k:'sniper',  n:'Sniper',     pos:'C',  sp:1.00, sh:1.18, df:0.88, dg:1.04, ht:1.00, d:'One look, one shot.'},
+  {k:'anchor',  n:'Anchor',     pos:'D',  sp:0.92, sh:0.93, df:1.26, dg:0.86, ht:1.09, d:'Nobody gets through the middle.'},
+  {k:'playmkr', n:'Playmaker',  pos:'C',  sp:1.05, sh:1.02, df:1.00, dg:1.14, ht:0.99, d:'Sees the pass before it opens.'},
+  {k:'pest',    n:'Pest',       pos:'LW', sp:1.08, sh:0.94, df:1.12, dg:1.08, ht:0.92, d:'Insufferable. On your side, thankfully.'},
+  {k:'twoway',  n:'Two-Way',    pos:'C',  sp:1.04, sh:1.05, df:1.08, dg:1.02, ht:1.00, d:'Does everything a little better.'},
+  {k:'howitz2', n:'Blue Liner', pos:'D',  sp:0.95, sh:1.14, df:1.14, dg:0.88, ht:1.07, d:'Point shot you can hear outside.'}
 ];
+
+/* ---- one-off signings: real names, fixed ratings, not in any pack ---- */
+var SIGNINGS = [
+  {k:'jake', who:'Jake Claiborne', n:'The Flash', pos:'C', cost:20000, num:9,
+   sp:99, sh:99, dg:99, df:40, ht:0.78,
+   d:'Half a head shorter than everyone out there and already past them.'}
+];
+function signingOf(k){ for(var i=0;i<SIGNINGS.length;i++) if(SIGNINGS[i].k === k) return SIGNINGS[i]; return null; }
+function haveSigning(k){
+  for(var i=0;i<SAVE.skaters.length;i++) if(SAVE.skaters[i].signing === k) return true;
+  return false;
+}
+/* A signing is written in ratings, because that is how it was asked for. */
+function mintSigning(k){
+  var b = signingOf(k);
+  if(!b) return null;
+  return {u: uid(), t:'skater', k:'twoway', signing: b.k, n: b.n, who: b.who, pos: b.pos, r:'legend',
+          num: b.num, sp: unrate(b.sp), sh: unrate(b.sh), df: unrate(b.df), dg: unrate(b.dg),
+          ht: b.ht, d: b.d};
+}
+function signPlayer(k){
+  var b = signingOf(k);
+  if(!b || haveSigning(k) || SAVE.coins < b.cost) return null;
+  SAVE.coins -= b.cost;
+  var c = mintSigning(k);
+  SAVE.skaters.push(c);
+  saveNow();
+  return c;
+}
+/* finishing the story gets him for nothing, so he is reachable without grinding */
+function grantStoryPlayer(){
+  if(haveSigning('jake')) return null;
+  var c = mintSigning('jake');
+  SAVE.skaters.push(c);
+  saveNow();
+  return c;
+}
 
 var FIRST = ['Dale','Mick','Sven','Bobby','Ty','Ravi','Gus','Luc','Pete','Hal','Nils','Dom','Rory','Jo','Cal','Ira'];
 var LAST  = ['Brennan','Kowalczyk','Lindholm','Ferraro','Okafor','Dube','Marchetti','Halloran','Vasko','Pike','Ostrom','Quinn','Bedard','Trahan'];
@@ -2917,7 +3050,9 @@ function mintSkater(k, rk){
           num: 2 + Math.floor(Math.random()*96),
           sp: +(Math.min(1.26, b.sp * r.mul)).toFixed(3),
           sh: +(b.sh * r.mul).toFixed(3),
-          df: +(b.df * r.mul).toFixed(3), d: b.d};
+          df: +(b.df * r.mul).toFixed(3),
+          dg: +(Math.min(1.26, (b.dg === undefined ? 1 : b.dg) * r.mul)).toFixed(3),
+          ht: b.ht === undefined ? 1 : b.ht, d: b.d};
 }
 
 function loadSave(){
@@ -2948,6 +3083,12 @@ function repairSave(){
   if(SAVE.teams.indexOf(SAVE.team) === -1) SAVE.team = SAVE.teams[0];
   if(typeof SAVE.coins !== 'number' || SAVE.coins < 0) SAVE.coins = 0;
   if(!SAVE.friends) SAVE.friends = [];
+  if(!SAVE.callups) SAVE.callups = [];
+  for(var si = 0; si < SAVE.skaters.length; si++){
+    var sc = SAVE.skaters[si];
+    if(typeof sc.dg !== 'number') sc.dg = 1;
+    if(typeof sc.ht !== 'number') sc.ht = 1;
+  }
 }
 
 function saveNow(){
@@ -2974,8 +3115,14 @@ function lineCards(n){
   for(i = 0; i < SAVE.skaters.length && out.length < n; i++){
     if(out.indexOf(SAVE.skaters[i]) === -1) out.push(SAVE.skaters[i]);
   }
-  var pool = ['grinder','burner','playmkr','anchor','pest','twoway'];
-  while(out.length < n) out.push(mintSkater(pool[out.length % pool.length], 'common'));
+  if(!SAVE.callups) SAVE.callups = [];
+  var pool = ['grinder','burner','playmkr','anchor','pest','twoway'], made = false;
+  while(out.length < n){
+    var at = out.length;
+    if(!SAVE.callups[at]){ SAVE.callups[at] = mintSkater(pool[at % pool.length], 'common'); made = true; }
+    out.push(SAVE.callups[at]);
+  }
+  if(made) saveNow();
   return out.slice(0, n);
 }
 
@@ -3065,7 +3212,7 @@ var oppOverride = null;        // a friend's squad, or null for the house team
 var NEUT_NUM = [9, 21, 4, 17, 55, 8, 12, 27, 33, 44];
 function neutralCard(i){
   return {u:'n'+i, t:'skater', k:'twoway', n:'Skater', who:'Skater', pos:'C', r:'common',
-          num: NEUT_NUM[i % NEUT_NUM.length], sp:1, sh:1, df:1, d:''};
+          num: NEUT_NUM[i % NEUT_NUM.length], sp:1, sh:1, df:1, dg:1, ht:1, d:''};
 }
 function neutralLine(n, team){
   var out = [];
@@ -3181,10 +3328,16 @@ function pct(v){
 }
 function rcVar(rk){ return rarOf(rk).c; }
 
+/* six foot is an average skater; the card's height multiplier moves it from there */
+function heightLabel(ht){
+  var inches = Math.round(72 + ((ht === undefined ? 1 : ht) - 1) * 55);
+  return Math.floor(inches / 12) + '′' + (inches % 12) + '″';
+}
 function cardStats(c){
   return c.t === 'stick'
     ? '<span>PWR <b>' + pct(c.pw) + '</b></span><span>AIM <b>' + pct(c.ac) + '</b></span><span>PASS <b>' + pct(c.ps) + '</b></span>'
-    : '<span>SPD <b>' + pct(c.sp) + '</b></span><span>SHOT <b>' + pct(c.sh) + '</b></span><span>CHK <b>' + pct(c.df) + '</b></span>';
+    : '<span>SPD <b>' + rate(c.sp) + '</b></span><span>SHOT <b>' + rate(c.sh) + '</b></span>' +
+      '<span>DGL <b>' + rate(c.dg) + '</b></span><span>CHK <b>' + rate(c.df) + '</b></span>';
 }
 function cardHTML(c, equipped, selectable){
   var r = rarOf(c.r);
@@ -3193,7 +3346,7 @@ function cardHTML(c, equipped, selectable){
     (equipped ? '<span class="eq">' + (c.t === 'stick' ? 'In hand' : 'Dressed') + '</span>' : '') +
     '<div class="rr">' + r.n + '</div>' +
     '<div class="nm">' + esc(c.n) + '</div>' +
-    '<div class="who">' + esc(c.t === 'stick' ? c.d : (c.who + ' · ' + c.pos)) + '</div>' +
+    '<div class="who">' + esc(c.t === 'stick' ? c.d : (c.who + ' · ' + c.pos + ' · ' + heightLabel(c.ht))) + '</div>' +
     '<div class="st">' + cardStats(c) + '</div>' +
     (c.t === 'skater' ? '<span class="num">' + c.num + '</span>' : '') +
     '</div>';
@@ -3210,7 +3363,7 @@ function paintWallet(){
   ['walletN','shopN','travN','custN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
   var rec = el('walletRec');
   if(rec){
-    var modeName = SAVE.mode === 'franchise' ? 'Franchise' : (SAVE.mode === 'story' ? 'Story' : 'Exhibition');
+    var modeName = {franchise:'Franchise', story:'Story', manager:'Manager'}[SAVE.mode] || 'Exhibition';
     rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n +
       ' · ' + modeName + (proOn() ? ' · Pro' : '');
   }
@@ -3231,7 +3384,18 @@ function backToMenu(){ closeMeta(); openMenu(); }
    shop
    ========================================================================= */
 function paintShop(){
-  var h = '';
+  var h = '', si;
+  // a signing sits above the packs: a name, a price, and nothing left to chance
+  for(si = 0; si < SIGNINGS.length; si++){
+    var g = SIGNINGS[si], got = haveSigning(g.k), afford = SAVE.coins >= g.cost;
+    h += '<div class="pk' + (got ? ' owned' : '') + '"><div class="pw">' +
+         '<div class="pn">' + esc(g.who) + '</div>' +
+         '<div class="pd">' + esc(g.d) + '<br>' +
+         'SPD ' + g.sp + ' · SHOT ' + g.sh + ' · DGL ' + g.dg + ' · CHK ' + g.df +
+         ' · ' + heightLabel(g.ht) + '</div></div>' +
+         '<button class="buy" data-sign="' + g.k + '"' + (got || !afford ? ' disabled' : '') + '>' +
+         (got ? 'Signed' : g.cost.toLocaleString()) + '</button></div>';
+  }
   for(var i = 0; i < PACKS.length; i++){
     var p = PACKS[i], can = SAVE.coins >= p.cost;
     h += '<div class="pk"><div class="pw"><div class="pn">' + esc(p.n) + '</div>' +
@@ -3268,7 +3432,7 @@ function showReveal(p, cards){
     h += '<div class="rv ' + c.r + '" style="--rc:' + r.c + ';animation-delay:' + (i * 0.26) + 's">' +
          '<div class="rr">' + r.n + '</div>' +
          '<div class="nm">' + esc(c.n) + '</div>' +
-         '<div class="who">' + esc(c.t === 'stick' ? 'Stick' : (c.who + ' · ' + c.pos)) + '</div>' +
+         '<div class="who">' + esc(c.t === 'stick' ? 'Stick' : (c.who + ' · ' + c.pos + ' · ' + heightLabel(c.ht))) + '</div>' +
          '<div class="st">' + cardStats(c) + '</div></div>';
   }
   el('revCards').innerHTML = h;
@@ -3404,6 +3568,11 @@ function metaDelegate(id, attr, fn){
 }
 
 metaDelegate('shopList', 'data-k', function(k){ buyPack(k); paintShop(); });
+metaDelegate('shopList', 'data-sign', function(k){
+  var c = signPlayer(k);
+  paintShop();
+  if(c) toast(c.who + ' signed', 1.4, '#ffc43d');
+});
 metaDelegate('travList', 'data-t', function(k){ pickTeam(k); });
 metaDelegate('friendList', 'data-f', function(i){ playFriend(parseInt(i, 10)); });
 metaDelegate('friendList', 'data-x', function(i){
@@ -3536,8 +3705,12 @@ var PAINTS = [
   {n:'Mint',    c:0x7fe0c0}, {n:'Hot Pink', c:0xf05a9b}, {n:'Sand',   c:0xd9b887}
 ];
 var TAPES = [
-  {n:'Black tape', c:0x15191f}, {n:'White tape', c:0xf2f6fa}, {n:'Red tape', c:0x9c2a1c},
-  {n:'Blue tape',  c:0x1f4f8f}, {n:'Gold tape',  c:0xb3842a}
+  {n:'Black',   c:0x15191f}, {n:'White',    c:0xf2f6fa}, {n:'Red',     c:0x9c2a1c},
+  {n:'Blue',    c:0x1f4f8f}, {n:'Gold',     c:0xb3842a}, {n:'Green',   c:0x2e7d53},
+  {n:'Orange',  c:0xd2691e}, {n:'Purple',   c:0x6b45a0}, {n:'Pink',    c:0xd4588f},
+  {n:'Teal',    c:0x1f7f87}, {n:'Camo',     c:0x55613c}, {n:'Sky',     c:0x5ad8ff},
+  {n:'Maroon',  c:0x5e1b22}, {n:'Sand',     c:0xcbb089}, {n:'Lime',    c:0x9ad428},
+  {n:'Slate',   c:0x4a5869}, {n:'Copper',   c:0xa65e2e}, {n:'Mint',    c:0x7fe0c0}
 ];
 var CUSTOM_PRICE = {rare: 1500, epic: 4500, legend: 14000};
 
@@ -3696,12 +3869,14 @@ function finishStoryChapter(a, b){
   var ch = STORY[i];
   if(!ch) return null;
   var won = ch.test(a, b);
+  var signed = null;
   if(won){
     SAVE.story = i + 1;
     SAVE.coins += ch.pay;
+    if(SAVE.story >= STORY.length) signed = grantStoryPlayer();
     saveNow();
   }
-  return {chapter: ch, passed: won, index: i, pay: ch.pay};
+  return {chapter: ch, passed: won, index: i, pay: ch.pay, signed: signed};
 }
 
 /* ---------------- save migration ----------------
@@ -3714,14 +3889,70 @@ function migrateCareer2(){
   if(typeof SAVE.story !== 'number') SAVE.story = 0;
   if(SAVE.season && (!SAVE.season.games || !SAVE.season.table)) SAVE.season = null;
   if(SAVE.season === undefined) SAVE.season = null;
-  SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story
+  SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story | manager
+  if(!tacticOf(SAVE.tactic) || !SAVE.tactic) SAVE.tactic = 'balance';
+}
+
+/* =========================================================================
+   8.9  MANAGER MODE
+   You do not play. You pick who dresses and how they play, and the game is
+   decided by your cards against theirs. Same season, same table.
+   ========================================================================= */
+var TACTICS = [
+  {k:'defend',  n:'Sit back',  atk:-0.20, def:0.24, d:'Clog the middle, take the counter when it comes.'},
+  {k:'balance', n:'Balanced',  atk:0,     def:0,    d:'Play it straight down the middle.'},
+  {k:'attack',  n:'Push up',   atk:0.26,  def:-0.22, d:'Forecheck hard and live with the gaps behind.'}
+];
+function tacticOf(k){ for(var i=0;i<TACTICS.length;i++) if(TACTICS[i].k === k) return TACTICS[i]; return TACTICS[1]; }
+
+/* Your dressed line and the stick in your hands, on the same 0-99 scale the
+   cards are shown in. */
+function squadRating(){
+  var ln = lineCards(5), st = equippedStick(), atk = 0, def = 0;
+  for(var i = 0; i < ln.length; i++){
+    var c = ln[i];
+    atk += rate(c.sp) * 0.32 + rate(c.sh) * 0.46 + rate(c.dg) * 0.22;
+    def += rate(c.df) * 0.68 + rate(c.sp) * 0.32;
+  }
+  atk /= ln.length; def /= ln.length;
+  atk *= (st.pw + st.ac) / 2;
+  return {atk: Math.round(atk), def: Math.round(def)};
+}
+
+/* Poisson, so a 4-0 is possible and a 1-1 is common. Capped at both ends:
+   an uncapped expectation against a weak side produced 11-3, which is not a
+   hockey score. */
+function sampleGoals(expected){
+  var e = Math.max(0.15, Math.min(5.2, expected));
+  var g = 0, L = Math.exp(-e), p = 1;
+  do { g++; p *= Math.random(); } while(p > L && g < 14);
+  return Math.min(9, g - 1);
+}
+
+function simManagerGame(tacticKey){
+  var fx = nextFixture();
+  if(!fx) return null;
+  var t = tacticOf(tacticKey), me = squadRating();
+  var oppR = leagueOf(fx.opp).str * 62;
+  var myAtk = me.atk * (1 + t.atk) * (fx.home ? 1.06 : 0.95);
+  var myDef = me.def * (1 + t.def);
+  var mine  = sampleGoals(3.0 * myAtk / Math.max(18, oppR));
+  var yours = sampleGoals(3.0 * oppR / Math.max(18, myDef));
+  var opp = leagueOf(fx.opp);
+  recordSeasonGame(mine, yours);
+  var base = mine > yours ? 90 : (mine === yours ? 35 : 18);
+  var paid = Math.round(base * teamOf(SAVE.team).pay * (proOn() ? PRO.payMult : 1));
+  SAVE.coins += paid;
+  saveNow();
+  return {opp: opp, home: fx.home, mine: mine, yours: yours, paid: paid, tactic: t,
+          rating: me, oppRating: Math.round(oppR)};
 }
 
 /* =========================================================================
    8.8  SCREENS FOR MODES, JERSEYS, CUSTOM STICKS, SEASON AND STORY
    ========================================================================= */
 
-var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory'];
+var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'];
 function closeMeta2(){ META_OVS2.forEach(function(id){ el(id).classList.remove('on'); }); }
 function showMeta2(id){
   closeMenus();
@@ -3742,7 +3973,9 @@ var MODES = [
   {k:'franchise',  n:'Franchise',  col:'#3ec98a',
    d:'A full season: home and away against seven rivals, a live table, and a cheque for whoever finishes top.'},
   {k:'story',      n:'Story',      col:'#c08cff',
-   d:'Seven chapters. Each one asks for something specific — win by two, keep a clean sheet, beat the All-Stars.'}
+   d:'Seven chapters. Each one asks for something specific — win by two, keep a clean sheet, beat the All-Stars.'},
+  {k:'manager',    n:'Manager',    col:'#ffc43d',
+   d:'You do not skate. Dress the line, pick the tactics, and your cards decide it against theirs.'}
 ];
 
 function paintModes(){
@@ -3763,6 +3996,7 @@ function pickMode(k){
   paintModes();
   if(k === 'franchise'){ showMeta2('ovSeason'); paintSeason(); }
   else if(k === 'story'){ showMeta2('ovStory'); paintStory(); }
+  else if(k === 'manager'){ showMeta2('ovManager'); paintManager(); }
 }
 
 /* =========================================================================
@@ -3840,39 +4074,86 @@ function paintCustom(){
 /* =========================================================================
    season
    ========================================================================= */
-function paintSeason(){
-  var s = SAVE.season;
-  if(!s){
-    el('seasonBody').innerHTML = '<p class="sub">No season running. Start one and you will play every ' +
-      'other club home and away, with the table updating around you.</p>';
-    el('btnSeasonPlay').style.display = 'none';
-    el('btnSeasonNew').textContent = 'Start a season';
-    return;
-  }
-  var tableRows = standings(s).map(function(r, i){
+/* The table is the same whether you are playing the games or managing them. */
+function standingsHTML(s){
+  var rows = standings(s).map(function(r, i){
     var t = leagueOf(r.k);
     return '<tr' + (r.k === s.team ? ' class="me"' : '') + '><td>' + (i + 1) + '. ' + esc(t.n) + '</td>' +
       '<td>' + r.w + '</td><td>' + r.l + '</td><td>' + r.d + '</td>' +
       '<td>' + (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga) + '</td><td>' + pts(r) + '</td></tr>';
   }).join('');
+  return '<table class="tbl"><tr><th>Club</th><th>W</th><th>L</th><th>D</th><th>GD</th><th>Pts</th></tr>' +
+    rows + '</table>';
+}
 
-  var fx = nextFixture();
-  var head = '';
+function seasonHTML(s, verb){
+  var fx = nextFixture(), head = '';
   if(s.done){
     head = '<div class="fixture"><div class="fx">' + esc(leagueOf(s.champion).n) + ' win the league</div>' +
       '<div class="fs">' + (s.champion === s.team ? 'That is you. 25,000 in the bank.' : 'Next year.') +
       '</div></div>';
-    el('btnSeasonPlay').style.display = 'none';
   } else if(fx){
     head = '<div class="fixture"><div class="fx">' + (fx.home ? 'vs ' : 'at ') + esc(leagueOf(fx.opp).n) + '</div>' +
-      '<div class="fs">Game ' + (s.game + 1) + ' of ' + s.games.length + ' · playing as ' +
+      '<div class="fs">Game ' + (s.game + 1) + ' of ' + s.games.length + ' · ' + verb + ' as ' +
       esc(leagueOf(s.team).n) + '</div></div>';
-    el('btnSeasonPlay').style.display = '';
   }
-  el('seasonBody').innerHTML = head +
-    '<table class="tbl"><tr><th>Club</th><th>W</th><th>L</th><th>D</th><th>GD</th><th>Pts</th></tr>' +
-    tableRows + '</table>';
+  return head + standingsHTML(s);
+}
+
+function noSeasonHTML(what){
+  return '<p class="sub">No season running. Start one and you will ' + what + ' every other club ' +
+    'home and away, with the table moving around you.</p>';
+}
+
+function paintSeason(){
+  var s = SAVE.season;
+  if(!s){
+    el('seasonBody').innerHTML = noSeasonHTML('play');
+    el('btnSeasonPlay').style.display = 'none';
+    el('btnSeasonNew').textContent = 'Start a season';
+    return;
+  }
+  el('seasonBody').innerHTML = seasonHTML(s, 'playing');
+  el('btnSeasonPlay').style.display = (s.done || !nextFixture()) ? 'none' : '';
   el('btnSeasonNew').textContent = s.done ? 'Start a season' : 'Scrap it, start again';
+}
+
+/* ---------------- manager ---------------- */
+function paintManager(){
+  var s = SAVE.season, r = squadRating(), i, h = '';
+  for(i = 0; i < TACTICS.length; i++){
+    h += '<button class="chip wide' + (SAVE.tactic === TACTICS[i].k ? ' on' : '') +
+         '" data-tac="' + TACTICS[i].k + '" title="' + esc(TACTICS[i].d) + '">' + esc(TACTICS[i].n) + '</button>';
+  }
+  el('mgrTactic').innerHTML = h;
+
+  var squad = '<div class="fixture"><div class="fx">Your squad · ATK ' + r.atk + ' · DEF ' + r.def + '</div>' +
+    '<div class="fs">' + esc(lineCards(5).map(function(c){ return c.who; }).join(', ')) +
+    '<br>Carrying ' + esc(equippedStick().n) + '. Change any of it in My Team.</div></div>';
+
+  if(!s){
+    el('mgrBody').innerHTML = squad + noSeasonHTML('manage against');
+    el('btnMgrSim').style.display = 'none';
+    el('btnMgrNew').textContent = 'Start a season';
+  } else {
+    el('mgrBody').innerHTML = squad + seasonHTML(s, 'managing');
+    el('btnMgrSim').style.display = (s.done || !nextFixture()) ? 'none' : '';
+    el('btnMgrNew').textContent = s.done ? 'Start a season' : 'Scrap it, start again';
+  }
+  paintWallet();
+}
+
+function runManagerGame(){
+  var res = simManagerGame(SAVE.tactic);
+  if(!res){ paintManager(); return; }
+  var won = res.mine > res.yours, drew = res.mine === res.yours;
+  el('mgrResult').innerHTML =
+    '<b style="color:' + (won ? 'var(--green)' : (drew ? 'var(--amber)' : 'var(--away)')) + '">' +
+    (res.home ? '' : 'at ') + esc(res.opp.n) + ' ' + res.mine + ' · ' + res.yours + '</b> &mdash; ' +
+    (won ? 'win' : (drew ? 'draw' : 'loss')) + ', +' + res.paid.toLocaleString() + ' coins.<br>' +
+    '<span style="color:var(--muted)">' + esc(res.tactic.n) + ' · your ' + res.rating.atk +
+    ' attack against their ' + res.oppRating + '.</span>';
+  paintManager();
 }
 
 function startSeason(){
@@ -3965,6 +4246,21 @@ el('btnJerseyBack').addEventListener('click', function(){ sfx.on(); closeMeta2()
 el('btnCustBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
 el('btnSeasonBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
 el('btnStoryBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnMgrBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnMgrSim').addEventListener('click', function(){ sfx.on(); runManagerGame(); });
+el('btnMgrNew').addEventListener('click', function(){
+  sfx.on();
+  startSeason();
+  SAVE.mode = 'manager'; saveNow();
+  el('mgrResult').innerHTML = '';
+  paintManager();
+});
+el('btnMgrSquad').addEventListener('click', function(){
+  sfx.on(); closeMeta2(); sellMode = false;
+  el('btnSell').textContent = 'Sell spares';
+  showMeta('ovTeam'); paintTeam();
+});
+meta2Delegate('mgrTactic', 'data-tac', function(k){ SAVE.tactic = k; saveNow(); paintManager(); });
 
 el('swPro').addEventListener('click', function(){
   sfx.on();
@@ -4104,6 +4400,20 @@ function toast(text, dur, color){
   t.classList.add('on');
   toastT = dur || 1.0;
 }
+/* one purple button, labelled for what it will actually do right now */
+var slapLabel = {p1:'', p2:''};
+function paintActionBtns(){
+  var slots = ['p1','p2'];
+  for(var i = 0; i < 2; i++){
+    var k = slots[i], want = (carrier && carrier.ctrlBy === k) ? 'SLAP' : 'CHECK';
+    if(slapLabel[k] !== want){
+      slapLabel[k] = want;
+      var b = el(k + 'Slap');
+      if(b) b.textContent = want;
+    }
+  }
+}
+
 function paintBug(){
   el('scoreH').textContent = G.score[0];
   el('scoreA').textContent = G.score[1];
@@ -4123,23 +4433,23 @@ function showPads(on){
 function closeMenus(){
   ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
    'ovShop','ovReveal','ovTeam','ovTravel','ovFriends',
-   'ovModes','ovJersey','ovCustom','ovSeason','ovStory'].forEach(function(id){ el(id).classList.remove('on'); });
+   'ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
   if(touchOn && lastDevice === 'touch'){
     return G.humans === 2
       ? '<div><b>Player 1</b>Left half: stick, shoot, pass, dangle</div><div><b class="p2">Player 2</b>Right half: stick, shoot, pass, dangle</div>'
-      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Slap</b>Buttons on the right</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
+      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot</b>Button on the right</div><div><b>Slap / Check</b>Purple button, whichever applies</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
   }
   if(padCount > 0){
     return G.humans === 2
       ? '<div><b>Player 1</b>Pad 1: A shoot, X pass, B dangle</div><div><b class="p2">Player 2</b>Pad 2: A shoot, X pass, B dangle</div>'
-      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Slapshot</b>Y</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
+      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Slapshot / Check</b>Y / bumpers</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
   }
   return G.humans === 2
-    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle &middot; R slap</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle &middot; , slap</div>'
-    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot / Slapshot</b>Space (hold to load) / R</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Camera / Pause</b>C / P</div>';
+    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle &middot; R slap &middot; F check</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle &middot; , slap &middot; R-Shift check</div>'
+    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot / Slapshot</b>Space (hold to load) / R</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Check</b>F, at whoever is nearest</div><div><b>Camera / Pause</b>C / P</div>';
 }
 
 function openMenu(){
@@ -4270,6 +4580,7 @@ function applyHumanInput(){
       if(inp.pass) passTo(s);
       if(inp.dangle) dangle(s, inp.dangle.dx, inp.dangle.dz);
       if(inp.slap) startSlap(s);
+      if(inp.check) startCheck(s);
     } else {
       s.charging = false; s.charge = 0;
     }
@@ -4347,6 +4658,7 @@ function frame(now){
     if(toastT <= 0) el('toast').classList.remove('on');
   }
 
+  if(touchOn) paintActionBtns();
   updateCamera(dt);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

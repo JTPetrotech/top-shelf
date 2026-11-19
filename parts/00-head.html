@@ -152,7 +152,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .ci .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
 .ci .nm{font-family:var(--display);font-size:20px;line-height:1.02;letter-spacing:.02em;margin:3px 0 1px}
 .ci .who{font-size:11px;color:var(--muted);margin-bottom:5px}
-.ci .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ci .st{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .ci .st b{color:var(--text);font-weight:800}
 .ci .eq{position:absolute;right:8px;top:8px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
   color:#0a1016;background:var(--amber);border-radius:4px;padding:2px 5px;font-weight:800}
@@ -190,7 +190,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .rv .rr{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--rc,#8ea3b9);font-weight:800}
 .rv .nm{font-family:var(--display);font-size:22px;line-height:1.02;margin:4px 0 2px}
 .rv .who{font-size:11px;color:var(--muted)}
-.rv .st{display:flex;gap:9px;font-size:10.5px;color:var(--muted);margin-top:7px}
+.rv .st{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:10.5px;color:var(--muted);margin-top:7px}
 .rv .st b{color:var(--text);font-weight:800}
 .rv.legend{box-shadow:0 0 26px rgba(255,196,61,.35)}
 .rv.epic{box-shadow:0 0 22px rgba(192,140,255,.3)}
@@ -590,6 +590,24 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
         <button class="go" id="btnSeasonPlay">Play next game</button>
         <button class="go alt" id="btnSeasonNew">New season</button>
         <button class="go alt" id="btnSeasonBack">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- manager -->
+  <div class="ov" id="ovManager">
+    <div class="card">
+      <h2>Manager</h2>
+      <p class="sub">You do not skate. Dress the line, pick how they play, and the result comes off your cards against theirs.</p>
+      <div id="mgrBody"></div>
+      <div class="row"><div class="lab">Tactics</div></div>
+      <div class="chips" id="mgrTactic"></div>
+      <div class="odds" id="mgrResult"></div>
+      <div class="btns">
+        <button class="go" id="btnMgrSim">Play the game</button>
+        <button class="go alt" id="btnMgrSquad">Change the line</button>
+        <button class="go alt" id="btnMgrNew">New season</button>
+        <button class="go alt" id="btnMgrBack">Back</button>
       </div>
     </div>
   </div>

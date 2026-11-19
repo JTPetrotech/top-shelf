@@ -57,8 +57,10 @@ function createTeams(){
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2, slapT: 0,
+      checkT: 0, checkCool: 0, aiCheck: 1 + Math.random() * 2,
+      dg: d.card.dg === undefined ? 1 : d.card.dg, ht: d.card.ht === undefined ? 1 : d.card.ht,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k)
+      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k, d.card.ht)
     };
     world.add(s.model);
     skaters.push(s);
@@ -93,7 +95,8 @@ function updateCtrlTags(){
 
 function resetPositions(dropTo){
   for(var ri = 0; ri < skaters.length; ri++){
-    skaters[ri].carrySide = 1; skaters[ri].dangleT = 0; skaters[ri].dangleCool = 0; skaters[ri].slapT = 0;
+    var rs = skaters[ri];
+    rs.carrySide = 1; rs.dangleT = 0; rs.dangleCool = 0; rs.slapT = 0; rs.checkT = 0; rs.checkCool = 0;
   }
   for(var i = 0; i < skaters.length; i++){
     var s = skaters[i];
@@ -168,6 +171,7 @@ function netCollide(o, r){
 
 function stepSkater(s, dt){
   var cfg = S(), d = D();
+  if(s.checkT > 0) s.il *= 0.15;
   if(s.slapT > 0){
     s.slapT -= dt;
     s.il *= 0.22;                                   // you are planted while loading it
@@ -206,6 +210,8 @@ function stepSkater(s, dt){
   if(s.followT > 0) s.followT -= dt;
   if(s.dangleT > 0) s.dangleT -= dt;
   if(s.dangleCool > 0) s.dangleCool -= dt;
+  if(s.checkT > 0) s.checkT -= dt;
+  if(s.checkCool > 0) s.checkCool -= dt;
 
   s.model.position.set(s.x, 0, s.z);
   s.model.rotation.y = -s.face;
@@ -226,7 +232,23 @@ function skaterContacts(){
       var fast = sa > sb ? a : b, slow = sa > sb ? b : a;
       var diff = Math.abs(sa - sb);
       if(a.team !== b.team){
-        var strip = 2.2 / (fast.df || 1) * (slow.dangleT > 0 ? 1.9 : 1);
+        var lunger = (a.checkT > 0 && b.checkT <= 0) ? a : ((b.checkT > 0 && a.checkT <= 0) ? b : null);
+        if(lunger){
+          var hit = lunger === a ? b : a;
+          if(carrier === hit){
+            carrier = null;
+            puck.vx = lunger.vx * 0.8 + (hit === b ? nx : -nx) * 3.4;
+            puck.vz = lunger.vz * 0.8 + (hit === b ? nz : -nz) * 3.4;
+            puck.vy = 1.4; puckCool = 0.2;
+          }
+          hit.stun = 0.78 / (hit.df || 1);
+          lunger.checkT = 0;
+          G.shake = Math.max(G.shake, 0.65);
+          sfx.hit();
+          if(G.tut) tutEvent('check');
+          continue;
+        }
+        var strip = 2.2 / (fast.df || 1) * (slow.dangleT > 0 ? (1.4 + 0.5 * (slow.dg || 1)) : 1);
         if(carrier === slow && diff > strip){
           carrier = null;
           puck.vx = fast.vx * 0.9 + nx * 3;
@@ -304,7 +326,7 @@ function dangle(s, dx, dz){
   s.carrySide = side;
   s.dangleT = DANGLE_T;
   s.dangleCool = DANGLE_COOL;
-  var b = S().dangleKick;
+  var b = S().dangleKick * (s.dg || 1);
   s.vx += Math.cos(s.face) * b;
   s.vz += Math.sin(s.face) * b;
   sfx.pass();
@@ -334,6 +356,29 @@ function bestMate(s){
     if(score > bs){ bs = score; best = m; }
   }
   return best;
+}
+
+/* Throw yourself at the nearest opponent. It is a committed lunge: you turn
+   into them, you cannot steer out of it, and if you miss you are out of the
+   play. Land it and the puck comes loose whatever the speeds were. */
+function startCheck(s){
+  if(carrier === s || s.checkT > 0 || s.checkCool > 0 || s.stun > 0) return false;
+  var best = null, bd = 6.5, i;
+  for(i = 0; i < skaters.length; i++){
+    var o = skaters[i];
+    if(o.team === s.team || o.hidden || o.stun > 0) continue;
+    var d = dist(s.x, s.z, o.x, o.z);
+    if(d < bd){ bd = d; best = o; }
+  }
+  if(!best) return false;
+  var a = Math.atan2(best.z - s.z, best.x - s.x);
+  s.face = a;
+  s.checkT = CHECK_T;
+  s.checkCool = CHECK_COOL;
+  var k = S().checkKick;
+  s.vx += Math.cos(a) * k;
+  s.vz += Math.sin(a) * k;
+  return true;
 }
 
 function mateOf(s){
@@ -382,6 +427,7 @@ function steer(s, tx, tz, gain){
 }
 function aiThink(s, t, dt){
   aiMaybeDangle(s, dt);
+  aiMaybeCheck(s, dt);
   var d = D();
   var dir = s.team === 0 ? 1 : -1;
   var oppX = dir * GOAL_X, ownX = -dir * GOAL_X;
@@ -429,6 +475,16 @@ function aiThink(s, t, dt){
 /* ---- goalies ---- */
 /* give the AI the same move, used the way a player would: only with the puck,
    only with someone on top of them, and not every single time. */
+function aiMaybeCheck(s, dt){
+  if(carrier === s || !carrier || carrier.team === s.team || s.checkCool > 0) return;
+  s.aiCheck -= dt;
+  if(s.aiCheck > 0) return;
+  s.aiCheck = 0.8 + Math.random() * 1.8;
+  if(dist(s.x, s.z, carrier.x, carrier.z) > 3.4) return;
+  if(Math.random() > 0.3 + D().aggr * 0.3) return;
+  startCheck(s);
+}
+
 function aiMaybeDangle(s, dt){
   if(carrier !== s || s.dangleCool > 0) return;
   s.aiDangle -= dt;

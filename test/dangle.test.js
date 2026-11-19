@@ -116,5 +116,72 @@ for(let t = ctx.DANGLE_T; t >= 0; t -= 0.01){
 }
 ok('the puck never swings further out than arm\u2019s reach', maxAbs < 0.80, 'max=' + maxAbs.toFixed(3));
 
+/* =========================================================================
+   the check
+   ========================================================================= */
+const checkConsts = core.match(/var CHECK_T = [\d.]+, CHECK_COOL = [\d.]+;/)[0];
+const checkKick = parseFloat(core.match(/dangleKick:2\.6, checkKick:([\d.]+)/)[1]);
+ctx.skaters = [];
+ctx.S = () => ({dangleKick: kick, checkKick: checkKick});
+ctx.dist = (ax, az, bx, bz) => Math.sqrt((ax-bx)*(ax-bx) + (az-bz)*(az-bz));
+vm.runInContext(checkConsts + '\n' + grab(game, 'startCheck'), ctx);
+
+function board(mine, theirs){
+  ctx.skaters = [mine].concat(theirs);
+  return mine;
+}
+
+console.log('');
+let me = skater({x: 0, z: 0, face: 0});
+me.team = 0; me.checkT = 0; me.checkCool = 0;
+let foe = skater({x: 3, z: 0});
+foe.team = 1; foe.hidden = false; foe.checkT = 0;
+board(me, [foe]);
+ctx.carrier = foe;
+
+ok('you can throw a check at someone in range', ctx.startCheck(me) === true);
+ok('it turns you into them', Math.abs(me.face - 0) < 1e-9, 'face=' + me.face.toFixed(2));
+ok('and launches you that way', me.vx > 0 && Math.abs(me.vz) < 1e-9, 'vx=' + me.vx.toFixed(2));
+ok('it runs on a timer', Math.abs(me.checkT - ctx.CHECK_T) < 1e-9);
+ok('and a cooldown, so it is not a jet pack', me.checkCool === ctx.CHECK_COOL && ctx.CHECK_COOL > 0);
+ok('you cannot throw another mid-check', ctx.startCheck(me) === false);
+
+me = skater({x: 0, z: 0, face: 0}); me.team = 0; me.checkT = 0; me.checkCool = 0;
+foe = skater({x: 0, z: -4}); foe.team = 1; foe.checkT = 0;
+board(me, [foe]);
+ctx.startCheck(me);
+ok('it aims at whoever is actually nearest, not straight ahead',
+   me.vz < 0 && Math.abs(me.vx) < 1e-9, 'vz=' + me.vz.toFixed(2));
+
+me = skater({x: 0, z: 0}); me.team = 0; me.checkT = 0; me.checkCool = 0;
+foe = skater({x: 20, z: 0}); foe.team = 1; foe.checkT = 0;
+board(me, [foe]);
+ok('nobody in range, no check', ctx.startCheck(me) === false);
+ok('and it does not burn the cooldown', me.checkCool === 0);
+
+me = skater({x: 0, z: 0}); me.team = 0; me.checkT = 0; me.checkCool = 0;
+const mate = skater({x: 2, z: 0}); mate.team = 0; mate.checkT = 0;
+board(me, [mate]);
+ok('you cannot check your own team-mate', ctx.startCheck(me) === false);
+
+me = skater({x: 0, z: 0}); me.team = 0; me.checkT = 0; me.checkCool = 0;
+foe = skater({x: 2, z: 0}); foe.team = 1; foe.checkT = 0;
+board(me, [foe]);
+ctx.carrier = me;
+ok('the player with the puck has no business checking', ctx.startCheck(me) === false);
+
+ctx.carrier = foe;
+me.stun = 0.5;
+ok('nor does one who has just been flattened', ctx.startCheck(me) === false);
+me.stun = 0;
+
+const down = skater({x: 2, z: 0}); down.team = 1; down.checkT = 0; down.stun = 0.4;
+board(me, [down]);
+ok('and you do not run at someone already on the ice', ctx.startCheck(me) === false);
+
+const hiddenFoe = skater({x: 2, z: 0}); hiddenFoe.team = 1; hiddenFoe.checkT = 0; hiddenFoe.hidden = true;
+board(me, [hiddenFoe]);
+ok('a skater sitting out is not a target', ctx.startCheck(me) === false);
+
 console.log(fails ? '\n' + fails + ' FAILED' : '\nall good');
 process.exit(fails ? 1 : 0);

@@ -3,7 +3,7 @@
    8.8  SCREENS FOR MODES, JERSEYS, CUSTOM STICKS, SEASON AND STORY
    ========================================================================= */
 
-var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory'];
+var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'];
 function closeMeta2(){ META_OVS2.forEach(function(id){ el(id).classList.remove('on'); }); }
 function showMeta2(id){
   closeMenus();
@@ -24,7 +24,9 @@ var MODES = [
   {k:'franchise',  n:'Franchise',  col:'#3ec98a',
    d:'A full season: home and away against seven rivals, a live table, and a cheque for whoever finishes top.'},
   {k:'story',      n:'Story',      col:'#c08cff',
-   d:'Seven chapters. Each one asks for something specific — win by two, keep a clean sheet, beat the All-Stars.'}
+   d:'Seven chapters. Each one asks for something specific — win by two, keep a clean sheet, beat the All-Stars.'},
+  {k:'manager',    n:'Manager',    col:'#ffc43d',
+   d:'You do not skate. Dress the line, pick the tactics, and your cards decide it against theirs.'}
 ];
 
 function paintModes(){
@@ -45,6 +47,7 @@ function pickMode(k){
   paintModes();
   if(k === 'franchise'){ showMeta2('ovSeason'); paintSeason(); }
   else if(k === 'story'){ showMeta2('ovStory'); paintStory(); }
+  else if(k === 'manager'){ showMeta2('ovManager'); paintManager(); }
 }
 
 /* =========================================================================
@@ -122,39 +125,86 @@ function paintCustom(){
 /* =========================================================================
    season
    ========================================================================= */
-function paintSeason(){
-  var s = SAVE.season;
-  if(!s){
-    el('seasonBody').innerHTML = '<p class="sub">No season running. Start one and you will play every ' +
-      'other club home and away, with the table updating around you.</p>';
-    el('btnSeasonPlay').style.display = 'none';
-    el('btnSeasonNew').textContent = 'Start a season';
-    return;
-  }
-  var tableRows = standings(s).map(function(r, i){
+/* The table is the same whether you are playing the games or managing them. */
+function standingsHTML(s){
+  var rows = standings(s).map(function(r, i){
     var t = leagueOf(r.k);
     return '<tr' + (r.k === s.team ? ' class="me"' : '') + '><td>' + (i + 1) + '. ' + esc(t.n) + '</td>' +
       '<td>' + r.w + '</td><td>' + r.l + '</td><td>' + r.d + '</td>' +
       '<td>' + (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga) + '</td><td>' + pts(r) + '</td></tr>';
   }).join('');
+  return '<table class="tbl"><tr><th>Club</th><th>W</th><th>L</th><th>D</th><th>GD</th><th>Pts</th></tr>' +
+    rows + '</table>';
+}
 
-  var fx = nextFixture();
-  var head = '';
+function seasonHTML(s, verb){
+  var fx = nextFixture(), head = '';
   if(s.done){
     head = '<div class="fixture"><div class="fx">' + esc(leagueOf(s.champion).n) + ' win the league</div>' +
       '<div class="fs">' + (s.champion === s.team ? 'That is you. 25,000 in the bank.' : 'Next year.') +
       '</div></div>';
-    el('btnSeasonPlay').style.display = 'none';
   } else if(fx){
     head = '<div class="fixture"><div class="fx">' + (fx.home ? 'vs ' : 'at ') + esc(leagueOf(fx.opp).n) + '</div>' +
-      '<div class="fs">Game ' + (s.game + 1) + ' of ' + s.games.length + ' · playing as ' +
+      '<div class="fs">Game ' + (s.game + 1) + ' of ' + s.games.length + ' · ' + verb + ' as ' +
       esc(leagueOf(s.team).n) + '</div></div>';
-    el('btnSeasonPlay').style.display = '';
   }
-  el('seasonBody').innerHTML = head +
-    '<table class="tbl"><tr><th>Club</th><th>W</th><th>L</th><th>D</th><th>GD</th><th>Pts</th></tr>' +
-    tableRows + '</table>';
+  return head + standingsHTML(s);
+}
+
+function noSeasonHTML(what){
+  return '<p class="sub">No season running. Start one and you will ' + what + ' every other club ' +
+    'home and away, with the table moving around you.</p>';
+}
+
+function paintSeason(){
+  var s = SAVE.season;
+  if(!s){
+    el('seasonBody').innerHTML = noSeasonHTML('play');
+    el('btnSeasonPlay').style.display = 'none';
+    el('btnSeasonNew').textContent = 'Start a season';
+    return;
+  }
+  el('seasonBody').innerHTML = seasonHTML(s, 'playing');
+  el('btnSeasonPlay').style.display = (s.done || !nextFixture()) ? 'none' : '';
   el('btnSeasonNew').textContent = s.done ? 'Start a season' : 'Scrap it, start again';
+}
+
+/* ---------------- manager ---------------- */
+function paintManager(){
+  var s = SAVE.season, r = squadRating(), i, h = '';
+  for(i = 0; i < TACTICS.length; i++){
+    h += '<button class="chip wide' + (SAVE.tactic === TACTICS[i].k ? ' on' : '') +
+         '" data-tac="' + TACTICS[i].k + '" title="' + esc(TACTICS[i].d) + '">' + esc(TACTICS[i].n) + '</button>';
+  }
+  el('mgrTactic').innerHTML = h;
+
+  var squad = '<div class="fixture"><div class="fx">Your squad · ATK ' + r.atk + ' · DEF ' + r.def + '</div>' +
+    '<div class="fs">' + esc(lineCards(5).map(function(c){ return c.who; }).join(', ')) +
+    '<br>Carrying ' + esc(equippedStick().n) + '. Change any of it in My Team.</div></div>';
+
+  if(!s){
+    el('mgrBody').innerHTML = squad + noSeasonHTML('manage against');
+    el('btnMgrSim').style.display = 'none';
+    el('btnMgrNew').textContent = 'Start a season';
+  } else {
+    el('mgrBody').innerHTML = squad + seasonHTML(s, 'managing');
+    el('btnMgrSim').style.display = (s.done || !nextFixture()) ? 'none' : '';
+    el('btnMgrNew').textContent = s.done ? 'Start a season' : 'Scrap it, start again';
+  }
+  paintWallet();
+}
+
+function runManagerGame(){
+  var res = simManagerGame(SAVE.tactic);
+  if(!res){ paintManager(); return; }
+  var won = res.mine > res.yours, drew = res.mine === res.yours;
+  el('mgrResult').innerHTML =
+    '<b style="color:' + (won ? 'var(--green)' : (drew ? 'var(--amber)' : 'var(--away)')) + '">' +
+    (res.home ? '' : 'at ') + esc(res.opp.n) + ' ' + res.mine + ' · ' + res.yours + '</b> &mdash; ' +
+    (won ? 'win' : (drew ? 'draw' : 'loss')) + ', +' + res.paid.toLocaleString() + ' coins.<br>' +
+    '<span style="color:var(--muted)">' + esc(res.tactic.n) + ' · your ' + res.rating.atk +
+    ' attack against their ' + res.oppRating + '.</span>';
+  paintManager();
 }
 
 function startSeason(){
@@ -247,6 +297,21 @@ el('btnJerseyBack').addEventListener('click', function(){ sfx.on(); closeMeta2()
 el('btnCustBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
 el('btnSeasonBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
 el('btnStoryBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnMgrBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnMgrSim').addEventListener('click', function(){ sfx.on(); runManagerGame(); });
+el('btnMgrNew').addEventListener('click', function(){
+  sfx.on();
+  startSeason();
+  SAVE.mode = 'manager'; saveNow();
+  el('mgrResult').innerHTML = '';
+  paintManager();
+});
+el('btnMgrSquad').addEventListener('click', function(){
+  sfx.on(); closeMeta2(); sellMode = false;
+  el('btnSell').textContent = 'Sell spares';
+  showMeta('ovTeam'); paintTeam();
+});
+meta2Delegate('mgrTactic', 'data-tac', function(k){ SAVE.tactic = k; saveNow(); paintManager(); });
 
 el('swPro').addEventListener('click', function(){
   sfx.on();

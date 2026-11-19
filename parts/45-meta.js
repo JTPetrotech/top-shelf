@@ -15,6 +15,13 @@ var RAR = [
   {k:'epic',   n:'Epic',      c:'#c08cff', w:10,  mul:1.16, sell:220},
   {k:'legend', n:'Legendary', c:'#ffc43d', w:3,   mul:1.27, sell:700}
 ];
+/* multiplier -> the 0-99 number on the card face */
+function rate(m){
+  var v = Math.round(50 + ((m === undefined ? 1 : m) - 1) * 170);
+  return v < 1 ? 1 : (v > 99 ? 99 : v);
+}
+function unrate(r){ return 1 + (r - 50) / 170; }     // and back again
+
 function rarOf(k){ for(var i=0;i<RAR.length;i++) if(RAR[i].k===k) return RAR[i]; return RAR[0]; }
 
 /* ---- stick blueprints. pw = shot speed, ac = aim, ps = pass zip ---- */
@@ -30,15 +37,52 @@ var STICKS = [
 
 /* ---- skater blueprints. sp = skating, sh = shot, df = checking ---- */
 var SKATER_CARDS = [
-  {k:'grinder', n:'Grinder',    pos:'LW', sp:0.97, sh:0.95, df:1.18, d:'Lives in the corners.'},
-  {k:'burner',  n:'Burner',     pos:'RW', sp:1.16, sh:1.00, df:0.90, d:'First to every loose puck.'},
-  {k:'sniper',  n:'Sniper',     pos:'C',  sp:1.00, sh:1.18, df:0.88, d:'One look, one shot.'},
-  {k:'anchor',  n:'Anchor',     pos:'D',  sp:0.92, sh:0.93, df:1.26, d:'Nobody gets through the middle.'},
-  {k:'playmkr', n:'Playmaker',  pos:'C',  sp:1.05, sh:1.02, df:1.00, d:'Sees the pass before it opens.'},
-  {k:'pest',    n:'Pest',       pos:'LW', sp:1.08, sh:0.94, df:1.12, d:'Insufferable. On your side, thankfully.'},
-  {k:'twoway',  n:'Two-Way',    pos:'C',  sp:1.04, sh:1.05, df:1.08, d:'Does everything a little better.'},
-  {k:'howitz2', n:'Blue Liner', pos:'D',  sp:0.95, sh:1.14, df:1.14, d:'Point shot you can hear outside.'}
+  {k:'grinder', n:'Grinder',    pos:'LW', sp:0.97, sh:0.95, df:1.18, dg:0.92, ht:1.03, d:'Lives in the corners.'},
+  {k:'burner',  n:'Burner',     pos:'RW', sp:1.16, sh:1.00, df:0.90, dg:1.10, ht:0.96, d:'First to every loose puck.'},
+  {k:'sniper',  n:'Sniper',     pos:'C',  sp:1.00, sh:1.18, df:0.88, dg:1.04, ht:1.00, d:'One look, one shot.'},
+  {k:'anchor',  n:'Anchor',     pos:'D',  sp:0.92, sh:0.93, df:1.26, dg:0.86, ht:1.09, d:'Nobody gets through the middle.'},
+  {k:'playmkr', n:'Playmaker',  pos:'C',  sp:1.05, sh:1.02, df:1.00, dg:1.14, ht:0.99, d:'Sees the pass before it opens.'},
+  {k:'pest',    n:'Pest',       pos:'LW', sp:1.08, sh:0.94, df:1.12, dg:1.08, ht:0.92, d:'Insufferable. On your side, thankfully.'},
+  {k:'twoway',  n:'Two-Way',    pos:'C',  sp:1.04, sh:1.05, df:1.08, dg:1.02, ht:1.00, d:'Does everything a little better.'},
+  {k:'howitz2', n:'Blue Liner', pos:'D',  sp:0.95, sh:1.14, df:1.14, dg:0.88, ht:1.07, d:'Point shot you can hear outside.'}
 ];
+
+/* ---- one-off signings: real names, fixed ratings, not in any pack ---- */
+var SIGNINGS = [
+  {k:'jake', who:'Jake Claiborne', n:'The Flash', pos:'C', cost:20000, num:9,
+   sp:99, sh:99, dg:99, df:40, ht:0.78,
+   d:'Half a head shorter than everyone out there and already past them.'}
+];
+function signingOf(k){ for(var i=0;i<SIGNINGS.length;i++) if(SIGNINGS[i].k === k) return SIGNINGS[i]; return null; }
+function haveSigning(k){
+  for(var i=0;i<SAVE.skaters.length;i++) if(SAVE.skaters[i].signing === k) return true;
+  return false;
+}
+/* A signing is written in ratings, because that is how it was asked for. */
+function mintSigning(k){
+  var b = signingOf(k);
+  if(!b) return null;
+  return {u: uid(), t:'skater', k:'twoway', signing: b.k, n: b.n, who: b.who, pos: b.pos, r:'legend',
+          num: b.num, sp: unrate(b.sp), sh: unrate(b.sh), df: unrate(b.df), dg: unrate(b.dg),
+          ht: b.ht, d: b.d};
+}
+function signPlayer(k){
+  var b = signingOf(k);
+  if(!b || haveSigning(k) || SAVE.coins < b.cost) return null;
+  SAVE.coins -= b.cost;
+  var c = mintSigning(k);
+  SAVE.skaters.push(c);
+  saveNow();
+  return c;
+}
+/* finishing the story gets him for nothing, so he is reachable without grinding */
+function grantStoryPlayer(){
+  if(haveSigning('jake')) return null;
+  var c = mintSigning('jake');
+  SAVE.skaters.push(c);
+  saveNow();
+  return c;
+}
 
 var FIRST = ['Dale','Mick','Sven','Bobby','Ty','Ravi','Gus','Luc','Pete','Hal','Nils','Dom','Rory','Jo','Cal','Ira'];
 var LAST  = ['Brennan','Kowalczyk','Lindholm','Ferraro','Okafor','Dube','Marchetti','Halloran','Vasko','Pike','Ostrom','Quinn','Bedard','Trahan'];
@@ -110,7 +154,9 @@ function mintSkater(k, rk){
           num: 2 + Math.floor(Math.random()*96),
           sp: +(Math.min(1.26, b.sp * r.mul)).toFixed(3),
           sh: +(b.sh * r.mul).toFixed(3),
-          df: +(b.df * r.mul).toFixed(3), d: b.d};
+          df: +(b.df * r.mul).toFixed(3),
+          dg: +(Math.min(1.26, (b.dg === undefined ? 1 : b.dg) * r.mul)).toFixed(3),
+          ht: b.ht === undefined ? 1 : b.ht, d: b.d};
 }
 
 function loadSave(){
@@ -141,6 +187,12 @@ function repairSave(){
   if(SAVE.teams.indexOf(SAVE.team) === -1) SAVE.team = SAVE.teams[0];
   if(typeof SAVE.coins !== 'number' || SAVE.coins < 0) SAVE.coins = 0;
   if(!SAVE.friends) SAVE.friends = [];
+  if(!SAVE.callups) SAVE.callups = [];
+  for(var si = 0; si < SAVE.skaters.length; si++){
+    var sc = SAVE.skaters[si];
+    if(typeof sc.dg !== 'number') sc.dg = 1;
+    if(typeof sc.ht !== 'number') sc.ht = 1;
+  }
 }
 
 function saveNow(){
@@ -167,8 +219,14 @@ function lineCards(n){
   for(i = 0; i < SAVE.skaters.length && out.length < n; i++){
     if(out.indexOf(SAVE.skaters[i]) === -1) out.push(SAVE.skaters[i]);
   }
-  var pool = ['grinder','burner','playmkr','anchor','pest','twoway'];
-  while(out.length < n) out.push(mintSkater(pool[out.length % pool.length], 'common'));
+  if(!SAVE.callups) SAVE.callups = [];
+  var pool = ['grinder','burner','playmkr','anchor','pest','twoway'], made = false;
+  while(out.length < n){
+    var at = out.length;
+    if(!SAVE.callups[at]){ SAVE.callups[at] = mintSkater(pool[at % pool.length], 'common'); made = true; }
+    out.push(SAVE.callups[at]);
+  }
+  if(made) saveNow();
   return out.slice(0, n);
 }
 
@@ -258,7 +316,7 @@ var oppOverride = null;        // a friend's squad, or null for the house team
 var NEUT_NUM = [9, 21, 4, 17, 55, 8, 12, 27, 33, 44];
 function neutralCard(i){
   return {u:'n'+i, t:'skater', k:'twoway', n:'Skater', who:'Skater', pos:'C', r:'common',
-          num: NEUT_NUM[i % NEUT_NUM.length], sp:1, sh:1, df:1, d:''};
+          num: NEUT_NUM[i % NEUT_NUM.length], sp:1, sh:1, df:1, dg:1, ht:1, d:''};
 }
 function neutralLine(n, team){
   var out = [];

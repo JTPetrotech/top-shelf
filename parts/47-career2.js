@@ -67,8 +67,12 @@ var PAINTS = [
   {n:'Mint',    c:0x7fe0c0}, {n:'Hot Pink', c:0xf05a9b}, {n:'Sand',   c:0xd9b887}
 ];
 var TAPES = [
-  {n:'Black tape', c:0x15191f}, {n:'White tape', c:0xf2f6fa}, {n:'Red tape', c:0x9c2a1c},
-  {n:'Blue tape',  c:0x1f4f8f}, {n:'Gold tape',  c:0xb3842a}
+  {n:'Black',   c:0x15191f}, {n:'White',    c:0xf2f6fa}, {n:'Red',     c:0x9c2a1c},
+  {n:'Blue',    c:0x1f4f8f}, {n:'Gold',     c:0xb3842a}, {n:'Green',   c:0x2e7d53},
+  {n:'Orange',  c:0xd2691e}, {n:'Purple',   c:0x6b45a0}, {n:'Pink',    c:0xd4588f},
+  {n:'Teal',    c:0x1f7f87}, {n:'Camo',     c:0x55613c}, {n:'Sky',     c:0x5ad8ff},
+  {n:'Maroon',  c:0x5e1b22}, {n:'Sand',     c:0xcbb089}, {n:'Lime',    c:0x9ad428},
+  {n:'Slate',   c:0x4a5869}, {n:'Copper',   c:0xa65e2e}, {n:'Mint',    c:0x7fe0c0}
 ];
 var CUSTOM_PRICE = {rare: 1500, epic: 4500, legend: 14000};
 
@@ -227,12 +231,14 @@ function finishStoryChapter(a, b){
   var ch = STORY[i];
   if(!ch) return null;
   var won = ch.test(a, b);
+  var signed = null;
   if(won){
     SAVE.story = i + 1;
     SAVE.coins += ch.pay;
+    if(SAVE.story >= STORY.length) signed = grantStoryPlayer();
     saveNow();
   }
-  return {chapter: ch, passed: won, index: i, pay: ch.pay};
+  return {chapter: ch, passed: won, index: i, pay: ch.pay, signed: signed};
 }
 
 /* ---------------- save migration ----------------
@@ -245,5 +251,61 @@ function migrateCareer2(){
   if(typeof SAVE.story !== 'number') SAVE.story = 0;
   if(SAVE.season && (!SAVE.season.games || !SAVE.season.table)) SAVE.season = null;
   if(SAVE.season === undefined) SAVE.season = null;
-  SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story
+  SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story | manager
+  if(!tacticOf(SAVE.tactic) || !SAVE.tactic) SAVE.tactic = 'balance';
+}
+
+/* =========================================================================
+   8.9  MANAGER MODE
+   You do not play. You pick who dresses and how they play, and the game is
+   decided by your cards against theirs. Same season, same table.
+   ========================================================================= */
+var TACTICS = [
+  {k:'defend',  n:'Sit back',  atk:-0.20, def:0.24, d:'Clog the middle, take the counter when it comes.'},
+  {k:'balance', n:'Balanced',  atk:0,     def:0,    d:'Play it straight down the middle.'},
+  {k:'attack',  n:'Push up',   atk:0.26,  def:-0.22, d:'Forecheck hard and live with the gaps behind.'}
+];
+function tacticOf(k){ for(var i=0;i<TACTICS.length;i++) if(TACTICS[i].k === k) return TACTICS[i]; return TACTICS[1]; }
+
+/* Your dressed line and the stick in your hands, on the same 0-99 scale the
+   cards are shown in. */
+function squadRating(){
+  var ln = lineCards(5), st = equippedStick(), atk = 0, def = 0;
+  for(var i = 0; i < ln.length; i++){
+    var c = ln[i];
+    atk += rate(c.sp) * 0.32 + rate(c.sh) * 0.46 + rate(c.dg) * 0.22;
+    def += rate(c.df) * 0.68 + rate(c.sp) * 0.32;
+  }
+  atk /= ln.length; def /= ln.length;
+  atk *= (st.pw + st.ac) / 2;
+  return {atk: Math.round(atk), def: Math.round(def)};
+}
+
+/* Poisson, so a 4-0 is possible and a 1-1 is common. Capped at both ends:
+   an uncapped expectation against a weak side produced 11-3, which is not a
+   hockey score. */
+function sampleGoals(expected){
+  var e = Math.max(0.15, Math.min(5.2, expected));
+  var g = 0, L = Math.exp(-e), p = 1;
+  do { g++; p *= Math.random(); } while(p > L && g < 14);
+  return Math.min(9, g - 1);
+}
+
+function simManagerGame(tacticKey){
+  var fx = nextFixture();
+  if(!fx) return null;
+  var t = tacticOf(tacticKey), me = squadRating();
+  var oppR = leagueOf(fx.opp).str * 62;
+  var myAtk = me.atk * (1 + t.atk) * (fx.home ? 1.06 : 0.95);
+  var myDef = me.def * (1 + t.def);
+  var mine  = sampleGoals(3.0 * myAtk / Math.max(18, oppR));
+  var yours = sampleGoals(3.0 * oppR / Math.max(18, myDef));
+  var opp = leagueOf(fx.opp);
+  recordSeasonGame(mine, yours);
+  var base = mine > yours ? 90 : (mine === yours ? 35 : 18);
+  var paid = Math.round(base * teamOf(SAVE.team).pay * (proOn() ? PRO.payMult : 1));
+  SAVE.coins += paid;
+  saveNow();
+  return {opp: opp, home: fx.home, mine: mine, yours: yours, paid: paid, tactic: t,
+          rating: me, oppRating: Math.round(oppR)};
 }

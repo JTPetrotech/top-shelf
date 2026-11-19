@@ -265,7 +265,7 @@ function buildStick(key){
   return g;
 }
 
-function buildSkater(team, num, roller, stickKey){
+function buildSkater(team, num, roller, stickKey, height){
   makeMats();
   var mt = MATS.teams[team];
   var root = new T.Group();
@@ -351,6 +351,9 @@ function buildSkater(team, num, roller, stickKey){
   stick.rotation.z = -0.52;
   stick.rotation.y = 0.18;
   lean.add(stick);
+
+  // a short player is a smaller player, skates and stick included
+  root.scale.setScalar(height === undefined ? 1 : height);
 
   root.userData = {lean: lean, legL: legL, legR: legR, armL: armL, armR: armR,
                    stick: stick, torso: torso, head: head, phase: Math.random()*6.28};
@@ -498,7 +501,9 @@ function animateSkater(s, dt){
 
   // stick: wind up while loading, snap through on release, reach for the disc otherwise
   var targetZ = -0.52, targetY = 0.18;
-  if(s.slapT > 0){
+  if(s.checkT > 0){
+    targetZ = -0.25; targetY = -0.55;          // stick out of the way, shoulder first
+  } else if(s.slapT > 0){
     // stick goes right up over the shoulder, then comes through
     var w = 1 - s.slapT / SLAP_WIND;
     targetZ = -0.52 - (1 - w) * 2.15;

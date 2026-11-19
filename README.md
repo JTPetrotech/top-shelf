@@ -21,6 +21,8 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
   rival results simulated around you, and a cheque for whoever finishes top.
 - **Story** — seven chapters, each asking for something specific: win by two,
   keep a clean sheet, beat the All-Stars. Clear one and it pays a bonus.
+- **Manager** — you do not skate. Dress the line, pick the tactics, and the
+  result is decided by your cards against theirs, on the same season and table.
 - **Pro mode** — a toggle on any of them. Ninety-second periods, aim assist cut
   to a quarter, sharper goalies and opponents, and 1.8x on every payout.
 
@@ -45,7 +47,11 @@ rarities; cards change how you actually play.
 
 - **Custom sticks** — pick the shape (which sets the stats), the shaft colour
   and the tape, then pay for the grade you want: Rare 1,500, Epic 4,500,
-  Legendary 14,000. No pack, no gamble, and it is yours on the ice.
+  Legendary 14,000. No pack, no gamble, and it is yours on the ice. Eighteen
+  tape colours.
+- **Signings** — named players with fixed ratings, not in any pack. Jake
+  Claiborne is 99 speed, 99 shot, 99 dangle and 5′0″, with checking as the
+  trade-off. 20,000 in the shop, or free for finishing the story.
 - **Jerseys** — three kits come with the club. Every travel team you buy hands
   you its kit free. The away side is always picked for colour contrast, so the
   two teams can never turn up looking alike.
@@ -63,6 +69,7 @@ nothing is uploaded and there is no account.
 | Pass | `Q` | `/` |
 | Dangle | `E` | `.` |
 | Slapshot | `R` | `,` |
+| Check | `F` | `R-Shift` |
 
 Two gamepads work as well — A shoots, X passes, B dangles.
 On a phone or tablet the screen splits into two touch zones, one per player,
@@ -97,6 +104,9 @@ node test/dangle.test.js
 node test/goal.test.js
 node test/career2.test.js
 ```
+
+Skater cards read 0-99. Internally every stat is a multiplier around 1.0;
+`rate()` is just how that reads on the card face.
 
 No framework. It loads `parts/45-meta.js` into a sandbox with a fake
 localStorage and checks the payout maths, pack odds over 40,000 rolls, the

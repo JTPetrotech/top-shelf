@@ -9,10 +9,16 @@ function pct(v){
 }
 function rcVar(rk){ return rarOf(rk).c; }
 
+/* six foot is an average skater; the card's height multiplier moves it from there */
+function heightLabel(ht){
+  var inches = Math.round(72 + ((ht === undefined ? 1 : ht) - 1) * 55);
+  return Math.floor(inches / 12) + '′' + (inches % 12) + '″';
+}
 function cardStats(c){
   return c.t === 'stick'
     ? '<span>PWR <b>' + pct(c.pw) + '</b></span><span>AIM <b>' + pct(c.ac) + '</b></span><span>PASS <b>' + pct(c.ps) + '</b></span>'
-    : '<span>SPD <b>' + pct(c.sp) + '</b></span><span>SHOT <b>' + pct(c.sh) + '</b></span><span>CHK <b>' + pct(c.df) + '</b></span>';
+    : '<span>SPD <b>' + rate(c.sp) + '</b></span><span>SHOT <b>' + rate(c.sh) + '</b></span>' +
+      '<span>DGL <b>' + rate(c.dg) + '</b></span><span>CHK <b>' + rate(c.df) + '</b></span>';
 }
 function cardHTML(c, equipped, selectable){
   var r = rarOf(c.r);
@@ -21,7 +27,7 @@ function cardHTML(c, equipped, selectable){
     (equipped ? '<span class="eq">' + (c.t === 'stick' ? 'In hand' : 'Dressed') + '</span>' : '') +
     '<div class="rr">' + r.n + '</div>' +
     '<div class="nm">' + esc(c.n) + '</div>' +
-    '<div class="who">' + esc(c.t === 'stick' ? c.d : (c.who + ' · ' + c.pos)) + '</div>' +
+    '<div class="who">' + esc(c.t === 'stick' ? c.d : (c.who + ' · ' + c.pos + ' · ' + heightLabel(c.ht))) + '</div>' +
     '<div class="st">' + cardStats(c) + '</div>' +
     (c.t === 'skater' ? '<span class="num">' + c.num + '</span>' : '') +
     '</div>';
@@ -38,7 +44,7 @@ function paintWallet(){
   ['walletN','shopN','travN','custN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
   var rec = el('walletRec');
   if(rec){
-    var modeName = SAVE.mode === 'franchise' ? 'Franchise' : (SAVE.mode === 'story' ? 'Story' : 'Exhibition');
+    var modeName = {franchise:'Franchise', story:'Story', manager:'Manager'}[SAVE.mode] || 'Exhibition';
     rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n +
       ' · ' + modeName + (proOn() ? ' · Pro' : '');
   }
@@ -59,7 +65,18 @@ function backToMenu(){ closeMeta(); openMenu(); }
    shop
    ========================================================================= */
 function paintShop(){
-  var h = '';
+  var h = '', si;
+  // a signing sits above the packs: a name, a price, and nothing left to chance
+  for(si = 0; si < SIGNINGS.length; si++){
+    var g = SIGNINGS[si], got = haveSigning(g.k), afford = SAVE.coins >= g.cost;
+    h += '<div class="pk' + (got ? ' owned' : '') + '"><div class="pw">' +
+         '<div class="pn">' + esc(g.who) + '</div>' +
+         '<div class="pd">' + esc(g.d) + '<br>' +
+         'SPD ' + g.sp + ' · SHOT ' + g.sh + ' · DGL ' + g.dg + ' · CHK ' + g.df +
+         ' · ' + heightLabel(g.ht) + '</div></div>' +
+         '<button class="buy" data-sign="' + g.k + '"' + (got || !afford ? ' disabled' : '') + '>' +
+         (got ? 'Signed' : g.cost.toLocaleString()) + '</button></div>';
+  }
   for(var i = 0; i < PACKS.length; i++){
     var p = PACKS[i], can = SAVE.coins >= p.cost;
     h += '<div class="pk"><div class="pw"><div class="pn">' + esc(p.n) + '</div>' +
@@ -96,7 +113,7 @@ function showReveal(p, cards){
     h += '<div class="rv ' + c.r + '" style="--rc:' + r.c + ';animation-delay:' + (i * 0.26) + 's">' +
          '<div class="rr">' + r.n + '</div>' +
          '<div class="nm">' + esc(c.n) + '</div>' +
-         '<div class="who">' + esc(c.t === 'stick' ? 'Stick' : (c.who + ' · ' + c.pos)) + '</div>' +
+         '<div class="who">' + esc(c.t === 'stick' ? 'Stick' : (c.who + ' · ' + c.pos + ' · ' + heightLabel(c.ht))) + '</div>' +
          '<div class="st">' + cardStats(c) + '</div></div>';
   }
   el('revCards').innerHTML = h;
@@ -232,6 +249,11 @@ function metaDelegate(id, attr, fn){
 }
 
 metaDelegate('shopList', 'data-k', function(k){ buyPack(k); paintShop(); });
+metaDelegate('shopList', 'data-sign', function(k){
+  var c = signPlayer(k);
+  paintShop();
+  if(c) toast(c.who + ' signed', 1.4, '#ffc43d');
+});
 metaDelegate('travList', 'data-t', function(k){ pickTeam(k); });
 metaDelegate('friendList', 'data-f', function(i){ playFriend(parseInt(i, 10)); });
 metaDelegate('friendList', 'data-x', function(i){
