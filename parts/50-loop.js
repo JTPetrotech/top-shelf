@@ -7,9 +7,10 @@ var orbit = 0.6;
 var CAM_NAMES = ['Broadcast', 'Overhead', 'Low', 'Follow'];
 var camHead = 0;                 // eased chase heading, so the view never whips around
 
+function camLabel(){ return 'Cam \u00b7 ' + CAM_NAMES[G.camMode]; }
 function cycleCam(){
   G.camMode = (G.camMode + 1) % 4;
-  el('camBtn').textContent = CAM_NAMES[G.camMode];
+  el('camBtn').textContent = camLabel();
 }
 
 function updateCamera(dt){
@@ -136,20 +137,21 @@ function keyCardHTML(){
   if(touchOn && lastDevice === 'touch'){
     return G.humans === 2
       ? '<div><b>Player 1</b>Left half: stick, shoot, pass, dangle</div><div><b class="p2">Player 2</b>Right half: stick, shoot, pass, dangle</div>'
-      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Pass</b>Buttons on the right</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
+      : '<div><b>Move</b>Drag anywhere on the left</div><div><b>Shoot / Slap</b>Buttons on the right</div><div><b>Dangle</b>Flick the small stick</div><div><b>Camera</b>Button, top right</div>';
   }
   if(padCount > 0){
     return G.humans === 2
       ? '<div><b>Player 1</b>Pad 1: A shoot, X pass, B dangle</div><div><b class="p2">Player 2</b>Pad 2: A shoot, X pass, B dangle</div>'
-      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
+      : '<div><b>Move</b>Left stick</div><div><b>Shoot / Pass</b>A (hold to load) / X</div><div><b>Slapshot</b>Y</div><div><b>Dangle</b>B, toward the way you want it</div><div><b>Camera / Pause</b>C / P</div>';
   }
   return G.humans === 2
-    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle</div>'
-    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot</b>Space, hold to load</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Camera / Pause</b>C / P</div>';
+    ? '<div><b>Player 1</b>W A S D &middot; Space shoot &middot; Q pass &middot; E dangle &middot; R slap</div><div><b class="p2">Player 2</b>Arrows &middot; Enter shoot &middot; / pass &middot; . dangle &middot; , slap</div>'
+    : '<div><b>Skate</b>W A S D or arrows</div><div><b>Shoot / Slapshot</b>Space (hold to load) / R</div><div><b>Pass / Dangle</b>Q / E</div><div><b>Camera / Pause</b>C / P</div>';
 }
 
 function openMenu(){
   G.phase = 'menu';
+  if(skaters.length) endTutorialCast();
   closeMenus();
   el('ovMenu').classList.add('on');
   el('bug').classList.remove('on');
@@ -173,7 +175,7 @@ function startGame(){
   el('bug').classList.add('on');
   el('pauseBtn').classList.add('on');
   el('camBtn').classList.add('on');
-  el('camBtn').textContent = CAM_NAMES[G.camMode];
+  el('camBtn').textContent = camLabel();
   showPads(true);
   paintBug(); paintJumbo();
   faceoff('Face-off');
@@ -218,9 +220,14 @@ el('btnResume').addEventListener('click', function(){ sfx.on(); togglePause(); }
 el('btnQuit').addEventListener('click', function(){ sfx.on(); openMenu(); });
 el('btnAgain').addEventListener('click', function(){ sfx.on(); startGame(); });
 el('btnMenu2').addEventListener('click', function(){ sfx.on(); openMenu(); });
+function endTutorialCast(){
+  for(var i = 0; i < skaters.length; i++){ skaters[i].hidden = false; skaters[i].model.visible = true; }
+  G.tutCast = null;
+}
 el('coachSkip').addEventListener('click', function(){
   sfx.on();
   G.tut = null;
+  endTutorialCast();
   if(markerMesh) markerMesh.visible = false;
   goalies[1].hidden = false;
   try { localStorage.setItem('sa_tut', '1'); } catch(e){}
@@ -255,10 +262,11 @@ function applyHumanInput(){
     var inp = IN[slot];
     s.ix = inp.mx; s.iz = inp.mz; s.il = inp.len;
     if(carrier === s){
-      if(inp.shoot && !s.charging && s.shootCool <= 0){ s.charging = true; s.charge = 0; }
+      if(inp.shoot && !s.charging && s.shootCool <= 0 && s.slapT <= 0){ s.charging = true; s.charge = 0; }
       if(!inp.shoot && s.charging) shoot(s, Math.max(0.2, s.charge));
       if(inp.pass) passTo(s);
       if(inp.dangle) dangle(s, inp.dangle.dx, inp.dangle.dz);
+      if(inp.slap) startSlap(s);
     } else {
       s.charging = false; s.charge = 0;
     }
@@ -288,6 +296,8 @@ function frame(now){
 
     for(var i = 0; i < skaters.length; i++){
       var s = skaters[i];
+      if(s.hidden){ s.model.visible = false; continue; }
+      s.model.visible = true;
       var frozen = (G.phase === 'tutorial' && s.team === 1 && G.tutFreezeOpp);
       if((aiAll || !s.ctrlBy) && moving && !frozen) aiThink(s, simT, dt);
       else if(!moving){ s.ix = 0; s.iz = 0; s.il = 0; }

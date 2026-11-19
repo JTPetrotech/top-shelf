@@ -59,14 +59,15 @@ ok('cannot dangle without the puck', ctx.dangle(s, 0, 0) === false);
 ctx.carrier = s;
 ok('can dangle with the puck', ctx.dangle(s, 0, 0) === true);
 ok('a plain dangle flips you to the backhand', s.carrySide === -1, 'side=' + s.carrySide);
-ok('it starts the cooldown', s.dangleCool === ctx.DANGLE_COOL);
 ok('it is on a timer', Math.abs(s.dangleT - ctx.DANGLE_T) < 1e-9);
-ok('it will not fire again during the cooldown', ctx.dangle(s, 0, 0) === false);
-ok('and the side did not move', s.carrySide === -1);
+ok('there is no cooldown to wait out', ctx.DANGLE_COOL === 0);
+ok('so it fires again straight away', ctx.dangle(s, 0, 0) === true);
+ok('and that flips back to the forehand', s.carrySide === 1);
 
-s.dangleCool = 0;
-ctx.dangle(s, 0, 0);
-ok('dangling again flips back to the forehand', s.carrySide === 1);
+// back to back to back, no gate anywhere
+var sides = [];
+for(var rep = 0; rep < 6; rep++){ ctx.dangle(s, 0, 0); sides.push(s.carrySide); }
+ok('it keeps alternating however fast you go', sides.join(',') === '-1,1,-1,1,-1,1', sides.join(','));
 
 s = skater({stun: 0.4}); ctx.carrier = s;
 ok('a knocked-down player cannot dangle', ctx.dangle(s, 0, 0) === false);

@@ -498,7 +498,12 @@ function animateSkater(s, dt){
 
   // stick: wind up while loading, snap through on release, reach for the disc otherwise
   var targetZ = -0.52, targetY = 0.18;
-  if(s.charging){
+  if(s.slapT > 0){
+    // stick goes right up over the shoulder, then comes through
+    var w = 1 - s.slapT / SLAP_WIND;
+    targetZ = -0.52 - (1 - w) * 2.15;
+    targetY = 0.18 + (1 - w) * 0.78;
+  } else if(s.charging){
     targetZ = -0.52 - s.charge * 1.45;
     targetY = 0.18 + s.charge * 0.55;
   } else if(s.followT > 0){

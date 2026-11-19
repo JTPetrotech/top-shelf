@@ -7,8 +7,8 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
 
 ## Modes
 
-- **Ice** — fast, loose, long glides, puck slides forever.
-- **Roller** — grippier wheels, tighter turns, the ball dies quicker.
+- **Ice** — five a side plus goalies. Fast, loose, long glides.
+- **Roller** — four a side plus goalies. Grippier wheels, tighter turns.
 - Tutorial runs first time through: skating, puck pickup, shooting, passing, poke checks.
 - **Dangle** pulls the puck across your body for a burst of speed and a moment
   where it is on the far side from whoever is leaning on you. It is on a
@@ -45,6 +45,7 @@ nothing is uploaded and there is no account.
 | Shoot | `Space` | `Enter` |
 | Pass | `Q` | `/` |
 | Dangle | `E` | `.` |
+| Slapshot | `R` | `,` |
 
 Two gamepads work as well — A shoots, X passes, B dangles.
 On a phone or tablet the screen splits into two touch zones, one per player,
@@ -76,6 +77,7 @@ reports any external reference left in the output (should always be `none`).
 ```
 node test/career.test.js
 node test/dangle.test.js
+node test/goal.test.js
 ```
 
 No framework. It loads `parts/45-meta.js` into a sandbox with a fake

@@ -59,7 +59,7 @@ var TEAMS = [
    d:'Your home rink. Whoever shows up, plays.'},
   {k:'ironwrk', n:'Ironworks',   cost:1200, tier:1, pay:1.55, col:'#d4a02a',
    d:'First travel team. Quicker games, better cheques.'},
-  {k:'bulldog', n:'Bulldogs',    cost:2400, tier:2, pay:1.90, col:'#c2542c',
+  {k:'bulldog', n:'Bulldogs',    cost:10000, tier:2, pay:1.90, col:'#c2542c',
    d:'Forecheck like it is personal. Nobody skates through them twice.'},
   {k:'nstar',   n:'North Star',  cost:4000, tier:3, pay:2.60, col:'#3ec98a',
    d:'Regional circuit. Everyone out there can skate.'},
@@ -134,7 +134,7 @@ function repairSave(){
   for(var i = 0; SAVE.line.length < 2 && i < SAVE.skaters.length; i++){
     if(SAVE.line.indexOf(SAVE.skaters[i].u) === -1) SAVE.line.push(SAVE.skaters[i].u);
   }
-  SAVE.line = SAVE.line.slice(0, 2);
+  SAVE.line = SAVE.line.slice(0, MAX_DRESSED);
   if(!SAVE.teams || !SAVE.teams.length) SAVE.teams = ['sandlot'];
   if(SAVE.teams.indexOf(SAVE.team) === -1) SAVE.team = SAVE.teams[0];
   if(typeof SAVE.coins !== 'number' || SAVE.coins < 0) SAVE.coins = 0;
@@ -153,11 +153,21 @@ function findCard(u){
   return null;
 }
 function equippedStick(){ return findCard(SAVE.stick) || SAVE.sticks[0]; }
-function lineCards(){
-  var out = [];
-  for(var i=0;i<SAVE.line.length;i++){ var c = findCard(SAVE.line[i]); if(c) out.push(c); }
-  while(out.length < 2) out.push(SAVE.skaters[out.length] || mintSkater('grinder','common'));
-  return out.slice(0,2);
+var MAX_DRESSED = 5;
+/* The cards you dressed fill the first slots; anything still empty is filled
+   from the rest of your collection, then with call-ups so a line is never short. */
+function lineCards(n){
+  n = n || MAX_DRESSED;
+  var out = [], i;
+  for(i = 0; i < SAVE.line.length && out.length < n; i++){
+    var c = findCard(SAVE.line[i]); if(c) out.push(c);
+  }
+  for(i = 0; i < SAVE.skaters.length && out.length < n; i++){
+    if(out.indexOf(SAVE.skaters[i]) === -1) out.push(SAVE.skaters[i]);
+  }
+  var pool = ['grinder','burner','playmkr','anchor','pest','twoway'];
+  while(out.length < n) out.push(mintSkater(pool[out.length % pool.length], 'common'));
+  return out.slice(0, n);
 }
 
 /* =========================================================================
@@ -243,19 +253,25 @@ function matchReward(){
 var oppOverride = null;        // a friend's squad, or null for the house team
 
 /* two humans on one couch skate identical gear - the couch decides it, not the collection */
-var NEUT_NUM = [9, 21, 4, 17];
+var NEUT_NUM = [9, 21, 4, 17, 55, 8, 12, 27, 33, 44];
 function neutralCard(i){
   return {u:'n'+i, t:'skater', k:'twoway', n:'Skater', who:'Skater', pos:'C', r:'common',
-          num: NEUT_NUM[i], sp:1, sh:1, df:1, d:''};
+          num: NEUT_NUM[i % NEUT_NUM.length], sp:1, sh:1, df:1, d:''};
+}
+function neutralLine(n, team){
+  var out = [];
+  for(var i = 0; i < n; i++) out.push(neutralCard(team * 5 + i));
+  return out;
 }
 
-function oppLine(){
-  if(oppOverride && oppOverride.line && oppOverride.line.length === 2) return oppOverride.line;
+function oppLine(n){
+  n = n || MAX_DRESSED;
   var tier = teamOf(SAVE.team).tier;
   var pool = SKATER_CARDS, rk = ['common','rare','epic','legend','legend'][tier] || 'common';
-  var a = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
-  var b = mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk);
-  return [a, b];
+  var out = [];
+  if(oppOverride && oppOverride.line) out = oppOverride.line.slice(0, n);
+  while(out.length < n) out.push(mintSkater(pool[Math.floor(Math.random()*pool.length)].k, rk));
+  return out;
 }
 function oppName(){
   if(oppOverride) return (oppOverride.handle || 'Friend').slice(0, 10).toUpperCase();
@@ -302,14 +318,14 @@ function sum32(s){
 }
 
 function myCode(){
-  var ln = lineCards(), st = equippedStick();
-  var body = [
+  var ln = lineCards(Math.max(2, Math.min(MAX_DRESSED, SAVE.line.length))), st = equippedStick();
+  var head = [
     (SAVE.handle || 'Player').replace(/[~|]/g, '').slice(0, 12),
     SAVE.team,
-    packCard(st),
-    packCard(ln[0]),
-    packCard(ln[1])
-  ].join('|');
+    packCard(st)
+  ];
+  for(var i = 0; i < ln.length; i++) head.push(packCard(ln[i]));
+  var body = head.join('|');
   return 'TS1-' + b64enc(body + '|' + sum32(body));
 }
 function readCode(code){
@@ -318,15 +334,18 @@ function readCode(code){
   var body = b64dec(code.slice(4));
   if(!body) return null;
   var p = body.split('|');
-  if(p.length !== 6) return null;
+  if(p.length < 6 || p.length > 4 + MAX_DRESSED) return null;
   var given = p.pop();
   if(given !== sum32(p.join('|'))) return null;      // clipped or edited in transit
-  var st, a, b;
-  try { st = unpackCard(p[2]); a = unpackCard(p[3]); b = unpackCard(p[4]); }
-  catch(e){ return null; }
-  if(!st || !a || !b) return null;
+  var st, line = [];
+  try {
+    st = unpackCard(p[2]);
+    for(var i = 3; i < p.length; i++) line.push(unpackCard(p[i]));
+  } catch(e){ return null; }
+  if(!st || line.length < 2) return null;
+  for(var j = 0; j < line.length; j++) if(!line[j]) return null;
   return {handle: p[0].slice(0, 12) || 'Friend', team: teamOf(p[1]).k,
-          stick: {pw: st.pw, ac: st.ac, ps: st.ps, k: st.k}, line: [a, b], code: code};
+          stick: {pw: st.pw, ac: st.ac, ps: st.ps, k: st.k}, line: line, code: code};
 }
 function addFriend(code){
   var f = readCode(code);

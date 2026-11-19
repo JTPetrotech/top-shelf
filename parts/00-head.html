@@ -244,6 +244,11 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
   border:2px solid rgba(255,255,255,.7);transition:transform .06s linear;pointer-events:none}
 .dstick b{position:absolute;left:0;right:0;top:-17px;text-align:center;pointer-events:none;
   font-family:var(--display);font-size:12px;letter-spacing:.16em;color:rgba(233,240,248,.62)}
+.tbtn.slap{background:#c08cff;font-size:16px}
+#p1Slap{right:126px;bottom:128px;width:70px;height:70px}
+#p2Slap{right:126px;bottom:128px;width:70px;height:70px;display:none}
+#pads.two #p1Slap{left:calc(46% - 196px);right:auto;bottom:112px;width:62px;height:62px}
+#pads.two #p2Slap{right:98px;bottom:34px;width:62px;height:62px;display:grid}
 #p1Dangle{right:26px;bottom:140px;width:78px;height:78px}
 #p2Dangle{right:26px;bottom:140px;width:78px;height:78px;display:none!important}
 #pads.two #p1Dangle{left:calc(46% - 196px);right:auto;bottom:34px;width:68px;height:68px}
@@ -292,6 +297,8 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
     <button class="tbtn" id="p1Shoot">SHOOT</button>
     <button class="tbtn" id="p2Pass">PASS</button>
     <button class="tbtn" id="p2Shoot">SHOOT</button>
+    <button class="tbtn slap" id="p1Slap">SLAP</button>
+    <button class="tbtn slap" id="p2Slap">SLAP</button>
     <div class="dstick" id="p1Dangle"><i></i><b>DANGLE</b></div>
     <div class="dstick" id="p2Dangle"><i></i><b>DANGLE</b></div>
   </div>
@@ -308,7 +315,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
   <div class="ov" id="ovMenu">
     <div class="card">
       <h1>Top <em>Shelf</em></h1>
-      <p class="sub">Two on two with goalies. Ice or roller, against the CPU or a friend beside you.</p>
+      <p class="sub">Five a side on ice, four on roller, goalies in. Against the CPU or a friend beside you.</p>
 
       <div class="walletbar">
         <span class="wallet"><i class="coin"></i><span id="walletN">0</span></span>
@@ -419,7 +426,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
       <p class="sub" id="teamSub">Pick the stick you carry and the two skaters who dress.</p>
       <div class="row"><div class="lab">Stick &mdash; tap to equip</div></div>
       <div class="cards" id="stickList"></div>
-      <div class="row"><div class="lab">Skaters &mdash; tap to dress, two at a time</div></div>
+      <div class="row"><div class="lab">Skaters &mdash; tap to dress, up to five</div></div>
       <div class="cards" id="skaterList"></div>
       <div class="btns">
         <button class="go alt" id="btnSell">Sell spares</button>

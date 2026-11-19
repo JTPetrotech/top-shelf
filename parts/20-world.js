@@ -441,8 +441,8 @@ function buildJumbo(){
     cable.position.set(p[0], 6.8, p[1]);
     g.add(cable);
   });
-  g.position.set(0, 13.6, 0);
-  g.scale.setScalar(0.88);
+  g.position.set(0, 19.8, 0);
+  g.scale.setScalar(0.60);
   world.add(g);
   paintJumbo();
 }

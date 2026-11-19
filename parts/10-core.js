@@ -16,7 +16,8 @@ var HX = 30, HZ = 13, CORNER = 7;          // half length, half width, corner ra
 var GOAL_X = 25, MOUTH = 2.0, BAR = 1.30, NET_D = 1.9;
 var BLUE_X = 9, DOT_X = 17, DOT_Z = 6.5;
 var SK_R = 0.72, PUCK_R = 0.22, GK_R = 0.95;
-var DANGLE_T = 0.40, DANGLE_COOL = 0.70;   // how long the puck is crossing, and the wait before the next one
+var DANGLE_T = 0.40, DANGLE_COOL = 0;      // how long the puck is crossing; no wait between dangles
+var SLAP_WIND = 0.42;                      // the windup you pay for a slapshot
 
 var SURF = {
   ice: {
@@ -60,10 +61,30 @@ var G = {
   faceoffT:0, lastGoalBy:0, camMode:0,
   tut:null, shake:0
 };
+/* Real team sizes: five skaters a side on ice, four on roller, plus goalies.
+   lane is where they live across the rink, back is how defensive they play. */
+var FORMATION = {
+  ice: [
+    {role:'C',  lane: 0.00, back:0.20, x:-5.0,  z: 0.0},
+    {role:'LW', lane:-1.00, back:0.00, x:-7.0,  z:-5.5},
+    {role:'RW', lane: 1.00, back:0.00, x:-7.0,  z: 5.5},
+    {role:'LD', lane:-0.55, back:1.00, x:-13.5, z:-3.5},
+    {role:'RD', lane: 0.55, back:1.00, x:-13.5, z: 3.5}
+  ],
+  roller: [
+    {role:'C',  lane: 0.00, back:0.20, x:-5.0,  z: 0.0},
+    {role:'LW', lane:-1.00, back:0.00, x:-7.0,  z:-5.5},
+    {role:'RW', lane: 1.00, back:0.00, x:-7.0,  z: 5.5},
+    {role:'D',  lane: 0.00, back:1.00, x:-13.5, z: 0.0}
+  ]
+};
+function formation(){ return FORMATION[G.surface] || FORMATION.ice; }
+function teamSize(){ return formation().length; }
+
 var S = function(){ return SURF[G.surface]; };
 var D = function(){ return DIFF[G.diff]; };
 
-var puck = {x:0, y:PUCK_R, z:0, vx:0, vy:0, vz:0};
+var puck = {x:0, y:PUCK_R, z:0, vx:0, vy:0, vz:0, px:0};
 var skaters = [], goalies = [], carrier = null, puckCool = 0;
 
 /* =========================================================================
@@ -135,15 +156,16 @@ var sfx = (function(){
    ========================================================================= */
 var KEYS = Object.create(null);
 var SCHEME = {
-  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ', dangle:'KeyE'},
-  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash', dangle:'Period'}
+  p1: {up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', shoot:'Space', pass:'KeyQ', dangle:'KeyE', slap:'KeyR'},
+  p2: {up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', shoot:'Enter', pass:'Slash', dangle:'Period', slap:'Comma'}
 };
-var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false, dangle:false}, p2:{mx:0, mz:0, shoot:false, pass:false, dangle:false}};
+var PADST = {p1:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false}, p2:{mx:0, mz:0, shoot:false, pass:false, dangle:false, slap:false}};
 var touchIn = {p1:{mx:0, mz:0, shoot:false}, p2:{mx:0, mz:0, shoot:false}};
 var IN = {p1:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}, p2:{mx:0, mz:0, len:0, shoot:false, pass:false, dangle:null}};
 var passEdge = {p1:false, p2:false};
 /* a dangle is one flick, not a held button: null, or {dx, dz} for the way it went */
 var dangleEdge = {p1:null, p2:null};
+var slapEdge = {p1:false, p2:false};
 var lastDevice = 'key';
 var padCount = 0;
 
@@ -156,6 +178,8 @@ addEventListener('keydown', function(e){
   if(c === SCHEME.p2.pass) passEdge.p2 = true;
   if(c === SCHEME.p1.dangle) dangleEdge.p1 = {dx:0, dz:0};
   if(c === SCHEME.p2.dangle) dangleEdge.p2 = {dx:0, dz:0};
+  if(c === SCHEME.p1.slap) slapEdge.p1 = true;
+  if(c === SCHEME.p2.slap) slapEdge.p2 = true;
   if(c === 'KeyP' || c === 'Escape') togglePause();
   if(c === 'KeyC') cycleCam();
 });
@@ -181,12 +205,15 @@ function readPads(){
     var shoot = (gp.buttons[0] && gp.buttons[0].pressed) || (gp.buttons[7] && gp.buttons[7].value > 0.4);
     var pass  = (gp.buttons[2] && gp.buttons[2].pressed) || (gp.buttons[5] && gp.buttons[5].pressed);
     var dang  = (gp.buttons[1] && gp.buttons[1].pressed) || (gp.buttons[4] && gp.buttons[4].pressed);
+    var slap  = (gp.buttons[3] && gp.buttons[3].pressed) || (gp.buttons[6] && gp.buttons[6].value > 0.4);
     slot.shoot = !!shoot;
     if(pass && !slot.pass) passEdge[slots[n]] = true;
     slot.pass = !!pass;
     if(dang && !slot.dangle) dangleEdge[slots[n]] = {dx: ax, dz: az};
     slot.dangle = !!dang;
-    if(ax || az || shoot || pass || dang) lastDevice = 'pad';
+    if(slap && !slot.slap) slapEdge[slots[n]] = true;
+    slot.slap = !!slap;
+    if(ax || az || shoot || pass || dang || slap) lastDevice = 'pad';
     n++;
   }
   padCount = n;
@@ -216,6 +243,7 @@ function gatherInput(){
     o.mx = mx; o.mz = mz; o.len = len; o.shoot = shoot;
     o.pass = passEdge[k]; passEdge[k] = false;
     o.dangle = dangleEdge[k]; dangleEdge[k] = null;
+    o.slap = slapEdge[k]; slapEdge[k] = false;
   }
 }
 
@@ -252,7 +280,9 @@ function bindZone(zoneEl, stickEl, slot){
 function bindBtn(btn, slot, kind){
   btn.addEventListener('pointerdown', function(e){
     e.preventDefault(); sfx.on(); lastDevice = 'touch';
-    if(kind === 'shoot') touchIn[slot].shoot = true; else passEdge[slot] = true;
+    if(kind === 'shoot') touchIn[slot].shoot = true;
+    else if(kind === 'slap') slapEdge[slot] = true;
+    else passEdge[slot] = true;
   });
   var ends = ['pointerup','pointercancel','pointerleave'];
   for(var i=0;i<ends.length;i++){
@@ -303,4 +333,5 @@ bindZone(document.querySelector('.zone.p1'), el('st1'), 'p1');
 bindZone(document.querySelector('.zone.p2'), el('st2'), 'p2');
 bindBtn(el('p1Shoot'), 'p1', 'shoot'); bindBtn(el('p1Pass'), 'p1', 'pass');
 bindBtn(el('p2Shoot'), 'p2', 'shoot'); bindBtn(el('p2Pass'), 'p2', 'pass');
+bindBtn(el('p1Slap'), 'p1', 'slap'); bindBtn(el('p2Slap'), 'p2', 'slap');
 if(touchOn){ el('rotate').classList.add('armed'); }

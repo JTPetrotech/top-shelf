@@ -120,9 +120,11 @@ function paintTeam(){
   }
   el('skaterList').innerHTML = h;
 
-  var ln = lineCards();
-  el('teamSub').textContent = 'Carrying ' + st.n + '. Dressing ' + ln[0].who + ' and ' + ln[1].who +
-    '. You skate as whichever one is closest to the puck.';
+  var dressed = SAVE.line.map(findCard).filter(Boolean);
+  el('teamSub').textContent = 'Carrying ' + st.n + '. Dressing ' + dressed.length + ' of ' + MAX_DRESSED +
+    ': ' + dressed.map(function(c){ return c.who; }).join(', ') +
+    '. Five skate on ice, four on roller \u2014 any slot you have not filled is a call-up. ' +
+    'You play whichever of them is closest to the puck.';
   el('sellNote').textContent = '';
   paintWallet();
 }
@@ -140,7 +142,7 @@ function toggleDress(u){
     if(SAVE.line.length <= 1) return;               // never dress fewer than one
     SAVE.line.splice(at, 1);
   } else {
-    if(SAVE.line.length >= 2) SAVE.line.shift();    // oldest pick drops out
+    if(SAVE.line.length >= MAX_DRESSED) SAVE.line.shift();   // oldest pick drops out
     SAVE.line.push(u);
   }
   repairSave(); saveNow(); sfx.on(); paintTeam();

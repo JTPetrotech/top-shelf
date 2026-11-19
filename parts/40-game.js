@@ -31,27 +31,32 @@ function createTeams(){
   skaters = []; goalies = []; carrier = null;
 
   var twoUp = (G.humans === 2);
-  var mine = twoUp ? [neutralCard(0), neutralCard(1)] : lineCards();
-  var theirs = twoUp ? [neutralCard(2), neutralCard(3)] : oppLine();
+  var form = formation(), N = form.length;
+  var mine = twoUp ? neutralLine(N, 0) : lineCards(N);
+  var theirs = twoUp ? neutralLine(N, 1) : oppLine(N);
   var myStick = twoUp ? {pw:1, ac:1, ps:1, k:'birch'} : equippedStick();
   var theirStick = twoUp ? {pw:1, ac:1, ps:1, k:'twig'} : oppStickPower();
-  var roster = [
-    {team:0, slot:-1, card: mine[0],   stick: myStick},
-    {team:0, slot:1,  card: mine[1],   stick: myStick},
-    {team:1, slot:-1, card: theirs[0], stick: theirStick},
-    {team:1, slot:1,  card: theirs[1], stick: theirStick}
-  ];
+  var roster = [];
+  for(var tm = 0; tm < 2; tm++){
+    for(var fi = 0; fi < N; fi++){
+      roster.push({team: tm, form: form[fi],
+                   card: (tm === 0 ? mine : theirs)[fi],
+                   stick: tm === 0 ? myStick : theirStick});
+    }
+  }
   for(var r = 0; r < roster.length; r++){
     var d = roster[r];
     var s = {
-      team: d.team, num: d.card.num, slot: d.slot, ctrlBy: null,
+      team: d.team, num: d.card.num, ctrlBy: null,
+      role: d.form.role, lane: d.form.lane, back: d.form.back,
+      homeX: d.form.x, homeZ: d.form.z, hidden: false,
       card: d.card, who: d.card.who,
       sp: d.card.sp, sh: d.card.sh, df: d.card.df,
       stickPw: d.stick.pw, stickAc: d.stick.ac, stickPs: d.stick.ps,
       x: 0, z: 0, vx: 0, vz: 0, face: d.team === 0 ? 0 : Math.PI,
       ix: 0, iz: 0, il: 0, turnRate: 0,
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
-      carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2,
+      carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2, slapT: 0,
       jitter: Math.random() * 6.28, think: 0,
       model: buildSkater(d.team, d.card.num, roller, d.stick.k)
     };
@@ -76,7 +81,7 @@ function createTeams(){
   world.add(puckMesh);
 
   control.p1 = skaters[0];
-  control.p2 = G.humans === 2 ? skaters[2] : null;
+  control.p2 = G.humans === 2 ? skaters[N] : null;
   updateCtrlTags();
 }
 
@@ -88,19 +93,20 @@ function updateCtrlTags(){
 
 function resetPositions(dropTo){
   for(var ri = 0; ri < skaters.length; ri++){
-    skaters[ri].carrySide = 1; skaters[ri].dangleT = 0; skaters[ri].dangleCool = 0;
+    skaters[ri].carrySide = 1; skaters[ri].dangleT = 0; skaters[ri].dangleCool = 0; skaters[ri].slapT = 0;
   }
-  var pos = [[-6, -3.5], [-10, 4.5], [6, 3.5], [10, -4.5]];
   for(var i = 0; i < skaters.length; i++){
     var s = skaters[i];
-    s.x = pos[i][0]; s.z = pos[i][1];
+    if(s.hidden){ s.vx = 0; s.vz = 0; s.il = 0; continue; }
+    var mir = s.team === 0 ? 1 : -1;
+    s.x = s.homeX * mir; s.z = s.homeZ * mir;
     s.vx = 0; s.vz = 0; s.ix = 0; s.iz = 0; s.il = 0;
     s.face = s.team === 0 ? 0 : Math.PI;
     s.stun = 0; s.charge = 0; s.charging = false; s.shootCool = 0; s.followT = 0;
   }
   goalies[0].z = 0; goalies[0].vz = 0; goalies[1].z = 0; goalies[1].vz = 0;
   puck.x = dropTo ? dropTo[0] : 0; puck.z = dropTo ? dropTo[1] : 0;
-  puck.y = PUCK_R; puck.vx = 0; puck.vy = 0; puck.vz = 0;
+  puck.y = PUCK_R; puck.vx = 0; puck.vy = 0; puck.vz = 0; puck.px = puck.x;
   carrier = null; puckCool = 0;
 }
 
@@ -162,6 +168,14 @@ function netCollide(o, r){
 
 function stepSkater(s, dt){
   var cfg = S(), d = D();
+  if(s.slapT > 0){
+    s.slapT -= dt;
+    s.il *= 0.22;                                   // you are planted while loading it
+    if(s.slapT <= 0){
+      s.slapT = 0;
+      if(carrier === s) shoot(s, 1, true);
+    }
+  }
   var ai = !s.ctrlBy;
   var sp_ = s.sp || 1;
   var acc = cfg.acc * (ai ? d.acc : 1) * sp_;
@@ -202,6 +216,7 @@ function skaterContacts(){
   for(var i = 0; i < skaters.length; i++){
     for(var j = i+1; j < skaters.length; j++){
       var a = skaters[i], b = skaters[j];
+      if(a.hidden || b.hidden) continue;
       var dx = b.x - a.x, dz = b.z - a.z;
       var d = Math.sqrt(dx*dx + dz*dz);
       if(d > SK_R*2 || d < 0.0001) continue;
@@ -236,7 +251,16 @@ function skaterContacts(){
 }
 
 /* ---- shooting and passing ---- */
-function shoot(s, power){
+/* A slapshot is a commitment: you stop skating, you wind right up, and it
+   leaves harder and less accurately than a wrister. */
+function startSlap(s){
+  if(carrier !== s || s.slapT > 0 || s.shootCool > 0 || s.stun > 0) return false;
+  s.slapT = SLAP_WIND;
+  s.charging = false; s.charge = 0;
+  return true;
+}
+
+function shoot(s, power, slap){
   var cfg = S(), gx = s.team === 0 ? GOAL_X : -GOAL_X;
   var a = s.face;
   var aim = s.stickAc || 1;
@@ -250,13 +274,16 @@ function shoot(s, power){
   var blade = localToWorld(s, 1.15, carryLat(s));
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
   var gear = Math.min(1.45, (s.sh || 1) * (s.stickPw || 1));   // stacked gear is capped
-  var sp = (cfg.shotBase + cfg.shotAdd * power) * gear;
+  if(slap) a += (Math.random() - 0.5) * 0.17 / aim;     // harder to place
+  var sp = (cfg.shotBase + cfg.shotAdd * power) * gear * (slap ? 1.3 : 1);
   puck.vx = Math.cos(a) * sp + s.vx * 0.35;
   puck.vz = Math.sin(a) * sp + s.vz * 0.35;
   puck.vy = power > 0.5 ? (power - 0.5) * 7.5 : 0;
+  if(slap) puck.vy += 1.4;
   carrier = null; puckCool = 0.22;
-  s.charging = false; s.charge = 0; s.shootCool = 0.3; s.followT = 0.28;
-  sfx.stick(power);
+  s.charging = false; s.charge = 0; s.shootCool = slap ? 0.45 : 0.3; s.followT = slap ? 0.38 : 0.28;
+  sfx.stick(slap ? 1 : power);
+  if(slap) G.shake = Math.max(G.shake, 0.35);
   if(G.tut) tutEvent('shot');
 }
 
@@ -284,8 +311,36 @@ function dangle(s, dx, dz){
   return true;
 }
 
+/* Score every team-mate: further up the ice is better, a sensible distance is
+   better, and a defender sitting in the passing lane is worse. */
+function bestMate(s){
+  var dir = s.team === 0 ? 1 : -1;
+  var best = null, bs = -1e9, i, j;
+  for(i = 0; i < skaters.length; i++){
+    var m = skaters[i];
+    if(m === s || m.team !== s.team || m.stun > 0 || m.hidden) continue;
+    var d = dist(s.x, s.z, m.x, m.z);
+    if(d < 2.5 || d > 26) continue;
+    var score = m.x * dir * 0.6 - Math.abs(d - 9) * 0.5;
+    for(j = 0; j < skaters.length; j++){
+      var o = skaters[j];
+      if(o.team === s.team || o.hidden) continue;
+      var t2 = ((o.x - s.x) * (m.x - s.x) + (o.z - s.z) * (m.z - s.z)) / (d * d);
+      if(t2 < 0 || t2 > 1) continue;
+      var off = dist(s.x + (m.x - s.x) * t2, s.z + (m.z - s.z) * t2, o.x, o.z);
+      if(off < 1.7) score -= (1.7 - off) * 7;
+    }
+    if(score > bs){ bs = score; best = m; }
+  }
+  return best;
+}
+
 function mateOf(s){
-  for(var i = 0; i < skaters.length; i++) if(skaters[i].team === s.team && skaters[i] !== s) return skaters[i];
+  var b = bestMate(s);
+  if(b) return b;
+  for(var i = 0; i < skaters.length; i++){
+    if(skaters[i].team === s.team && skaters[i] !== s && !skaters[i].hidden) return skaters[i];
+  }
   return null;
 }
 
@@ -309,9 +364,10 @@ function passTo(s){
 /* ---- AI ---- */
 function nearestToPuck(team){
   var best = null, bd = 1e9;
+  // a skater sitting out is not an option
   for(var i = 0; i < skaters.length; i++){
     var s = skaters[i];
-    if(s.team !== team) continue;
+    if(s.team !== team || s.hidden) continue;
     var d = dist(s.x, s.z, puck.x, puck.z);
     if(d < bd){ bd = d; best = s; }
   }
@@ -328,7 +384,8 @@ function aiThink(s, t, dt){
   var d = D();
   var dir = s.team === 0 ? 1 : -1;
   var oppX = dir * GOAL_X, ownX = -dir * GOAL_X;
-  var wob = Math.sin(t * 0.8 + s.jitter) * 4.5;
+  var wob = Math.sin(t * 0.8 + s.jitter) * 4.0;
+  var laneZ = s.lane * 6.2;
 
   s.think -= dt;
   if(s.stun > 0){ s.il = 0; return; }
@@ -336,16 +393,24 @@ function aiThink(s, t, dt){
   if(carrier === s){
     var dn = dist(s.x, s.z, oppX, 0);
     var lane = Math.abs(s.z) < 8.5;
-    if(dn < d.shootD && lane && s.shootCool <= 0){
+    if(dn < d.shootD && lane && s.shootCool <= 0 && s.slapT <= 0){
       if(!s.charging && Math.random() < 0.08 * d.aggr){ s.charging = true; s.charge = 0; }
       if(s.charging && s.charge > 0.25 + Math.random() * 0.45){ shoot(s, s.charge); return; }
     }
-    var m = mateOf(s);
-    if(m && !m.stun && dist(m.x, m.z, oppX, 0) < dn - 6 && Math.random() < 0.012 * d.aggr){ passTo(s); return; }
+    if(s.back > 0.5 && dn > d.shootD * 0.8 && dn < d.shootD * 1.9 && lane &&
+       s.shootCool <= 0 && s.slapT <= 0 && Math.random() < 0.009 * d.aggr){
+      startSlap(s); return;                          // defence wind one up from the point
+    }
+    var m = bestMate(s);
+    if(m && dist(m.x, m.z, oppX, 0) < dn - 5 && Math.random() < 0.016 * d.aggr){ passTo(s); return; }
     var far = Math.abs(s.x - oppX) > 14;
-    steer(s, oppX - dir * 4.2, far ? s.slot * 6.5 : clamp(s.z * 0.5, -3, 3) + wob * 0.2);
+    steer(s, oppX - dir * 4.2, far ? laneZ : clamp(s.z * 0.5, -3, 3) + wob * 0.2);
+
   } else if(carrier && carrier.team === s.team){
-    steer(s, oppX - dir * (8 + Math.abs(wob)), s.slot * 5.5 + wob * 0.5);
+    // support: forwards get up the ice, defence hold the line behind the play
+    var supX = oppX - dir * (6 + s.back * 21);
+    steer(s, supX + wob * 0.3, laneZ + wob * 0.45);
+
   } else {
     var chaser = nearestToPuck(s.team);
     if(s === chaser){
@@ -353,7 +418,9 @@ function aiThink(s, t, dt){
       steer(s, puck.x + puck.vx * lead, puck.z + puck.vz * lead);
       s.il = 1;
     } else {
-      steer(s, ownX + dir * (7.5 + wob * 0.4), s.slot * 4.5);
+      // everyone else covers their own lane, deeper the more defensive they are
+      var defX = ownX + dir * (6.5 + (1 - s.back) * 15);
+      steer(s, defX + wob * 0.35, laneZ * (0.55 + s.back * 0.55) + wob * 0.45);
     }
   }
 }
@@ -424,6 +491,18 @@ function goalieSave(g){
 }
 
 /* ---- puck ---- */
+/* A goal is the puck crossing this goal line FROM the ice, through the mouth,
+   under the bar. px is where it was last frame: without that check, a puck that
+   clipped the outside of the back of the net scored. */
+function isGoal(side, px, x, z, y){
+  var line = side * GOAL_X;
+  var crossed = side === 1 ? (x > line) : (x < line);
+  if(!crossed) return false;
+  if(Math.abs(x - line) >= 1.6) return false;
+  var fromIce = side === 1 ? (px <= line) : (px >= line);
+  return fromIce && Math.abs(z) < MOUTH - 0.06 && y < BAR - 0.05;
+}
+
 function stepPuck(dt){
   var cfg = S();
   if(puckCool > 0) puckCool -= dt;
@@ -437,6 +516,7 @@ function stepPuck(dt){
     puck.x = hold.x; puck.z = hold.z; puck.y = PUCK_R;
     puck.vx = s.vx; puck.vz = s.vz; puck.vy = 0;
   } else {
+    puck.px = puck.x;
     puck.x += puck.vx * dt;
     puck.z += puck.vz * dt;
     puck.y += puck.vy * dt;
@@ -456,7 +536,7 @@ function stepPuck(dt){
       if(!crossed) continue;
       var behind = Math.abs(puck.x - line) < 1.6;
       if(!behind) continue;
-      if(Math.abs(puck.z) < MOUTH - 0.06 && puck.y < BAR - 0.05){
+      if(isGoal(side, puck.px, puck.x, puck.z, puck.y)){
         goal(side === 1 ? 0 : 1);
         return;
       }
@@ -475,6 +555,7 @@ function stepPuck(dt){
       var best = null, bd = 1e9;
       for(var si = 0; si < skaters.length; si++){
         var sk = skaters[si];
+        if(sk.hidden) continue;
         if(sk.stun > 0) continue;
         var blade = localToWorld(sk, 0.95, 0.4);
         var d2 = dist(blade.x, blade.z, puck.x, puck.z);
@@ -636,8 +717,8 @@ var TUT_STEPS = [
     enter: function(t){
       t.done = false;
       resetPositions();
-      carrier = skaters[2];
-      skaters[2].x = 4; skaters[2].z = 0;
+      var foe = G.tutCast && G.tutCast.foe;
+      if(foe){ carrier = foe; foe.x = 4; foe.z = 0; }
       control.p1.x = -4; control.p1.z = 0;
     },
     update: function(t){ return !!t.done; },
@@ -672,8 +753,19 @@ function startTutorial(){
   markerMesh = makeMarker();
   world.add(markerMesh);
   resetPositions();
-  // park everyone but you and one winger out of the way
-  skaters[3].x = -22; skaters[3].z = -10;
+  // the drills want one of you, one team-mate and one opponent, nobody else
+  var keepMate = null, keepFoe = null;
+  for(var ti = 0; ti < skaters.length; ti++){
+    var ts = skaters[ti];
+    if(ts.team === 0 && ts !== control.p1 && !keepMate) keepMate = ts;
+    if(ts.team === 1 && !keepFoe) keepFoe = ts;
+  }
+  G.tutCast = {mate: keepMate, foe: keepFoe};
+  for(var tj = 0; tj < skaters.length; tj++){
+    var tk = skaters[tj];
+    tk.hidden = (tk !== control.p1 && tk !== keepMate && tk !== keepFoe);
+    tk.model.visible = !tk.hidden;
+  }
   G.tut = {i: 0, step: null};
   enterTutStep(0);
   el('coach').classList.add('on');
