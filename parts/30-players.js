@@ -31,7 +31,7 @@ function makeMats(){
 function numberTexture(n, team){
   var c = document.createElement('canvas'); c.width = 128; c.height = 128;
   var g = c.getContext('2d');
-  g.fillStyle = team === 0 ? '#2f7fe0' : '#e04a33';
+  g.fillStyle = '#' + MATS.teams[team].jersey.color.getHexString();
   g.fillRect(0, 0, 128, 128);
   g.fillStyle = '#ffffff';
   g.font = 'bold 86px Bebas Neue, Impact, sans-serif';
@@ -159,8 +159,8 @@ var STICK_LOOKS = {
   barbrk:  {shaft:0xffc43d,   grip:0x4a3410, tape:0x15191f, curve:0.066, len:0.35, h0:0.084, h1:0.060, thick:0.026, girth:1.05}
 };
 function stickLook(k){
-  var L = STICK_LOOKS[k] || STICK_LOOKS.twig;
-  return L;
+  if(k && typeof k === 'object') return k;      // a custom stick brings its own
+  return STICK_LOOKS[k] || STICK_LOOKS.twig;
 }
 
 /* A blade is a quad swept along a curved centreline: it gets longer, thinner and

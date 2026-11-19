@@ -211,6 +211,64 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .fr .fd{font-size:11px;color:var(--muted);margin-top:3px}
 .note2{font-size:11.5px;color:var(--muted);line-height:1.5;max-width:430px;margin:0 auto 14px}
 
+/* ---------------- modes, jerseys, custom sticks, season, story ---------------- */
+.modecard{display:flex;align-items:center;gap:12px;background:#0f1824;border:1px solid #24324a;
+  border-left:4px solid var(--mc,#2f7fe0);border-radius:11px;padding:13px;text-align:left;margin-bottom:9px}
+.modecard.cur{border-color:var(--amber);background:#17212f}
+.modecard .pw{flex:1 1 auto;min-width:0}
+.modecard .mn{font-family:var(--display);font-size:24px;line-height:1;letter-spacing:.03em}
+.modecard .md{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+.toggle{display:flex;align-items:center;gap:12px;background:#0b1420;border:1px solid #1d2a3b;
+  border-radius:11px;padding:13px;text-align:left;margin:0 auto 14px;max-width:470px}
+.toggle .pw{flex:1 1 auto}
+.toggle .tn{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.03em}
+.toggle .td{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.sw{flex:0 0 auto;width:58px;height:32px;border-radius:999px;border:1px solid #2b3a4f;background:#111a26;
+  cursor:pointer;position:relative;transition:background .14s,border-color .14s}
+.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#5b6c82;transition:left .14s,background .14s}
+.sw[aria-pressed="true"]{background:var(--amber);border-color:var(--amber)}
+.sw[aria-pressed="true"] i{left:29px;background:#0a1016}
+
+.kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px;margin:0 auto 16px;max-width:470px}
+.kit{background:#0f1824;border:1px solid #24324a;border-radius:10px;padding:10px;text-align:left;cursor:pointer}
+.kit.on{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset}
+.kit.locked{opacity:.45;cursor:not-allowed}
+.kit .swatch{display:flex;height:26px;border-radius:6px;overflow:hidden;margin-bottom:7px}
+.kit .swatch i{flex:1}
+.kit .kn{font-family:var(--display);font-size:17px;line-height:1.05;letter-spacing:.02em}
+.kit .kl{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 auto 12px;max-width:430px}
+.chip{width:30px;height:30px;border-radius:7px;border:2px solid #2b3a4f;cursor:pointer;padding:0}
+.chip.on{border-color:var(--amber);box-shadow:0 0 0 2px rgba(255,196,61,.3)}
+.chip.wide{width:auto;padding:0 10px;height:30px;font-family:var(--body);font-weight:800;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:#111a26}
+.chip.wide.on{color:#0a1016;background:var(--amber)}
+.namein{width:100%;max-width:430px;background:#0b1420;border:1px solid #2b3a4f;color:var(--text);
+  font-family:var(--body);font-size:13px;padding:10px 12px;border-radius:9px;margin:0 auto 12px;display:block}
+.namein:focus{outline:none;border-color:#45597a}
+
+table.tbl{width:100%;max-width:470px;margin:0 auto 14px;border-collapse:collapse;font-size:12.5px}
+table.tbl th{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  text-align:right;padding:6px 5px;border-bottom:1px solid #24324a;font-weight:800}
+table.tbl th:first-child,table.tbl td:first-child{text-align:left}
+table.tbl td{padding:7px 5px;text-align:right;border-bottom:1px solid #16202e;font-variant-numeric:tabular-nums}
+table.tbl tr.me td{color:var(--amber);font-weight:800}
+.fixture{background:#0b1420;border:1px solid #1d2a3b;border-radius:11px;padding:13px;margin:0 auto 14px;
+  max-width:470px;text-align:left}
+.fixture .fx{font-family:var(--display);font-size:24px;line-height:1.05}
+.fixture .fs{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+.chapter{display:flex;align-items:center;gap:11px;background:#0f1824;border:1px solid #24324a;border-radius:11px;
+  padding:12px;text-align:left;margin-bottom:8px;max-width:470px;margin-left:auto;margin-right:auto}
+.chapter.done{border-color:#2d6a4f}
+.chapter.now{border-color:var(--amber);background:#17212f}
+.chapter .pw{flex:1 1 auto;min-width:0}
+.chapter .cn{font-family:var(--display);font-size:21px;line-height:1.05}
+.chapter .cd{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.chapter .tick{font-family:var(--display);font-size:20px;color:var(--green)}
+
 /* ---------------- touch pads ---------------- */
 #pads{position:absolute;inset:0;z-index:2;display:none;pointer-events:none}
 #pads.on{display:block}
@@ -327,6 +385,12 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
         <button class="mini" id="btnTeam">My team</button>
         <button class="mini" id="btnTravel">Travel teams</button>
         <button class="mini" id="btnFriends">Friends</button>
+      </div>
+
+      <div class="navrow">
+        <button class="mini" id="btnModes">Mode</button>
+        <button class="mini" id="btnJersey">Jerseys</button>
+        <button class="mini" id="btnCustom">Custom stick</button>
       </div>
 
       <div class="row">
@@ -465,6 +529,82 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
       <div id="friendList"></div>
       <p class="note2">Codes carry a squad, not a connection &mdash; their team skates as the CPU. Nothing leaves this device.</p>
       <div class="btns"><button class="go alt" id="btnFriendBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- modes -->
+  <div class="ov" id="ovModes">
+    <div class="card">
+      <h2>How you play</h2>
+      <p class="sub">Exhibition is a one-off. Franchise plays a full season against the league. Story is seven chapters, each with something to prove.</p>
+      <div class="shelf" id="modeList"></div>
+      <div class="toggle">
+        <div class="pw"><div class="tn">Pro mode</div>
+          <div class="td">Ninety-second periods, aim assist all but off, sharper goalies and opponents. Pays 1.8&times; on everything.</div></div>
+        <button class="sw" id="swPro" aria-pressed="false"><i></i></button>
+      </div>
+      <div class="btns"><button class="go alt" id="btnModesBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- jerseys -->
+  <div class="ov" id="ovJersey">
+    <div class="card">
+      <h2>Jerseys</h2>
+      <p class="sub">Three come with the club. Every travel team you buy throws in its own kit, free.</p>
+      <div class="kits" id="kitList"></div>
+      <div class="btns"><button class="go alt" id="btnJerseyBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- custom stick -->
+  <div class="ov" id="ovCustom">
+    <div class="card">
+      <h2>Custom Stick</h2>
+      <p class="sub">Pick the shape, pick the finish, pay for the grade you want. No pack, no gamble.</p>
+      <div class="walletbar"><span class="wallet"><i class="coin"></i><span id="custN">0</span></span></div>
+      <div class="row"><div class="lab">Shape &mdash; this sets the stats</div></div>
+      <div class="chips" id="custShape"></div>
+      <div class="row"><div class="lab">Shaft</div></div>
+      <div class="chips" id="custPaint"></div>
+      <div class="row"><div class="lab">Tape</div></div>
+      <div class="chips" id="custTape"></div>
+      <div class="row"><div class="lab">Grade</div></div>
+      <div class="chips" id="custGrade"></div>
+      <input class="namein" id="custName" maxlength="18" placeholder="Name it (optional)" autocomplete="off">
+      <div class="odds" id="custPreview"></div>
+      <div class="btns">
+        <button class="go" id="btnCustBuy">Build it</button>
+        <button class="go alt" id="btnCustBack">Back</button>
+      </div>
+      <p class="note2" id="custNote"></p>
+    </div>
+  </div>
+
+  <!-- season -->
+  <div class="ov" id="ovSeason">
+    <div class="card">
+      <h2>Season</h2>
+      <div id="seasonBody"></div>
+      <div class="btns">
+        <button class="go" id="btnSeasonPlay">Play next game</button>
+        <button class="go alt" id="btnSeasonNew">New season</button>
+        <button class="go alt" id="btnSeasonBack">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- story -->
+  <div class="ov" id="ovStory">
+    <div class="card">
+      <h2>Story</h2>
+      <p class="sub" id="storySub">Seven chapters, beer league to the wall.</p>
+      <div id="storyBody"></div>
+      <div class="btns">
+        <button class="go" id="btnStoryPlay">Play chapter</button>
+        <button class="go alt" id="btnStoryReset">Start over</button>
+        <button class="go alt" id="btnStoryBack">Back</button>
+      </div>
     </div>
   </div>
 

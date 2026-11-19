@@ -214,6 +214,64 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .fr .fd{font-size:11px;color:var(--muted);margin-top:3px}
 .note2{font-size:11.5px;color:var(--muted);line-height:1.5;max-width:430px;margin:0 auto 14px}
 
+/* ---------------- modes, jerseys, custom sticks, season, story ---------------- */
+.modecard{display:flex;align-items:center;gap:12px;background:#0f1824;border:1px solid #24324a;
+  border-left:4px solid var(--mc,#2f7fe0);border-radius:11px;padding:13px;text-align:left;margin-bottom:9px}
+.modecard.cur{border-color:var(--amber);background:#17212f}
+.modecard .pw{flex:1 1 auto;min-width:0}
+.modecard .mn{font-family:var(--display);font-size:24px;line-height:1;letter-spacing:.03em}
+.modecard .md{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+.toggle{display:flex;align-items:center;gap:12px;background:#0b1420;border:1px solid #1d2a3b;
+  border-radius:11px;padding:13px;text-align:left;margin:0 auto 14px;max-width:470px}
+.toggle .pw{flex:1 1 auto}
+.toggle .tn{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.03em}
+.toggle .td{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.sw{flex:0 0 auto;width:58px;height:32px;border-radius:999px;border:1px solid #2b3a4f;background:#111a26;
+  cursor:pointer;position:relative;transition:background .14s,border-color .14s}
+.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#5b6c82;transition:left .14s,background .14s}
+.sw[aria-pressed="true"]{background:var(--amber);border-color:var(--amber)}
+.sw[aria-pressed="true"] i{left:29px;background:#0a1016}
+
+.kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px;margin:0 auto 16px;max-width:470px}
+.kit{background:#0f1824;border:1px solid #24324a;border-radius:10px;padding:10px;text-align:left;cursor:pointer}
+.kit.on{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset}
+.kit.locked{opacity:.45;cursor:not-allowed}
+.kit .swatch{display:flex;height:26px;border-radius:6px;overflow:hidden;margin-bottom:7px}
+.kit .swatch i{flex:1}
+.kit .kn{font-family:var(--display);font-size:17px;line-height:1.05;letter-spacing:.02em}
+.kit .kl{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 auto 12px;max-width:430px}
+.chip{width:30px;height:30px;border-radius:7px;border:2px solid #2b3a4f;cursor:pointer;padding:0}
+.chip.on{border-color:var(--amber);box-shadow:0 0 0 2px rgba(255,196,61,.3)}
+.chip.wide{width:auto;padding:0 10px;height:30px;font-family:var(--body);font-weight:800;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:#111a26}
+.chip.wide.on{color:#0a1016;background:var(--amber)}
+.namein{width:100%;max-width:430px;background:#0b1420;border:1px solid #2b3a4f;color:var(--text);
+  font-family:var(--body);font-size:13px;padding:10px 12px;border-radius:9px;margin:0 auto 12px;display:block}
+.namein:focus{outline:none;border-color:#45597a}
+
+table.tbl{width:100%;max-width:470px;margin:0 auto 14px;border-collapse:collapse;font-size:12.5px}
+table.tbl th{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  text-align:right;padding:6px 5px;border-bottom:1px solid #24324a;font-weight:800}
+table.tbl th:first-child,table.tbl td:first-child{text-align:left}
+table.tbl td{padding:7px 5px;text-align:right;border-bottom:1px solid #16202e;font-variant-numeric:tabular-nums}
+table.tbl tr.me td{color:var(--amber);font-weight:800}
+.fixture{background:#0b1420;border:1px solid #1d2a3b;border-radius:11px;padding:13px;margin:0 auto 14px;
+  max-width:470px;text-align:left}
+.fixture .fx{font-family:var(--display);font-size:24px;line-height:1.05}
+.fixture .fs{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+.chapter{display:flex;align-items:center;gap:11px;background:#0f1824;border:1px solid #24324a;border-radius:11px;
+  padding:12px;text-align:left;margin-bottom:8px;max-width:470px;margin-left:auto;margin-right:auto}
+.chapter.done{border-color:#2d6a4f}
+.chapter.now{border-color:var(--amber);background:#17212f}
+.chapter .pw{flex:1 1 auto;min-width:0}
+.chapter .cn{font-family:var(--display);font-size:21px;line-height:1.05}
+.chapter .cd{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.chapter .tick{font-family:var(--display);font-size:20px;color:var(--green)}
+
 /* ---------------- touch pads ---------------- */
 #pads{position:absolute;inset:0;z-index:2;display:none;pointer-events:none}
 #pads.on{display:block}
@@ -330,6 +388,12 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
         <button class="mini" id="btnTeam">My team</button>
         <button class="mini" id="btnTravel">Travel teams</button>
         <button class="mini" id="btnFriends">Friends</button>
+      </div>
+
+      <div class="navrow">
+        <button class="mini" id="btnModes">Mode</button>
+        <button class="mini" id="btnJersey">Jerseys</button>
+        <button class="mini" id="btnCustom">Custom stick</button>
       </div>
 
       <div class="row">
@@ -468,6 +532,82 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
       <div id="friendList"></div>
       <p class="note2">Codes carry a squad, not a connection &mdash; their team skates as the CPU. Nothing leaves this device.</p>
       <div class="btns"><button class="go alt" id="btnFriendBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- modes -->
+  <div class="ov" id="ovModes">
+    <div class="card">
+      <h2>How you play</h2>
+      <p class="sub">Exhibition is a one-off. Franchise plays a full season against the league. Story is seven chapters, each with something to prove.</p>
+      <div class="shelf" id="modeList"></div>
+      <div class="toggle">
+        <div class="pw"><div class="tn">Pro mode</div>
+          <div class="td">Ninety-second periods, aim assist all but off, sharper goalies and opponents. Pays 1.8&times; on everything.</div></div>
+        <button class="sw" id="swPro" aria-pressed="false"><i></i></button>
+      </div>
+      <div class="btns"><button class="go alt" id="btnModesBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- jerseys -->
+  <div class="ov" id="ovJersey">
+    <div class="card">
+      <h2>Jerseys</h2>
+      <p class="sub">Three come with the club. Every travel team you buy throws in its own kit, free.</p>
+      <div class="kits" id="kitList"></div>
+      <div class="btns"><button class="go alt" id="btnJerseyBack">Back</button></div>
+    </div>
+  </div>
+
+  <!-- custom stick -->
+  <div class="ov" id="ovCustom">
+    <div class="card">
+      <h2>Custom Stick</h2>
+      <p class="sub">Pick the shape, pick the finish, pay for the grade you want. No pack, no gamble.</p>
+      <div class="walletbar"><span class="wallet"><i class="coin"></i><span id="custN">0</span></span></div>
+      <div class="row"><div class="lab">Shape &mdash; this sets the stats</div></div>
+      <div class="chips" id="custShape"></div>
+      <div class="row"><div class="lab">Shaft</div></div>
+      <div class="chips" id="custPaint"></div>
+      <div class="row"><div class="lab">Tape</div></div>
+      <div class="chips" id="custTape"></div>
+      <div class="row"><div class="lab">Grade</div></div>
+      <div class="chips" id="custGrade"></div>
+      <input class="namein" id="custName" maxlength="18" placeholder="Name it (optional)" autocomplete="off">
+      <div class="odds" id="custPreview"></div>
+      <div class="btns">
+        <button class="go" id="btnCustBuy">Build it</button>
+        <button class="go alt" id="btnCustBack">Back</button>
+      </div>
+      <p class="note2" id="custNote"></p>
+    </div>
+  </div>
+
+  <!-- season -->
+  <div class="ov" id="ovSeason">
+    <div class="card">
+      <h2>Season</h2>
+      <div id="seasonBody"></div>
+      <div class="btns">
+        <button class="go" id="btnSeasonPlay">Play next game</button>
+        <button class="go alt" id="btnSeasonNew">New season</button>
+        <button class="go alt" id="btnSeasonBack">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- story -->
+  <div class="ov" id="ovStory">
+    <div class="card">
+      <h2>Story</h2>
+      <p class="sub" id="storySub">Seven chapters, beer league to the wall.</p>
+      <div id="storyBody"></div>
+      <div class="btns">
+        <button class="go" id="btnStoryPlay">Play chapter</button>
+        <button class="go alt" id="btnStoryReset">Start over</button>
+        <button class="go alt" id="btnStoryBack">Back</button>
+      </div>
     </div>
   </div>
 
@@ -1325,7 +1465,7 @@ function makeMats(){
 function numberTexture(n, team){
   var c = document.createElement('canvas'); c.width = 128; c.height = 128;
   var g = c.getContext('2d');
-  g.fillStyle = team === 0 ? '#2f7fe0' : '#e04a33';
+  g.fillStyle = '#' + MATS.teams[team].jersey.color.getHexString();
   g.fillRect(0, 0, 128, 128);
   g.fillStyle = '#ffffff';
   g.font = 'bold 86px Bebas Neue, Impact, sans-serif';
@@ -1453,8 +1593,8 @@ var STICK_LOOKS = {
   barbrk:  {shaft:0xffc43d,   grip:0x4a3410, tape:0x15191f, curve:0.066, len:0.35, h0:0.084, h1:0.060, thick:0.026, girth:1.05}
 };
 function stickLook(k){
-  var L = STICK_LOOKS[k] || STICK_LOOKS.twig;
-  return L;
+  if(k && typeof k === 'object') return k;      // a custom stick brings its own
+  return STICK_LOOKS[k] || STICK_LOOKS.twig;
 }
 
 /* A blade is a quad swept along a curved centreline: it gets longer, thinner and
@@ -1880,7 +2020,7 @@ function createTeams(){
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2, slapT: 0,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.card.num, roller, d.stick.k)
+      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k)
     };
     world.add(s.model);
     skaters.push(s);
@@ -2087,11 +2227,12 @@ function shoot(s, power, slap){
   var a = s.face;
   var aim = s.stickAc || 1;
   if(!s.ctrlBy){
-    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim;
+    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim / (proOn() ? PRO.oppAcc : 1);
   } else {
     var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3 / aim) - s.z, gx - s.x);
     var dd = angNorm(toNet - a);
-    if(Math.abs(dd) < 0.42 * aim) a += dd * Math.min(0.9, 0.6 * aim);   // aim assist, widened by the stick
+    var help = proOn() ? PRO.aimAssist : 1;   // pro mode takes the help off
+    if(Math.abs(dd) < 0.42 * aim * help) a += dd * Math.min(0.9, 0.6 * aim) * help;
   }
   var blade = localToWorld(s, 1.15, carryLat(s));
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
@@ -2272,7 +2413,7 @@ function stepGoalie(g, dt){
   var dir = g.team === 0 ? -1 : 1;                 // which way their net faces
   var own = dir * GOAL_X;
   var near = g.team === 0 ? (puck.x < 4) : (puck.x > -4);
-  var skill = D().gk * (G.humans === 2 ? 0.92 : (g.team === 0 ? 0.9 : 1));
+  var skill = D().gk * (G.humans === 2 ? 0.92 : (g.team === 0 ? 0.9 : 1)) * (proOn() ? PRO.goalieBoost : 1);
   var tz = 0;
   if(near){
     var aim = puck.z + puck.vz * 0.1;
@@ -2422,6 +2563,8 @@ function goal(team){
   G.faceoffT = 2.0;
 }
 
+function periodLen(){ return proOn() ? PRO.periodLen : PERIOD_LEN; }
+
 function endPeriod(){
   sfx.whistle();
   if(G.period < PERIODS){
@@ -2433,10 +2576,10 @@ function endPeriod(){
     el('ovBreak').classList.add('on');
     setTimeout(function(){
       el('ovBreak').classList.remove('on');
-      G.period++; G.clock = PERIOD_LEN; paintBug(); paintJumbo(); faceoff('Face-off');
+      G.period++; G.clock = periodLen(); paintBug(); paintJumbo(); faceoff('Face-off');
     }, 2400);
   } else if(G.score[0] === G.score[1]){
-    G.ot = true; G.clock = PERIOD_LEN; paintBug();
+    G.ot = true; G.clock = periodLen(); paintBug();
     G.phase = 'break';
     el('breakTitle').textContent = 'Overtime';
     el('breakScore').innerHTML = G.score[0] + ' &ndash; ' + G.score[1];
@@ -2458,6 +2601,26 @@ function endGame(){
     el('overNote').textContent = p1Won ? 'Three stars, all yours. Try All-Star next.'
       : (a === b ? 'Nobody blinked.' : 'They found the slot too often. Tighten up the back end.');
   }
+  var extra = '';
+  if(G.humans === 1 && SAVE.mode === 'franchise' && SAVE.season && !SAVE.season.done){
+    var fx = recordSeasonGame(a, b);
+    if(fx){
+      var sn = SAVE.season;
+      extra = sn.done
+        ? '<br><span style="color:var(--green)">Season over ' + '— ' + esc(leagueOf(sn.champion).n) +
+          ' take it' + (sn.champion === sn.team ? ' (that is you)' : '') + '.</span>'
+        : '<br><span style="color:var(--muted);font-size:12.5px">Game ' + sn.game + ' of ' +
+          sn.games.length + ' played.</span>';
+    }
+  } else if(G.humans === 1 && SAVE.mode === 'story'){
+    var st = finishStoryChapter(a, b);
+    if(st){
+      extra = st.passed
+        ? '<br><span style="color:var(--green)">' + esc(st.chapter.title) + ' cleared, +' +
+          st.pay.toLocaleString() + ' bonus.</span>'
+        : '<br><span style="color:var(--away)">Not this time: ' + esc(st.chapter.goal) + '.</span>';
+    }
+  }
   var pay = matchReward();
   if(pay){
     var bits = [(a > b ? 'Win ' : (a === b ? 'Draw ' : 'Loss ')) + pay.base];
@@ -2466,7 +2629,10 @@ function endGame(){
     if(pay.diff) bits.push('skill ' + pay.diff);
     el('overNote').innerHTML = el('overNote').textContent + '<br><span style="color:var(--amber)">+' +
       pay.total.toLocaleString() + ' coins</span> <span style="color:var(--muted);font-size:12.5px">— ' +
-      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') + '</span>';
+      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') +
+      (proOn() ? ', ×' + PRO.payMult + ' pro' : '') + '</span>' + extra;
+  } else if(extra){
+    el('overNote').innerHTML = el('overNote').textContent + extra;
   }
   el('overScore').innerHTML = a + ' &ndash; ' + b;
   el('ovOver').classList.add('on');
@@ -2720,7 +2886,8 @@ function freshSave(){
     v: 1, coins: 400, wins: 0, losses: 0, draws: 0, gf: 0, ga: 0,
     sticks: [], skaters: [], stick: null, line: [],
     teams: ['sandlot'], team: 'sandlot',
-    handle: '', friends: [], opened: 0
+    handle: '', friends: [], opened: 0,
+    kit: 'home', pro: false, story: 0, season: null, mode: 'exhibition'
   };
   var twig = mintStick('twig', 'common');
   s.sticks.push(twig); s.stick = twig.u;
@@ -2759,10 +2926,11 @@ function loadSave(){
   if(raw){
     try {
       var p = JSON.parse(raw);
-      if(p && p.v === 1 && p.sticks && p.skaters){ SAVE = p; repairSave(); return; }
+      if(p && p.v === 1 && p.sticks && p.skaters){ SAVE = p; repairSave(); migrateCareer2(); return; }
     } catch(e){}
   }
   SAVE = freshSave();
+  migrateCareer2();
   saveNow();
 }
 
@@ -2880,7 +3048,7 @@ function matchReward(){
   var goals = a * 12;
   var shut = (a > b && b === 0) ? 60 : 0;
   var diffBonus = [0, 20, 45][G.diff] || 0;
-  var total = Math.round((base + goals + shut + diffBonus) * t.pay);
+  var total = Math.round((base + goals + shut + diffBonus) * t.pay * (proOn() ? PRO.payMult : 1));
   SAVE.coins += total;
   SAVE.gf += a; SAVE.ga += b;
   if(a > b) SAVE.wins++; else if(a === b) SAVE.draws++; else SAVE.losses++;
@@ -3039,9 +3207,13 @@ function esc(s){
 /* ---- wallet ---- */
 function paintWallet(){
   var n = SAVE.coins.toLocaleString();
-  ['walletN','shopN','travN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
+  ['walletN','shopN','travN','custN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
   var rec = el('walletRec');
-  if(rec) rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n;
+  if(rec){
+    var modeName = SAVE.mode === 'franchise' ? 'Franchise' : (SAVE.mode === 'story' ? 'Story' : 'Exhibition');
+    rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n +
+      ' · ' + modeName + (proOn() ? ' · Pro' : '');
+  }
 }
 
 /* ---- overlay plumbing ---- */
@@ -3297,6 +3469,529 @@ el('myCode').addEventListener('click', function(){
 });
 
 /* =========================================================================
+   8.7  KITS, CUSTOM STICKS, PRO MODE, FRANCHISE, STORY
+
+   Still no real money anywhere. Coins come from playing; jerseys come free
+   with the team you bought. Everything here hangs off the same SAVE object
+   and the same localStorage key.
+   ========================================================================= */
+
+/* ---------------- jerseys ----------------
+   A kit is what the team wears. The three starters are free; every travel
+   team you buy hands you its own kit at no extra cost. */
+var KITS = [
+  {k:'home',  n:'Sandlot Blue', free:true,  jersey:0x2f7fe0, trim:0x14365f, helmet:0x1b4a85, glove:0x17406f},
+  {k:'away',  n:'Road Red',     free:true,  jersey:0xe04a33, trim:0x6d1f14, helmet:0x8d2b1c, glove:0x7a2416},
+  {k:'white', n:'Classic White',free:true,  jersey:0xe9eef5, trim:0x24324a, helmet:0xdfe6ee, glove:0x2a3a52},
+  {k:'ironwrk', n:'Ironworks Gold', team:'ironwrk', jersey:0xd4a02a, trim:0x4a3410, helmet:0x8c6612, glove:0x5c4314},
+  {k:'bulldog', n:'Bulldog Rust',   team:'bulldog', jersey:0xc2542c, trim:0x4e1f0e, helmet:0x7d3317, glove:0x5e2712},
+  {k:'nstar',   n:'North Star Green', team:'nstar', jersey:0x3ec98a, trim:0x14503a, helmet:0x1f6e4f, glove:0x18563d},
+  {k:'overtm',  n:'Overtime Violet',  team:'overtm', jersey:0xc08cff, trim:0x442a66, helmet:0x6b45a0, glove:0x53357d}
+];
+function kitOf(k){ for(var i=0;i<KITS.length;i++) if(KITS[i].k === k) return KITS[i]; return KITS[0]; }
+function kitOwned(kit){
+  if(kit.free) return true;
+  return !kit.team || SAVE.teams.indexOf(kit.team) !== -1;
+}
+function ownedKits(){ return KITS.filter(kitOwned); }
+
+/* "Not the same kit" is not enough: Bulldog Rust against Road Red put two
+   near-identical sides on the ice. Pick the kit furthest from yours in colour. */
+function rgbOf(hex){ return [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255]; }
+function kitDistance(a, b){
+  var x = rgbOf(a), y = rgbOf(b);
+  var dr = x[0] - y[0], dg = x[1] - y[1], db = x[2] - y[2];
+  return Math.sqrt(dr*dr + dg*dg + db*db);
+}
+function awayKitFor(homeKit){
+  var best = null, bd = -1;
+  for(var i = 0; i < KITS.length; i++){
+    if(KITS[i].k === homeKit.k) continue;
+    var d = kitDistance(KITS[i].jersey, homeKit.jersey);
+    if(d > bd){ bd = d; best = KITS[i]; }
+  }
+  return best || KITS[1];
+}
+
+function applyKits(){
+  if(!MATS) return;
+  var home = kitOf(SAVE.kit), away = awayKitFor(home);
+  [[0, home], [1, away]].forEach(function(p){
+    var mt = MATS.teams[p[0]], kit = p[1];
+    mt.jersey.color.setHex(kit.jersey);
+    mt.trim.color.setHex(kit.trim);
+    mt.helmet.color.setHex(kit.helmet);
+    mt.glove.color.setHex(kit.glove);
+  });
+}
+
+/* ---------------- custom sticks ----------------
+   You pick the shape (which decides the stats), then paint it. The rarity you
+   pay for is the rarity you get - no gamble, which is the point of paying for
+   it rather than pulling a pack. */
+var PAINTS = [
+  {n:'Bone',    c:0xe9eef5}, {n:'Charcoal', c:0x1b222c}, {n:'Blood',  c:0xa32a1c},
+  {n:'Ice',     c:0x5ad8ff}, {n:'Forest',   c:0x2e7d53}, {n:'Gold',   c:0xffc43d},
+  {n:'Violet',  c:0xa06ce0}, {n:'Rust',     c:0xc2542c}, {n:'Navy',   c:0x1d3a6b},
+  {n:'Mint',    c:0x7fe0c0}, {n:'Hot Pink', c:0xf05a9b}, {n:'Sand',   c:0xd9b887}
+];
+var TAPES = [
+  {n:'Black tape', c:0x15191f}, {n:'White tape', c:0xf2f6fa}, {n:'Red tape', c:0x9c2a1c},
+  {n:'Blue tape',  c:0x1f4f8f}, {n:'Gold tape',  c:0xb3842a}
+];
+var CUSTOM_PRICE = {rare: 1500, epic: 4500, legend: 14000};
+
+function customCost(rk){ return CUSTOM_PRICE[rk] || CUSTOM_PRICE.rare; }
+
+/* A custom stick is an ordinary stick card that also carries its own look.
+   buildStick() reads look straight off the card when one is there. */
+function mintCustomStick(blueprint, rk, paintHex, tapeHex, name){
+  var c = mintStick(blueprint, rk);
+  c.custom = true;
+  c.n = (name || '').replace(/[~|<>]/g, '').slice(0, 18) || c.n;
+  var base = STICK_LOOKS[blueprint] || STICK_LOOKS.twig;
+  c.look = {
+    shaft: paintHex, grip: 0x1b222c, tape: tapeHex,
+    curve: base.curve, len: base.len, h0: base.h0, h1: base.h1,
+    thick: base.thick, girth: base.girth, lie: base.lie
+  };
+  return c;
+}
+
+function buyCustomStick(blueprint, rk, paintHex, tapeHex, name){
+  var cost = customCost(rk);
+  if(SAVE.coins < cost) return null;
+  SAVE.coins -= cost;
+  var c = mintCustomStick(blueprint, rk, paintHex, tapeHex, name);
+  SAVE.sticks.push(c);
+  SAVE.stick = c.u;                       // you paid for it, you are holding it
+  saveNow();
+  return c;
+}
+
+/* ---------------- pro mode ----------------
+   Not just "the CPU is better": the help comes off. */
+var PRO = {
+  payMult: 1.8,
+  periodLen: 90,
+  aimAssist: 0.25,      // fraction of the usual aim assist you keep
+  goalieBoost: 1.22,
+  oppAcc: 1.10
+};
+function proOn(){ return !!SAVE.pro; }
+
+/* ---------------- franchise ----------------
+   A season against the whole league, with a table and a final. */
+var LEAGUE = [
+  {k:'sandlot', n:'Sandlot',     str:0.86},
+  {k:'ironwrk', n:'Ironworks',   str:0.94},
+  {k:'bulldog', n:'Bulldogs',    str:1.00},
+  {k:'nstar',   n:'North Star',  str:1.07},
+  {k:'overtm',  n:'Overtime AC', str:1.14},
+  {k:'harbour', n:'Harbour Rats',str:0.90},
+  {k:'millers', n:'Millers',     str:0.98},
+  {k:'cinders', n:'Cinder Kings',str:1.04}
+];
+function leagueOf(k){ for(var i=0;i<LEAGUE.length;i++) if(LEAGUE[i].k === k) return LEAGUE[i]; return LEAGUE[0]; }
+
+function newSeason(teamKey){
+  var opponents = LEAGUE.filter(function(t){ return t.k !== teamKey; });
+  var games = [];
+  // home and away against everyone else, then shuffled so it is not a pattern
+  for(var leg = 0; leg < 2; leg++){
+    for(var i = 0; i < opponents.length; i++) games.push({opp: opponents[i].k, home: leg === 0, played: false, gf: 0, ga: 0});
+  }
+  for(var j = games.length - 1; j > 0; j--){
+    var r = Math.floor(Math.random() * (j + 1));
+    var tmp = games[j]; games[j] = games[r]; games[r] = tmp;
+  }
+  return {
+    team: teamKey, game: 0, games: games,
+    table: LEAGUE.map(function(t){ return {k: t.k, w: 0, l: 0, d: 0, gf: 0, ga: 0}; }),
+    done: false, champion: null
+  };
+}
+function row(season, k){
+  for(var i = 0; i < season.table.length; i++) if(season.table[i].k === k) return season.table[i];
+  return null;
+}
+function pts(r){ return r.w * 2 + r.d; }
+function standings(season){
+  return season.table.slice().sort(function(a, b){
+    return pts(b) - pts(a) || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf;
+  });
+}
+function nextFixture(){
+  var s = SAVE.season;
+  if(!s || s.done || s.game >= s.games.length) return null;
+  return s.games[s.game];
+}
+
+/* Everyone else's results are simulated from team strength, so the table
+   moves while you play your own games. */
+function simOtherGames(skipA, skipB){
+  var s = SAVE.season, i, j;
+  var teams = LEAGUE.filter(function(t){ return t.k !== skipA && t.k !== skipB; });
+  for(i = 0; i < teams.length; i += 2){
+    var a = teams[i], b = teams[i + 1];
+    if(!b) break;
+    var ga = Math.max(0, Math.round(2.6 * a.str + (Math.random() - 0.5) * 3));
+    var gb = Math.max(0, Math.round(2.6 * b.str + (Math.random() - 0.5) * 3));
+    var ra = row(s, a.k), rb = row(s, b.k);
+    if(!ra || !rb) continue;
+    ra.gf += ga; ra.ga += gb; rb.gf += gb; rb.ga += ga;
+    if(ga > gb){ ra.w++; rb.l++; } else if(gb > ga){ rb.w++; ra.l++; } else { ra.d++; rb.d++; }
+  }
+}
+
+function recordSeasonGame(myGoals, theirGoals){
+  var s = SAVE.season;
+  if(!s || s.done) return null;
+  var fx = s.games[s.game];
+  if(!fx) return null;
+  fx.played = true; fx.gf = myGoals; fx.ga = theirGoals;
+  var me = row(s, s.team), them = row(s, fx.opp);
+  if(me && them){
+    me.gf += myGoals; me.ga += theirGoals;
+    them.gf += theirGoals; them.ga += myGoals;
+    if(myGoals > theirGoals){ me.w++; them.l++; }
+    else if(theirGoals > myGoals){ them.w++; me.l++; }
+    else { me.d++; them.d++; }
+  }
+  simOtherGames(s.team, fx.opp);
+  s.game++;
+  if(s.game >= s.games.length){
+    s.done = true;
+    s.champion = standings(s)[0].k;
+    SAVE.coins += s.champion === s.team ? 25000 : 4000;
+  }
+  saveNow();
+  return fx;
+}
+
+/* ---------------- story ----------------
+   Chapters with a condition each. They are checked against the final score of
+   a normal game, so the story never needs its own game loop. */
+var STORY = [
+  {k:'c1', title:'Beer league',      brief:'You signed up on a Tuesday with borrowed gear. Just win one.',
+   goal:'Win a game', surface:'ice', diff:0, test:function(a,b){ return a > b; }, pay:400},
+  {k:'c2', title:'The regulars',     brief:'They have been playing together for nine years. Beat them by two.',
+   goal:'Win by two or more', surface:'ice', diff:0, test:function(a,b){ return a - b >= 2; }, pay:700},
+  {k:'c3', title:'Summer wheels',    brief:'Rink closes for the summer, so everyone moves to the roller court.',
+   goal:'Win on roller', surface:'roller', diff:1, test:function(a,b){ return a > b; }, pay:900},
+  {k:'c4', title:'Scouted',          brief:'Someone from the travel side is in the stands. Put on a show.',
+   goal:'Win scoring at least four', surface:'ice', diff:1, test:function(a,b){ return a > b && a >= 4; }, pay:1400},
+  {k:'c5', title:'The shutout',      brief:'Their line has not been held scoreless all year.',
+   goal:'Win without conceding', surface:'ice', diff:1, test:function(a,b){ return a > b && b === 0; }, pay:2200},
+  {k:'c6', title:'All-Star night',   brief:'Best of the league, and they are not being polite about it.',
+   goal:'Beat the All-Star side', surface:'ice', diff:2, test:function(a,b){ return a > b; }, pay:4000},
+  {k:'c7', title:'Top shelf',        brief:'Last one. Win it by three and the name goes on the wall.',
+   goal:'Win by three or more', surface:'ice', diff:2, test:function(a,b){ return a - b >= 3; }, pay:9000}
+];
+function storyChapter(i){ return STORY[i] || null; }
+function storyDone(){ return (SAVE.story || 0) >= STORY.length; }
+
+function finishStoryChapter(a, b){
+  var i = SAVE.story || 0;
+  var ch = STORY[i];
+  if(!ch) return null;
+  var won = ch.test(a, b);
+  if(won){
+    SAVE.story = i + 1;
+    SAVE.coins += ch.pay;
+    saveNow();
+  }
+  return {chapter: ch, passed: won, index: i, pay: ch.pay};
+}
+
+/* ---------------- save migration ----------------
+   Old saves predate every field above, so fill them in rather than wiping. */
+function migrateCareer2(){
+  if(!SAVE) return;
+  if(!SAVE.kit || !kitOf(SAVE.kit)) SAVE.kit = 'home';
+  if(!kitOwned(kitOf(SAVE.kit))) SAVE.kit = 'home';
+  if(typeof SAVE.pro !== 'boolean') SAVE.pro = false;
+  if(typeof SAVE.story !== 'number') SAVE.story = 0;
+  if(SAVE.season && (!SAVE.season.games || !SAVE.season.table)) SAVE.season = null;
+  if(SAVE.season === undefined) SAVE.season = null;
+  SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story
+}
+
+/* =========================================================================
+   8.8  SCREENS FOR MODES, JERSEYS, CUSTOM STICKS, SEASON AND STORY
+   ========================================================================= */
+
+var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory'];
+function closeMeta2(){ META_OVS2.forEach(function(id){ el(id).classList.remove('on'); }); }
+function showMeta2(id){
+  closeMenus();
+  closeMeta();
+  closeMeta2();
+  el(id).classList.add('on');
+  paintWallet();
+}
+
+function hex(n){ return '#' + ('000000' + n.toString(16)).slice(-6); }
+
+/* =========================================================================
+   modes
+   ========================================================================= */
+var MODES = [
+  {k:'exhibition', n:'Exhibition', col:'#2f7fe0',
+   d:'One game, your settings, coins as usual. Nothing is tracked.'},
+  {k:'franchise',  n:'Franchise',  col:'#3ec98a',
+   d:'A full season: home and away against seven rivals, a live table, and a cheque for whoever finishes top.'},
+  {k:'story',      n:'Story',      col:'#c08cff',
+   d:'Seven chapters. Each one asks for something specific — win by two, keep a clean sheet, beat the All-Stars.'}
+];
+
+function paintModes(){
+  var h = '';
+  for(var i = 0; i < MODES.length; i++){
+    var m = MODES[i], cur = SAVE.mode === m.k;
+    h += '<div class="modecard' + (cur ? ' cur' : '') + '" style="--mc:' + m.col + '">' +
+         '<div class="pw"><div class="mn">' + esc(m.n) + '</div><div class="md">' + esc(m.d) + '</div></div>' +
+         '<button class="buy" data-m="' + m.k + '">' + (cur ? 'Open' : 'Pick') + '</button></div>';
+  }
+  el('modeList').innerHTML = h;
+  el('swPro').setAttribute('aria-pressed', proOn() ? 'true' : 'false');
+}
+
+function pickMode(k){
+  SAVE.mode = k;
+  saveNow();
+  paintModes();
+  if(k === 'franchise'){ showMeta2('ovSeason'); paintSeason(); }
+  else if(k === 'story'){ showMeta2('ovStory'); paintStory(); }
+}
+
+/* =========================================================================
+   jerseys
+   ========================================================================= */
+function paintKits(){
+  var h = '';
+  for(var i = 0; i < KITS.length; i++){
+    var k = KITS[i], owned = kitOwned(k), cur = SAVE.kit === k.k;
+    h += '<div class="kit' + (cur ? ' on' : '') + (owned ? '' : ' locked') + '" data-kit="' + k.k + '">' +
+         '<div class="swatch"><i style="background:' + hex(k.jersey) + '"></i>' +
+         '<i style="background:' + hex(k.trim) + '"></i>' +
+         '<i style="background:' + hex(k.helmet) + '"></i></div>' +
+         '<div class="kn">' + esc(k.n) + '</div>' +
+         '<div class="kl">' + (owned ? (cur ? 'Wearing it' : 'Yours') :
+            'Comes with ' + esc(teamOf(k.team).n)) + '</div></div>';
+  }
+  el('kitList').innerHTML = h;
+}
+
+function pickKit(k){
+  var kit = kitOf(k);
+  if(!kitOwned(kit)) return;
+  SAVE.kit = k;
+  saveNow();
+  applyKits();
+  if(world && skaters.length){ createTeams(); resetPositions(); }
+  paintKits();
+}
+
+/* =========================================================================
+   custom stick
+   ========================================================================= */
+var cust = {shape:'birch', paint:PAINTS[5].c, tape:TAPES[0].c, grade:'rare'};
+
+function paintCustom(){
+  var i, h = '';
+  for(i = 0; i < STICKS.length; i++){
+    h += '<button class="chip wide' + (cust.shape === STICKS[i].k ? ' on' : '') +
+         '" data-shape="' + STICKS[i].k + '">' + esc(STICKS[i].n) + '</button>';
+  }
+  el('custShape').innerHTML = h;
+
+  h = '';
+  for(i = 0; i < PAINTS.length; i++){
+    h += '<button class="chip' + (cust.paint === PAINTS[i].c ? ' on' : '') + '" data-paint="' + PAINTS[i].c +
+         '" title="' + esc(PAINTS[i].n) + '" style="background:' + hex(PAINTS[i].c) + '"></button>';
+  }
+  el('custPaint').innerHTML = h;
+
+  h = '';
+  for(i = 0; i < TAPES.length; i++){
+    h += '<button class="chip' + (cust.tape === TAPES[i].c ? ' on' : '') + '" data-tape="' + TAPES[i].c +
+         '" title="' + esc(TAPES[i].n) + '" style="background:' + hex(TAPES[i].c) + '"></button>';
+  }
+  el('custTape').innerHTML = h;
+
+  h = '';
+  ['rare','epic','legend'].forEach(function(g){
+    h += '<button class="chip wide' + (cust.grade === g ? ' on' : '') + '" data-grade="' + g + '">' +
+         rarOf(g).n + ' · ' + customCost(g).toLocaleString() + '</button>';
+  });
+  el('custGrade').innerHTML = h;
+
+  // show what you would actually get before you pay for it
+  var preview = mintCustomStick(cust.shape, cust.grade, cust.paint, cust.tape, el('custName').value);
+  el('custPreview').innerHTML = '<b>' + esc(preview.n) + '</b> &middot; ' + rarOf(cust.grade).n + '<br>' +
+    'PWR ' + pct(preview.pw) + ' &middot; AIM ' + pct(preview.ac) + ' &middot; PASS ' + pct(preview.ps) +
+    '<br><span style="color:var(--muted)">' + esc(preview.d) + '</span>';
+  el('btnCustBuy').textContent = 'Build it · ' + customCost(cust.grade).toLocaleString();
+  el('btnCustBuy').disabled = SAVE.coins < customCost(cust.grade);
+  paintWallet();
+}
+
+/* =========================================================================
+   season
+   ========================================================================= */
+function paintSeason(){
+  var s = SAVE.season;
+  if(!s){
+    el('seasonBody').innerHTML = '<p class="sub">No season running. Start one and you will play every ' +
+      'other club home and away, with the table updating around you.</p>';
+    el('btnSeasonPlay').style.display = 'none';
+    el('btnSeasonNew').textContent = 'Start a season';
+    return;
+  }
+  var tableRows = standings(s).map(function(r, i){
+    var t = leagueOf(r.k);
+    return '<tr' + (r.k === s.team ? ' class="me"' : '') + '><td>' + (i + 1) + '. ' + esc(t.n) + '</td>' +
+      '<td>' + r.w + '</td><td>' + r.l + '</td><td>' + r.d + '</td>' +
+      '<td>' + (r.gf - r.ga > 0 ? '+' : '') + (r.gf - r.ga) + '</td><td>' + pts(r) + '</td></tr>';
+  }).join('');
+
+  var fx = nextFixture();
+  var head = '';
+  if(s.done){
+    head = '<div class="fixture"><div class="fx">' + esc(leagueOf(s.champion).n) + ' win the league</div>' +
+      '<div class="fs">' + (s.champion === s.team ? 'That is you. 25,000 in the bank.' : 'Next year.') +
+      '</div></div>';
+    el('btnSeasonPlay').style.display = 'none';
+  } else if(fx){
+    head = '<div class="fixture"><div class="fx">' + (fx.home ? 'vs ' : 'at ') + esc(leagueOf(fx.opp).n) + '</div>' +
+      '<div class="fs">Game ' + (s.game + 1) + ' of ' + s.games.length + ' · playing as ' +
+      esc(leagueOf(s.team).n) + '</div></div>';
+    el('btnSeasonPlay').style.display = '';
+  }
+  el('seasonBody').innerHTML = head +
+    '<table class="tbl"><tr><th>Club</th><th>W</th><th>L</th><th>D</th><th>GD</th><th>Pts</th></tr>' +
+    tableRows + '</table>';
+  el('btnSeasonNew').textContent = s.done ? 'Start a season' : 'Scrap it, start again';
+}
+
+function startSeason(){
+  SAVE.season = newSeason(SAVE.team && leagueOf(SAVE.team).k === SAVE.team ? SAVE.team : 'sandlot');
+  SAVE.mode = 'franchise';
+  saveNow();
+  paintSeason();
+}
+
+/* =========================================================================
+   story
+   ========================================================================= */
+function paintStory(){
+  var at = SAVE.story || 0, h = '';
+  for(var i = 0; i < STORY.length; i++){
+    var c = STORY[i];
+    var cls = i < at ? ' done' : (i === at ? ' now' : '');
+    h += '<div class="chapter' + cls + '"><div class="pw">' +
+      '<div class="cn">' + (i + 1) + '. ' + esc(c.title) + '</div>' +
+      '<div class="cd">' + esc(i <= at ? c.brief : 'Locked') +
+      (i <= at ? '<br><b style="color:var(--amber)">' + esc(c.goal) + '</b> · +' + c.pay.toLocaleString() : '') +
+      '</div></div>' + (i < at ? '<div class="tick">✓</div>' : '') + '</div>';
+  }
+  el('storyBody').innerHTML = h;
+  if(storyDone()){
+    el('storySub').textContent = 'All seven done. The name is on the wall.';
+    el('btnStoryPlay').style.display = 'none';
+  } else {
+    var ch = storyChapter(at);
+    el('storySub').textContent = 'Chapter ' + (at + 1) + ': ' + ch.goal + ', on ' +
+      (ch.surface === 'roller' ? 'the roller court' : 'ice') + '.';
+    el('btnStoryPlay').style.display = '';
+    el('btnStoryPlay').textContent = 'Play chapter ' + (at + 1);
+  }
+}
+
+function playStoryChapter(){
+  var ch = storyChapter(SAVE.story || 0);
+  if(!ch) return;
+  SAVE.mode = 'story';
+  G.surface = ch.surface;
+  G.diff = ch.diff;
+  G.humans = 1;
+  oppOverride = null;
+  saveNow();
+  closeMeta2();
+  buildWorld();
+  startGame();
+}
+
+function playSeasonGame(){
+  var fx = nextFixture();
+  if(!fx) return;
+  SAVE.mode = 'franchise';
+  G.humans = 1;
+  oppOverride = null;
+  // a stronger club is a harder night
+  var str = leagueOf(fx.opp).str;
+  G.diff = str >= 1.06 ? 2 : (str >= 0.95 ? 1 : 0);
+  saveNow();
+  closeMeta2();
+  startGame();
+}
+
+/* =========================================================================
+   wiring
+   ========================================================================= */
+function meta2Delegate(id, attr, fn){
+  el(id).addEventListener('click', function(e){
+    var b = e.target.closest('[' + attr + ']');
+    if(!b || b.disabled) return;
+    sfx.on();
+    fn(b.getAttribute(attr), b);
+  });
+}
+
+meta2Delegate('modeList', 'data-m', function(k){ pickMode(k); });
+meta2Delegate('kitList', 'data-kit', function(k){ pickKit(k); });
+meta2Delegate('custShape', 'data-shape', function(v){ cust.shape = v; paintCustom(); });
+meta2Delegate('custPaint', 'data-paint', function(v){ cust.paint = parseInt(v, 10); paintCustom(); });
+meta2Delegate('custTape', 'data-tape', function(v){ cust.tape = parseInt(v, 10); paintCustom(); });
+meta2Delegate('custGrade', 'data-grade', function(v){ cust.grade = v; paintCustom(); });
+
+el('btnModes').addEventListener('click', function(){ sfx.on(); showMeta2('ovModes'); paintModes(); });
+el('btnJersey').addEventListener('click', function(){ sfx.on(); showMeta2('ovJersey'); paintKits(); });
+el('btnCustom').addEventListener('click', function(){ sfx.on(); showMeta2('ovCustom'); paintCustom(); });
+
+el('btnModesBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnJerseyBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnCustBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnSeasonBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+el('btnStoryBack').addEventListener('click', function(){ sfx.on(); closeMeta2(); openMenu(); });
+
+el('swPro').addEventListener('click', function(){
+  sfx.on();
+  SAVE.pro = !SAVE.pro;
+  saveNow();
+  el('swPro').setAttribute('aria-pressed', proOn() ? 'true' : 'false');
+});
+
+el('custName').addEventListener('input', paintCustom);
+el('btnCustBuy').addEventListener('click', function(){
+  sfx.on();
+  var c = buyCustomStick(cust.shape, cust.grade, cust.paint, cust.tape, el('custName').value);
+  el('custNote').textContent = c
+    ? 'Built, and you are holding it. Swap back in My Team any time.'
+    : 'Not enough coins for that grade.';
+  if(c) paintCustom();
+});
+
+el('btnSeasonPlay').addEventListener('click', function(){ sfx.on(); playSeasonGame(); });
+el('btnSeasonNew').addEventListener('click', function(){ sfx.on(); startSeason(); });
+el('btnStoryPlay').addEventListener('click', function(){ sfx.on(); playStoryChapter(); });
+el('btnStoryReset').addEventListener('click', function(){
+  sfx.on();
+  SAVE.story = 0; saveNow(); paintStory();
+});
+
+/* =========================================================================
    9. CAMERA, HUD, MENUS, LOOP
    ========================================================================= */
 var camCur = {x:0, y:20, z:34, lx:0, ly:0, lz:0};
@@ -3427,7 +4122,8 @@ function showPads(on){
 }
 function closeMenus(){
   ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
-   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends'].forEach(function(id){ el(id).classList.remove('on'); });
+   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends',
+   'ovModes','ovJersey','ovCustom','ovSeason','ovStory'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
@@ -3459,13 +4155,15 @@ function openMenu(){
   el('keyCard').innerHTML = keyCardHTML();
   el('rowDiff').style.display = G.humans === 2 ? 'none' : '';
   paintWallet();
+  applyKits();
   if(!world) buildWorld();
   if(!skaters.length) createTeams();
   resetPositions();
 }
 
 function startGame(){
-  G.score = [0, 0]; G.period = 1; G.clock = PERIOD_LEN; G.ot = false; G.tut = null;
+  G.score = [0, 0]; G.period = 1; G.clock = periodLen(); G.ot = false; G.tut = null;
+  applyKits();
   buildWorld();
   createTeams();
   closeMenus();
@@ -3511,11 +4209,19 @@ seg('segPlayers', function(v){
   createTeams();
 });
 seg('segDiff', function(v){ G.diff = parseInt(v, 10); });
-el('btnPlay').addEventListener('click', function(){ sfx.on(); oppOverride = null; startGame(); });
+el('btnPlay').addEventListener('click', function(){
+  sfx.on(); oppOverride = null;
+  SAVE.mode = 'exhibition'; saveNow();   // a season game or a chapter is started from its own screen
+  startGame();
+});
 el('btnTut').addEventListener('click', function(){ sfx.on(); startTutorial(); });
 el('btnResume').addEventListener('click', function(){ sfx.on(); togglePause(); });
 el('btnQuit').addEventListener('click', function(){ sfx.on(); openMenu(); });
-el('btnAgain').addEventListener('click', function(){ sfx.on(); startGame(); });
+el('btnAgain').addEventListener('click', function(){
+  sfx.on();
+  if(SAVE.mode === 'story' || SAVE.mode === 'franchise'){ SAVE.mode = 'exhibition'; saveNow(); }
+  startGame();
+});
 el('btnMenu2').addEventListener('click', function(){ sfx.on(); openMenu(); });
 function endTutorialCast(){
   for(var i = 0; i < skaters.length; i++){ skaters[i].hidden = false; skaters[i].model.visible = true; }

@@ -12,7 +12,9 @@ const vm = require('vm');
 const path = require('path');
 
 const PARTS = path.join(__dirname, '..', 'parts');
-const metaSrc = fs.readFileSync(path.join(PARTS, '45-meta.js'), 'utf8');
+// loadSave() migrates through 47-career2.js, so the two ship and test together
+const metaSrc = fs.readFileSync(path.join(PARTS, '45-meta.js'), 'utf8') + '\n' +
+                fs.readFileSync(path.join(PARTS, '47-career2.js'), 'utf8');
 const playersSrc = fs.readFileSync(path.join(PARTS, '30-players.js'), 'utf8');
 
 const store = {};
@@ -24,6 +26,8 @@ const ctx = {
   },
   btoa: s => Buffer.from(s, 'binary').toString('base64'),
   atob: s => Buffer.from(s, 'base64').toString('binary'),
+  MATS: null,                       // no renderer in here, so applyKits no-ops
+  STICK_LOOKS: {twig:{}, birch:{}, howitz:{}},
   unescape, escape, Math, Date, JSON, console
 };
 vm.createContext(ctx);

@@ -130,7 +130,8 @@ function showPads(on){
 }
 function closeMenus(){
   ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
-   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends'].forEach(function(id){ el(id).classList.remove('on'); });
+   'ovShop','ovReveal','ovTeam','ovTravel','ovFriends',
+   'ovModes','ovJersey','ovCustom','ovSeason','ovStory'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){
@@ -162,13 +163,15 @@ function openMenu(){
   el('keyCard').innerHTML = keyCardHTML();
   el('rowDiff').style.display = G.humans === 2 ? 'none' : '';
   paintWallet();
+  applyKits();
   if(!world) buildWorld();
   if(!skaters.length) createTeams();
   resetPositions();
 }
 
 function startGame(){
-  G.score = [0, 0]; G.period = 1; G.clock = PERIOD_LEN; G.ot = false; G.tut = null;
+  G.score = [0, 0]; G.period = 1; G.clock = periodLen(); G.ot = false; G.tut = null;
+  applyKits();
   buildWorld();
   createTeams();
   closeMenus();
@@ -214,11 +217,19 @@ seg('segPlayers', function(v){
   createTeams();
 });
 seg('segDiff', function(v){ G.diff = parseInt(v, 10); });
-el('btnPlay').addEventListener('click', function(){ sfx.on(); oppOverride = null; startGame(); });
+el('btnPlay').addEventListener('click', function(){
+  sfx.on(); oppOverride = null;
+  SAVE.mode = 'exhibition'; saveNow();   // a season game or a chapter is started from its own screen
+  startGame();
+});
 el('btnTut').addEventListener('click', function(){ sfx.on(); startTutorial(); });
 el('btnResume').addEventListener('click', function(){ sfx.on(); togglePause(); });
 el('btnQuit').addEventListener('click', function(){ sfx.on(); openMenu(); });
-el('btnAgain').addEventListener('click', function(){ sfx.on(); startGame(); });
+el('btnAgain').addEventListener('click', function(){
+  sfx.on();
+  if(SAVE.mode === 'story' || SAVE.mode === 'franchise'){ SAVE.mode = 'exhibition'; saveNow(); }
+  startGame();
+});
 el('btnMenu2').addEventListener('click', function(){ sfx.on(); openMenu(); });
 function endTutorialCast(){
   for(var i = 0; i < skaters.length; i++){ skaters[i].hidden = false; skaters[i].model.visible = true; }

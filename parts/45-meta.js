@@ -79,7 +79,8 @@ function freshSave(){
     v: 1, coins: 400, wins: 0, losses: 0, draws: 0, gf: 0, ga: 0,
     sticks: [], skaters: [], stick: null, line: [],
     teams: ['sandlot'], team: 'sandlot',
-    handle: '', friends: [], opened: 0
+    handle: '', friends: [], opened: 0,
+    kit: 'home', pro: false, story: 0, season: null, mode: 'exhibition'
   };
   var twig = mintStick('twig', 'common');
   s.sticks.push(twig); s.stick = twig.u;
@@ -118,10 +119,11 @@ function loadSave(){
   if(raw){
     try {
       var p = JSON.parse(raw);
-      if(p && p.v === 1 && p.sticks && p.skaters){ SAVE = p; repairSave(); return; }
+      if(p && p.v === 1 && p.sticks && p.skaters){ SAVE = p; repairSave(); migrateCareer2(); return; }
     } catch(e){}
   }
   SAVE = freshSave();
+  migrateCareer2();
   saveNow();
 }
 
@@ -239,7 +241,7 @@ function matchReward(){
   var goals = a * 12;
   var shut = (a > b && b === 0) ? 60 : 0;
   var diffBonus = [0, 20, 45][G.diff] || 0;
-  var total = Math.round((base + goals + shut + diffBonus) * t.pay);
+  var total = Math.round((base + goals + shut + diffBonus) * t.pay * (proOn() ? PRO.payMult : 1));
   SAVE.coins += total;
   SAVE.gf += a; SAVE.ga += b;
   if(a > b) SAVE.wins++; else if(a === b) SAVE.draws++; else SAVE.losses++;

@@ -35,9 +35,13 @@ function esc(s){
 /* ---- wallet ---- */
 function paintWallet(){
   var n = SAVE.coins.toLocaleString();
-  ['walletN','shopN','travN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
+  ['walletN','shopN','travN','custN'].forEach(function(id){ var e = el(id); if(e) e.textContent = n; });
   var rec = el('walletRec');
-  if(rec) rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n;
+  if(rec){
+    var modeName = SAVE.mode === 'franchise' ? 'Franchise' : (SAVE.mode === 'story' ? 'Story' : 'Exhibition');
+    rec.textContent = SAVE.wins + '-' + SAVE.losses + '-' + SAVE.draws + ' · ' + teamOf(SAVE.team).n +
+      ' · ' + modeName + (proOn() ? ' · Pro' : '');
+  }
 }
 
 /* ---- overlay plumbing ---- */

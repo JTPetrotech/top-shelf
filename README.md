@@ -14,6 +14,16 @@ Play it: **https://jtpetrotech.github.io/top-shelf/**
   where it is on the far side from whoever is leaning on you. It is on a
   cooldown, and the CPU uses it too.
 
+## Modes
+
+- **Exhibition** — one game, nothing tracked.
+- **Franchise** — a season: home and away against seven rivals, a live table,
+  rival results simulated around you, and a cheque for whoever finishes top.
+- **Story** — seven chapters, each asking for something specific: win by two,
+  keep a clean sheet, beat the All-Stars. Clear one and it pays a bonus.
+- **Pro mode** — a toggle on any of them. Ninety-second periods, aim assist cut
+  to a quarter, sharper goalies and opponents, and 1.8x on every payout.
+
 ## Career
 
 Winning pays coins. Coins buy packs; packs hold sticks and skater cards in four
@@ -32,6 +42,13 @@ rarities; cards change how you actually play.
   theirs back and their actual team skates against you as the CPU. Codes are
   checksummed, so one clipped by a messaging app is refused rather than
   quietly read as the wrong squad.
+
+- **Custom sticks** — pick the shape (which sets the stats), the shaft colour
+  and the tape, then pay for the grade you want: Rare 1,500, Epic 4,500,
+  Legendary 14,000. No pack, no gamble, and it is yours on the ice.
+- **Jerseys** — three kits come with the club. Every travel team you buy hands
+  you its kit free. The away side is always picked for colour contrast, so the
+  two teams can never turn up looking alike.
 
 There is no real money anywhere in this game and there never should be. Coins
 come from playing, and everything lives in localStorage on your own device —
@@ -78,6 +95,7 @@ reports any external reference left in the output (should always be `none`).
 node test/career.test.js
 node test/dangle.test.js
 node test/goal.test.js
+node test/career2.test.js
 ```
 
 No framework. It loads `parts/45-meta.js` into a sandbox with a fake

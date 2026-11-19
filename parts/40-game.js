@@ -58,7 +58,7 @@ function createTeams(){
       stun: 0, charge: 0, charging: false, shootCool: 0, followT: 0,
       carrySide: 1, dangleT: 0, dangleCool: 0, aiDangle: 1 + Math.random() * 2, slapT: 0,
       jitter: Math.random() * 6.28, think: 0,
-      model: buildSkater(d.team, d.card.num, roller, d.stick.k)
+      model: buildSkater(d.team, d.card.num, roller, d.stick.look || d.stick.k)
     };
     world.add(s.model);
     skaters.push(s);
@@ -265,11 +265,12 @@ function shoot(s, power, slap){
   var a = s.face;
   var aim = s.stickAc || 1;
   if(!s.ctrlBy){
-    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim;
+    a += (Math.random() - 0.5) * D().err * 2 * (1 - power * 0.35) / aim / (proOn() ? PRO.oppAcc : 1);
   } else {
     var toNet = Math.atan2((Math.random() - 0.5) * (MOUTH * 1.3 / aim) - s.z, gx - s.x);
     var dd = angNorm(toNet - a);
-    if(Math.abs(dd) < 0.42 * aim) a += dd * Math.min(0.9, 0.6 * aim);   // aim assist, widened by the stick
+    var help = proOn() ? PRO.aimAssist : 1;   // pro mode takes the help off
+    if(Math.abs(dd) < 0.42 * aim * help) a += dd * Math.min(0.9, 0.6 * aim) * help;
   }
   var blade = localToWorld(s, 1.15, carryLat(s));
   puck.x = blade.x; puck.z = blade.z; puck.y = PUCK_R + 0.02;
@@ -450,7 +451,7 @@ function stepGoalie(g, dt){
   var dir = g.team === 0 ? -1 : 1;                 // which way their net faces
   var own = dir * GOAL_X;
   var near = g.team === 0 ? (puck.x < 4) : (puck.x > -4);
-  var skill = D().gk * (G.humans === 2 ? 0.92 : (g.team === 0 ? 0.9 : 1));
+  var skill = D().gk * (G.humans === 2 ? 0.92 : (g.team === 0 ? 0.9 : 1)) * (proOn() ? PRO.goalieBoost : 1);
   var tz = 0;
   if(near){
     var aim = puck.z + puck.vz * 0.1;
@@ -600,6 +601,8 @@ function goal(team){
   G.faceoffT = 2.0;
 }
 
+function periodLen(){ return proOn() ? PRO.periodLen : PERIOD_LEN; }
+
 function endPeriod(){
   sfx.whistle();
   if(G.period < PERIODS){
@@ -611,10 +614,10 @@ function endPeriod(){
     el('ovBreak').classList.add('on');
     setTimeout(function(){
       el('ovBreak').classList.remove('on');
-      G.period++; G.clock = PERIOD_LEN; paintBug(); paintJumbo(); faceoff('Face-off');
+      G.period++; G.clock = periodLen(); paintBug(); paintJumbo(); faceoff('Face-off');
     }, 2400);
   } else if(G.score[0] === G.score[1]){
-    G.ot = true; G.clock = PERIOD_LEN; paintBug();
+    G.ot = true; G.clock = periodLen(); paintBug();
     G.phase = 'break';
     el('breakTitle').textContent = 'Overtime';
     el('breakScore').innerHTML = G.score[0] + ' &ndash; ' + G.score[1];
@@ -636,6 +639,26 @@ function endGame(){
     el('overNote').textContent = p1Won ? 'Three stars, all yours. Try All-Star next.'
       : (a === b ? 'Nobody blinked.' : 'They found the slot too often. Tighten up the back end.');
   }
+  var extra = '';
+  if(G.humans === 1 && SAVE.mode === 'franchise' && SAVE.season && !SAVE.season.done){
+    var fx = recordSeasonGame(a, b);
+    if(fx){
+      var sn = SAVE.season;
+      extra = sn.done
+        ? '<br><span style="color:var(--green)">Season over ' + '— ' + esc(leagueOf(sn.champion).n) +
+          ' take it' + (sn.champion === sn.team ? ' (that is you)' : '') + '.</span>'
+        : '<br><span style="color:var(--muted);font-size:12.5px">Game ' + sn.game + ' of ' +
+          sn.games.length + ' played.</span>';
+    }
+  } else if(G.humans === 1 && SAVE.mode === 'story'){
+    var st = finishStoryChapter(a, b);
+    if(st){
+      extra = st.passed
+        ? '<br><span style="color:var(--green)">' + esc(st.chapter.title) + ' cleared, +' +
+          st.pay.toLocaleString() + ' bonus.</span>'
+        : '<br><span style="color:var(--away)">Not this time: ' + esc(st.chapter.goal) + '.</span>';
+    }
+  }
   var pay = matchReward();
   if(pay){
     var bits = [(a > b ? 'Win ' : (a === b ? 'Draw ' : 'Loss ')) + pay.base];
@@ -644,7 +667,10 @@ function endGame(){
     if(pay.diff) bits.push('skill ' + pay.diff);
     el('overNote').innerHTML = el('overNote').textContent + '<br><span style="color:var(--amber)">+' +
       pay.total.toLocaleString() + ' coins</span> <span style="color:var(--muted);font-size:12.5px">— ' +
-      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') + '</span>';
+      bits.join(', ') + (pay.mult !== 1 ? ', ×' + pay.mult.toFixed(2) + ' with ' + pay.team : '') +
+      (proOn() ? ', ×' + PRO.payMult + ' pro' : '') + '</span>' + extra;
+  } else if(extra){
+    el('overNote').innerHTML = el('overNote').textContent + extra;
   }
   el('overScore').innerHTML = a + ' &ndash; ' + b;
   el('ovOver').classList.add('on');
