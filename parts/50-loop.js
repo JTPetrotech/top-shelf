@@ -145,7 +145,8 @@ function showPads(on){
 function closeMenus(){
   ['ovBoot','ovMenu','ovPause','ovBreak','ovOver',
    'ovShop','ovReveal','ovTeam','ovTravel','ovFriends',
-   'ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'].forEach(function(id){ el(id).classList.remove('on'); });
+   'ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager',
+   'ovCloud','ovMerge'].forEach(function(id){ el(id).classList.remove('on'); });
 }
 
 function keyCardHTML(){

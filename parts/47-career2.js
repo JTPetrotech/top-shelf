@@ -251,6 +251,8 @@ function migrateCareer2(){
   if(typeof SAVE.story !== 'number') SAVE.story = 0;
   if(SAVE.season && (!SAVE.season.games || !SAVE.season.table)) SAVE.season = null;
   if(SAVE.season === undefined) SAVE.season = null;
+  if(typeof SAVE.rev !== 'number') SAVE.rev = 0;
+  if(typeof SAVE.updated !== 'number') SAVE.updated = 0;
   SAVE.mode = SAVE.mode || 'exhibition';   // exhibition | franchise | story | manager
   if(!tacticOf(SAVE.tactic) || !SAVE.tactic) SAVE.tactic = 'balance';
 }

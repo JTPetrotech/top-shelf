@@ -125,7 +125,8 @@ function freshSave(){
     sticks: [], skaters: [], stick: null, line: [],
     teams: ['sandlot'], team: 'sandlot',
     handle: '', friends: [], opened: 0,
-    kit: 'home', pro: false, story: 0, season: null, mode: 'exhibition'
+    kit: 'home', pro: false, story: 0, season: null, mode: 'exhibition',
+    rev: 0, updated: 0
   };
   var twig = mintStick('twig', 'common');
   s.sticks.push(twig); s.stick = twig.u;
@@ -198,6 +199,8 @@ function repairSave(){
 
 function saveNow(){
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch(e){}
+  // localStorage is the real save; the cloud is a copy, and only if signed in
+  if(typeof cloudPush === 'function') cloudPush();
 }
 
 function findCard(u){

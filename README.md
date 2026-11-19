@@ -121,3 +121,38 @@ rink, and that the puck sweeps across rather than teleporting.
 
 Built with [three.js](https://threejs.org) r128 (MIT). Fonts are Bebas Neue and
 Barlow, both SIL Open Font License.
+
+## Cloud save (optional)
+
+Out of the box the career lives in this browser's localStorage and nothing
+leaves the device. Fill in a Firebase project and an **Account** button appears
+that makes the same career follow you to any device.
+
+It is strictly additive. With the config blank, the Firebase SDK is never
+fetched and the page keeps its zero-external-references property. Even signed
+in, localStorage stays the real save — the cloud is a copy, writes are
+debounced, and a failed sync never interrupts a game.
+
+Use **the same Firebase project as Side Pot**, so one account covers both
+games. Paste the web config into `CLOUD_CONFIG` at the top of
+`parts/49-cloud.js` and rebuild.
+
+Top Shelf keeps its own collection so the two games cannot tread on each
+other's document. Firestore rules:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /players/{uid} {            // Side Pot
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /topshelf/{uid} {           // Top Shelf
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+If both devices have played, signing in does **not** silently pick a winner —
+it shows what is in each save and asks which to keep.

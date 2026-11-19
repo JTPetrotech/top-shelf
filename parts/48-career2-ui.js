@@ -3,7 +3,7 @@
    8.8  SCREENS FOR MODES, JERSEYS, CUSTOM STICKS, SEASON AND STORY
    ========================================================================= */
 
-var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager'];
+var META_OVS2 = ['ovModes','ovJersey','ovCustom','ovSeason','ovStory','ovManager','ovCloud','ovMerge'];
 function closeMeta2(){ META_OVS2.forEach(function(id){ el(id).classList.remove('on'); }); }
 function showMeta2(id){
   closeMenus();

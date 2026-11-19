@@ -391,6 +391,7 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
         <button class="mini" id="btnModes">Mode</button>
         <button class="mini" id="btnJersey">Jerseys</button>
         <button class="mini" id="btnCustom">Custom stick</button>
+        <button class="mini" id="btnCloud">Account</button>
       </div>
 
       <div class="row">
@@ -590,6 +591,39 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
         <button class="go" id="btnSeasonPlay">Play next game</button>
         <button class="go alt" id="btnSeasonNew">New season</button>
         <button class="go alt" id="btnSeasonBack">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- account / cloud save -->
+  <div class="ov" id="ovCloud">
+    <div class="card">
+      <h2>Account</h2>
+      <p class="sub" id="cloudSub">Your career is saved on this device. Sign in and it follows you to any other one.</p>
+      <div id="cloudBody"></div>
+      <div class="codebox" id="cloudNameRow"><input id="cloudName" maxlength="24" placeholder="Your name" autocomplete="name"></div>
+      <div class="codebox" id="cloudEmailRow"><input id="cloudEmail" type="email" placeholder="Email" autocomplete="email" spellcheck="false"></div>
+      <div class="codebox" id="cloudPwRow"><input id="cloudPw" type="password" placeholder="Password" autocomplete="current-password"></div>
+      <p class="note2" id="cloudNote"></p>
+      <div class="btns" id="cloudBtns">
+        <button class="go" id="btnCloudIn">Sign in</button>
+        <button class="go alt" id="btnCloudUp">Create account</button>
+        <button class="go alt" id="btnCloudOut">Sign out</button>
+        <button class="go alt" id="btnCloudForgot">Forgot password</button>
+        <button class="go alt" id="btnCloudBack">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- which save wins -->
+  <div class="ov" id="ovMerge">
+    <div class="card">
+      <h2>Two saves</h2>
+      <p class="sub">There is a career on this device and a different one on your account. Keeping one means losing the other, so pick deliberately.</p>
+      <div id="mergeBody"></div>
+      <div class="btns">
+        <button class="go" id="btnKeepCloud">Use the account one</button>
+        <button class="go alt" id="btnKeepLocal">Keep this device</button>
       </div>
     </div>
   </div>

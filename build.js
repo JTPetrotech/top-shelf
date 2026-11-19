@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = __dirname;
-const PARTS = ['00-head.html', '10-core.js', '20-world.js', '30-players.js', '40-game.js', '45-meta.js', '46-meta-ui.js', '47-career2.js', '48-career2-ui.js', '50-loop.js'];
+const PARTS = ['00-head.html', '10-core.js', '20-world.js', '30-players.js', '40-game.js', '45-meta.js', '46-meta-ui.js', '47-career2.js', '48-career2-ui.js', '49-cloud.js', '50-loop.js'];
 const THREE_FILE = path.join(DIR, 'vendor', 'three.r128.min.js');
 const FONT_CSS = path.join(DIR, 'vendor', 'fonts.css');
 const FONT_INLINE = path.join(DIR, 'vendor', 'fonts-inline.css');
@@ -74,6 +74,10 @@ function assemble(){
   const left = html.match(/(https?:)?\/\/(fonts\.|cdnjs|unpkg|cdn\.)[^"')\s]*/g);
   console.log('wrote index.html  ' + Math.round(html.length/1024) + ' KB');
   console.log('external references remaining: ' + (left ? left.join(', ') : 'none'));
+  // The Firebase SDK is only ever fetched if someone configures cloud save AND
+  // signs in. Say so rather than letting the line above imply it is not there.
+  const fb = html.match(/https:\/\/www\.gstatic\.com\/firebasejs\/[\d.]+\//);
+  if(fb) console.log('lazy, only on sign-in: ' + fb[0]);
 }
 
 (async function(){
