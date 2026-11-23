@@ -5,6 +5,11 @@ no internet connection required once the page has loaded.
 
 Play it: **https://jtpetrotech.github.io/top-shelf/**
 
+The main menu and the pause screen both have a way back to The Arcade, the hub
+the games live on at `https://jtpetrotech.github.io/`. It is a plain `<a href>`
+rather than a scripted button, so the way out still works even on a build where
+the script does not.
+
 ## Modes
 
 - **Ice** — five a side plus goalies. Fast, loose, long glides.

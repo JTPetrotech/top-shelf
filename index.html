@@ -142,6 +142,7 @@ button:focus-visible{outline:3px solid #9ec6f7;outline-offset:3px}
 .navrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 auto 16px;max-width:430px}
 .mini{font-family:var(--body);font-weight:800;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
   padding:10px 14px;border-radius:9px;border:1px solid #2b3a4f;background:#111a26;color:var(--muted);cursor:pointer;
+  text-decoration:none;display:inline-block;
   transition:background .12s,color .12s,border-color .12s}
 .mini:hover:not(:disabled){color:var(--text);border-color:#45597a}
 .mini.hot{background:var(--amber);border-color:var(--amber);color:#0a1016}
@@ -397,6 +398,12 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
         <button class="mini" id="btnCloud">Account</button>
       </div>
 
+      <!-- The way back to the hub. A real link, not a scripted button, so it
+           still works on a build where the script never runs. -->
+      <div class="navrow">
+        <a class="mini" href="https://jtpetrotech.github.io/">The Arcade</a>
+      </div>
+
       <div class="row">
         <div class="lab">Surface</div>
         <div class="seg" id="segSurface">
@@ -438,6 +445,9 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
       <div class="btns">
         <button class="go" id="btnResume">Resume</button>
         <button class="go alt" id="btnQuit">Main menu</button>
+      </div>
+      <div class="navrow" style="margin-bottom:0">
+        <a class="mini" href="https://jtpetrotech.github.io/">Exit to the Arcade</a>
       </div>
     </div>
   </div>
