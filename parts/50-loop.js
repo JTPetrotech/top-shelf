@@ -404,4 +404,19 @@ if(document.fonts && document.fonts.ready){
   setTimeout(boot, 60);
 }
 setTimeout(boot, 2500);          // never wait on fonts forever
+
+/* ---- controller in the menus ----
+   05-padnav.js drives every menu with a pad. During play the pad is the
+   stick and the buttons belong to the skater, so it stands aside then; Start
+   pauses and unpauses either way, and skips the tutorial. */
+if(window.PadNav){
+PadNav.active = function(){
+  return !(G.phase === 'play' || G.phase === 'faceoff' || G.phase === 'celebrate' || G.phase === 'tutorial');
+};
+/* the tutorial has no pause, only a Skip button the pad cannot reach mid-drill */
+PadNav.onStart = function(){
+  if(G.phase === 'tutorial') el('coachSkip').click();
+  else togglePause();
+};
+}
 })();
