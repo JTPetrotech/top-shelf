@@ -324,6 +324,56 @@ table.tbl tr.me td{color:var(--amber);font-weight:800}
   font-family:var(--display);font-size:30px;letter-spacing:.04em;padding:28px;text-align:center}
 @media (orientation:portrait) and (max-height:620px){#rotate.armed{display:grid}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------------- polish: the menus as lit panels ----------------
+   Layered on top of everything above, so the menus keep their structure and
+   every id the game reaches for. A panel with a blue rim light, a glowing
+   title, chips that lift, and options that light up when chosen. */
+.ov{background:
+  radial-gradient(70% 55% at 50% 0%, rgba(47,127,224,.28), transparent 70%),
+  radial-gradient(90% 70% at 50% 40%, rgba(10,18,30,.80), rgba(3,6,10,.94))}
+.ov .card{position:relative;padding:28px 26px 26px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(20,32,50,.86),rgba(9,15,24,.9));
+  border:1px solid rgba(94,155,234,.28);
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03) inset,0 1px 0 rgba(255,255,255,.08) inset;
+  scrollbar-width:thin;scrollbar-color:#2f4664 transparent}
+.ov .card::before{content:"";position:absolute;left:18%;right:18%;top:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--home),#9ec6f7,var(--home),transparent)}
+.ov.on .card{animation:tsRise .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes tsRise{from{opacity:0;transform:translateY(16px) scale(.985)}}
+#ovBoot .card{background:none;border:0;box-shadow:none}
+#ovBoot .card::before{display:none}
+
+h1{text-shadow:0 4px 0 rgba(0,0,0,.35)}
+h1 em{text-shadow:0 0 8px rgba(255,196,61,.7),0 0 26px rgba(255,196,61,.45),0 0 60px rgba(255,150,40,.3)}
+h2{text-shadow:0 0 22px rgba(47,127,224,.45)}
+
+.wallet{background:linear-gradient(180deg,#16233a,#0d1624);border-color:rgba(255,196,61,.35);
+  box-shadow:0 0 18px -6px rgba(255,196,61,.6)}
+
+.mini{border-radius:999px;background:linear-gradient(180deg,#152236,#0e1726);border-color:#2a3d58;
+  transition:transform .14s,background .14s,color .14s,border-color .14s,box-shadow .14s}
+.mini:hover:not(:disabled),.mini.pn-focus{transform:translateY(-2px);color:#fff;border-color:var(--home);
+  box-shadow:0 8px 20px -8px rgba(47,127,224,.8)}
+
+.row>.lab{color:#9ec6f7;font-weight:700;display:flex;align-items:center;gap:8px}
+.row>.lab::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(94,155,234,.35),transparent)}
+.seg button{background:linear-gradient(180deg,#132033,#0d1624);border-color:#25364e;
+  transition:transform .14s,background .14s,color .14s,border-color .14s,box-shadow .14s}
+.seg button:hover:not(:disabled){color:var(--text);border-color:#45597a;transform:translateY(-1px)}
+.seg button[aria-pressed="true"]{background:linear-gradient(180deg,#3c8cf0,#2167c4);border-color:#8fbaf2;
+  box-shadow:0 10px 24px -10px rgba(47,127,224,.95),inset 0 1px 0 rgba(255,255,255,.25)}
+
+.keys div{background:linear-gradient(180deg,#121d2d,#0c1521);border-color:#22324a}
+
+.go{background:linear-gradient(180deg,#ffd76a,#ffb81f);
+  box-shadow:0 5px 0 #b3842a,0 14px 30px -10px rgba(255,196,61,.75);transition:transform .12s,box-shadow .12s,filter .12s}
+.go:hover,.go.pn-focus{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 7px 0 #b3842a,0 18px 36px -10px rgba(255,196,61,.85)}
+.go.alt{background:linear-gradient(180deg,#22324a,#18243a);box-shadow:0 5px 0 #0e1724,0 12px 26px -12px rgba(0,0,0,.8)}
+.go.alt:hover,.go.alt.pn-focus{box-shadow:0 7px 0 #0e1724,0 16px 30px -12px rgba(47,127,224,.6)}
+.go:active{transform:translateY(3px)}
+
+@media (prefers-reduced-motion:reduce){.ov.on .card{animation:none}.mini,.seg button,.go{transition:none}}
 </style>
 </head>
 <body>
